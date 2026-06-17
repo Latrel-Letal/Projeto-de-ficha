@@ -171,11 +171,11 @@
   /* ── LAYOUT PRINCIPAL (GRID COM CHAT) ── */
   .main-layout { 
     display: none; 
-    height: calc(100vh - 60px); /* Altura total menos o header */
+    height: calc(100vh - 60px); 
   }
   .main-layout.visible { 
     display: grid; 
-    grid-template-columns: 1fr 350px; /* Área principal e área do chat */
+    grid-template-columns: 1fr 350px; 
   }
  
   .fichas-container {
@@ -543,4 +543,629 @@
   .tecnica-item {
     background: var(--bg3);
     border: 1px solid var(--border);
-    border-radius: 8px
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .tecnica-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .tecnica-nome { font-size: 13px; font-weight: 600; color: var(--text); }
+  .tecnica-custo {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--blue);
+    background: rgba(74,158,255,0.1);
+    border: 1px solid rgba(74,158,255,0.3);
+    border-radius: 20px;
+    padding: 2px 8px;
+    white-space: nowrap;
+  }
+  .tecnica-efeito { font-size: 11px; color: var(--text2); }
+  .tecnica-desc { font-size: 11px; color: var(--text2); font-style: italic; }
+ 
+  /* ── DOMÍNIO ── */
+  .dominio-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .dominio-box.expansao {
+    border-color: rgba(168,85,247,0.5);
+    background: linear-gradient(135deg, #0f0a1a, #160e22);
+  }
+  .dominio-box.simples {
+    border-color: rgba(74,158,255,0.4);
+    background: linear-gradient(135deg, #0a0f1a, #0e1622);
+  }
+  .dominio-title {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .dominio-box.expansao .dominio-title { color: var(--purple); }
+  .dominio-box.simples  .dominio-title { color: var(--blue); }
+  .dominio-desc { font-size: 11px; color: var(--text2); line-height: 1.6; }
+  .dominio-efeito {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--text);
+    background: rgba(255,255,255,0.04);
+    border-radius: 6px;
+    padding: 8px 10px;
+    line-height: 1.5;
+  }
+ 
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 24px; 
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-size: 13px;
+    color: var(--text);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    z-index: 999;
+    max-width: 280px;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.success { border-color: var(--online); color: var(--online); }
+  .toast.error   { border-color: var(--red); color: var(--red); }
+</style>
+</head>
+<body>
+ 
+<!-- ════════════════════════════════════
+     TELA DE SELEÇÃO DE SESSÃO/JOGADOR
+════════════════════════════════════ -->
+<div class="player-select-screen" id="selectScreen">
+  <div>
+    <h1 class="player-select-title">✦ JUJUTSU KAISEN RPG ✦</h1>
+    <p class="player-select-subtitle">Fichas de Personagem — Sessão Colaborativa</p>
+  </div>
+ 
+  <div class="session-id-box">
+    <label>CÓDIGO DA SESSÃO</label>
+    <input type="text" id="sessionInput" placeholder="Ex: SESSAO01" maxlength="20">
+    <button class="btn-enter" onclick="entrarSessao()">ENTRAR NA SESSÃO</button>
+  </div>
+ 
+  <div id="playerGrid" class="player-grid" style="display:none">
+    <p style="color:var(--text2);font-size:13px;text-align:center;grid-column:1/-1;">Escolha seu slot de personagem:</p>
+  </div>
+</div>
+ 
+<!-- ════════════════════════════════════
+     LAYOUT PRINCIPAL — FICHAS E CHAT
+════════════════════════════════════ -->
+<header class="app-header" id="appHeader" style="display:none">
+  <span class="app-title">✦ Jujutsu Kaisen RPG</span>
+  <div class="session-info">
+    <span><span class="online-dot"></span> <span id="onlineCount">0</span> online</span>
+    <span id="sessionLabel" style="color:var(--gold)"></span>
+    <span id="mySlotLabel" style="color:var(--purple)"></span>
+  </div>
+</header>
+ 
+<div class="main-layout" id="mainLayout">
+  <!-- ÁREA DAS FICHAS -->
+  <div class="fichas-container" id="fichasContainer"></div>
+
+  <!-- SIDEBAR (ROLADOR E CHAT) -->
+  <div class="sidebar">
+    <div class="dice-roller-area">
+      <div class="section-label" style="margin-bottom: 12px;">Rolar Dados</div>
+      <div class="dice-inputs">
+        <input type="number" id="diceQty" value="1" min="1" max="50">
+        <span>d</span>
+        <input type="number" id="diceSides" value="20" min="2" max="100">
+      </div>
+      <button class="btn-roll" onclick="rolarDadoPersonalizado()">🎲 ROLAR</button>
+    </div>
+    
+    <div class="chat-history" id="chatHistory">
+      <!-- Mensagens aparecerão aqui -->
+    </div>
+    
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Digite uma mensagem..." onkeydown="if(event.key==='Enter') enviarMensagemChat()">
+      <button onclick="enviarMensagemChat()">➤</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="toast" id="toast"></div>
+ 
+<!-- ════════════════════════════════════
+     FIREBASE SDK
+════════════════════════════════════ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getDatabase, ref, set, onValue, update, get, push, serverTimestamp, onChildAdded }
+  from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+ 
+// ══ SUBSTITUA ABAIXO COM SUAS CREDENCIAIS DO FIREBASE ══
+const firebaseConfig = {
+  apiKey:            "AIzaSyCssTD1j4VUVsbOYRDq6t0NQ-L_oeQ5O8U",
+  authDomain:        "ficha-online-c3048.firebaseapp.com",
+  databaseURL:       "https://ficha-online-c3048-default-rtdb.firebaseio.com",
+  projectId:         "ficha-online-c3048",
+  storageBucket:     "ficha-online-c3048.firebasestorage.app",
+  messagingSenderId: "449356287217",
+  appId:             "1:449356287217:web:e0b3969bb9e97e44ee2d50",
+  measurementId:     "G-MX7CT6E12J"
+};
+// ═════════════════════════════════════════════════════
+ 
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+ 
+// ══ ESTADO LOCAL ══
+let sessaoId   = null;
+let meuSlot    = null;
+let fichasData = {};
+const SLOTS = ['Jogador 1','Jogador 2','Jogador 3','Jogador 4','Mestre'];
+ 
+// ── DEFAULTS de uma ficha nova ──
+function fichaDefault(slot) {
+  return {
+    nome: slot,
+    linhagem: 'Linhagem Técnica',
+    grau: 'Grau 3',
+    nivel: 'Nível 01',
+    afiliacao: 'Instituto',
+    pv: 84, pvMax: 84,
+    pvt: 0, pvtMax: 0,
+    ea: 125, eaMax: 125,
+    deslocamento: 13,
+    ca: 13,
+    for: 19, dex: 14, con: 12, int: 9, wis: 9, cha: 11,
+  };
+}
+ 
+// ── TOAST ──
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.className = 'toast', 2500);
+}
+ 
+// ════════════════════════════════════════════
+// TELA DE SELEÇÃO
+// ════════════════════════════════════════════
+window.entrarSessao = function() {
+  const val = document.getElementById('sessionInput').value.trim().toUpperCase();
+  if (!val) { showToast('Digite um código de sessão', 'error'); return; }
+  sessaoId = val;
+  mostrarEscolhaSlot();
+};
+ 
+function mostrarEscolhaSlot() {
+  const grid = document.getElementById('playerGrid');
+  grid.style.display = 'grid';
+  grid.innerHTML = '<p style="color:var(--text2);font-size:13px;text-align:center;grid-column:1/-1;">Escolha seu personagem:</p>';
+ 
+  const sessRef = ref(db, `sessoes/${sessaoId}/fichas`);
+  onValue(sessRef, (snap) => {
+    const dados = snap.val() || {};
+    grid.innerHTML = '<p style="color:var(--text2);font-size:13px;text-align:center;grid-column:1/-1;">Escolha seu personagem:</p>';
+    SLOTS.forEach(slot => {
+      const ficha = dados[slot];
+      const card = document.createElement('div');
+      card.className = 'player-card' + (ficha ? ' occupied' : '');
+      card.innerHTML = `
+        <div class="slot-name">${slot}</div>
+        <div class="slot-status">${ficha ? '● ' + (ficha.nome || slot) : '○ Disponível'}</div>`;
+      card.onclick = () => escolherSlot(slot);
+      grid.appendChild(card);
+    });
+  }, { onlyOnce: true });
+}
+ 
+async function escolherSlot(slot) {
+  meuSlot = slot;
+  const fichaRef = ref(db, `sessoes/${sessaoId}/fichas/${slot}`);
+  const snap = await get(fichaRef);
+  if (!snap.exists()) {
+    await set(fichaRef, fichaDefault(slot));
+  }
+  iniciarApp();
+}
+ 
+// ════════════════════════════════════════════
+// APP PRINCIPAL
+// ════════════════════════════════════════════
+function iniciarApp() {
+  document.getElementById('selectScreen').style.display = 'none';
+  document.getElementById('appHeader').style.display = 'flex';
+  document.getElementById('mainLayout').classList.add('visible');
+  document.getElementById('sessionLabel').textContent = 'Sessão: ' + sessaoId;
+  document.getElementById('mySlotLabel').textContent = '[ ' + meuSlot + ' ]';
+ 
+  // Ouvir TODAS as fichas
+  const sessRef = ref(db, `sessoes/${sessaoId}/fichas`);
+  onValue(sessRef, (snap) => {
+    fichasData = snap.val() || {};
+    renderFichas();
+  });
+
+  // Ouvir o CHAT
+  const chatRef = ref(db, `sessoes/${sessaoId}/chat`);
+  onChildAdded(chatRef, (snap) => {
+    const msg = snap.val();
+    renderizarMensagemChat(msg);
+  });
+}
+ 
+// ── RENDERIZAR FICHAS ──
+function renderFichas() {
+  const container = document.getElementById('fichasContainer');
+  const onlineSlots = Object.keys(fichasData);
+  document.getElementById('onlineCount').textContent = onlineSlots.length;
+ 
+  const ordem = [meuSlot, ...SLOTS.filter(s => s !== meuSlot && fichasData[s])];
+ 
+  container.innerHTML = '';
+  ordem.forEach(slot => {
+    if (!fichasData[slot]) return;
+    container.appendChild(criarFichaCard(slot, fichasData[slot]));
+  });
+}
+ 
+// ── CRIAR CARD DE FICHA ──
+function criarFichaCard(slot, d) {
+  const ismine = slot === meuSlot;
+  const card = document.createElement('div');
+  card.className = 'ficha-card' + (ismine ? ' is-mine' : '');
+  card.dataset.slot = slot;
+ 
+  const editAttr = ismine ? 'contenteditable="true"' : 'contenteditable="false"';
+  const pvPct   = Math.max(0, Math.min(100, (d.pv  / d.pvMax)  * 100));
+  const eaPct   = Math.max(0, Math.min(100, (d.ea  / d.eaMax)  * 100));
+  const pvtPct  = Math.max(0, Math.min(100, (d.pvtMax > 0 ? (d.pvt / d.pvtMax) * 100 : 0)));
+ 
+  const attrMod = v => { const m = Math.floor((v-10)/2); return (m>=0?'+':'')+m; };
+ 
+  card.innerHTML = `
+    <div class="card-header">
+      <div class="card-header-left">
+        <div class="char-name" ${editAttr} data-field="nome">${d.nome || slot}</div>
+        <div class="char-meta">
+          <span>⚡ <span ${editAttr} data-field="linhagem">${d.linhagem||'—'}</span></span>
+          <span>◆ <span ${editAttr} data-field="grau">${d.grau||'—'}</span></span>
+          <span>▲ <span ${editAttr} data-field="nivel">${d.nivel||'—'}</span></span>
+          <span>🏛 <span ${editAttr} data-field="afiliacao">${d.afiliacao||'—'}</span></span>
+        </div>
+      </div>
+      <span class="player-badge ${ismine?'':'other'}">${ismine ? '✦ Você' : slot}</span>
+    </div>
+ 
+    <div class="card-body">
+ 
+      <!-- RECURSOS -->
+      <div>
+        <div class="section-label">Recursos</div>
+        <div class="resource-bars">
+          <div class="resource-row">
+            <span class="resource-label pv">PV</span>
+            <div class="bar-track"><div class="bar-fill pv" style="width:${pvPct}%"></div></div>
+            <div class="resource-inputs">
+              <input class="num-input" type="number" data-field="pv" value="${d.pv}" min="0" max="${d.pvMax}" ${ismine?'':'disabled'}>
+              <span class="num-sep">/</span>
+              <input class="num-input" type="number" data-field="pvMax" value="${d.pvMax}" min="1" ${ismine?'':'disabled'}>
+            </div>
+          </div>
+          <div class="resource-row">
+            <span class="resource-label pvt">PVT</span>
+            <div class="bar-track"><div class="bar-fill pvt" style="width:${pvtPct}%"></div></div>
+            <div class="resource-inputs">
+              <input class="num-input" type="number" data-field="pvt" value="${d.pvt}" min="0" max="${d.pvtMax||99}" ${ismine?'':'disabled'}>
+              <span class="num-sep">/</span>
+              <input class="num-input" type="number" data-field="pvtMax" value="${d.pvtMax||0}" min="0" ${ismine?'':'disabled'}>
+            </div>
+          </div>
+          <div class="resource-row">
+            <span class="resource-label ea">EA</span>
+            <div class="bar-track"><div class="bar-fill ea" style="width:${eaPct}%"></div></div>
+            <div class="resource-inputs">
+              <input class="num-input" type="number" data-field="ea" value="${d.ea}" min="0" max="${d.eaMax}" ${ismine?'':'disabled'}>
+              <span class="num-sep">/</span>
+              <input class="num-input" type="number" data-field="eaMax" value="${d.eaMax}" min="1" ${ismine?'':'disabled'}>
+            </div>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- STATUS -->
+      <div>
+        <div class="section-label">Status</div>
+        <div class="status-grid">
+          <div class="status-box">
+            <span class="s-label">Deslocamento</span>
+            <span class="s-val" ${editAttr} data-field="deslocamento">${d.deslocamento||13}m</span>
+          </div>
+          <div class="status-box">
+            <span class="s-label">CA</span>
+            <span class="s-val" ${editAttr} data-field="ca">${d.ca||13}</span>
+          </div>
+          <div class="status-box">
+            <span class="s-label">Grau</span>
+            <span class="s-val" style="font-size:14px" ${editAttr} data-field="grau2">${d.grau||'3'}</span>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- ATRIBUTOS -->
+      <div>
+        <div class="section-label">Atributos</div>
+        <div class="attrs-grid">
+          ${['for','dex','con','int','wis','cha'].map(a => `
+            <div class="attr-box">
+              <div class="attr-abbr">${a.toUpperCase()}</div>
+              <span class="attr-val" ${editAttr} data-field="${a}">${d[a]||10}</span>
+              <div class="attr-mod">${attrMod(d[a]||10)}</div>
+            </div>`).join('')}
+        </div>
+        <!-- BOTÃO DE INICIATIVA ADICIONADO AQUI -->
+        <button class="btn-iniciativa" onclick="window.rolarIniciativa('${slot}')" ${ismine?'':'disabled'}>
+          ⚡ Rolar Iniciativa
+        </button>
+      </div>
+ 
+      <!-- TÉCNICAS DE REFORÇO -->
+      <div>
+        <div class="section-label">Técnicas de Reforço</div>
+        <div class="tecnicas-list">
+          <div class="tecnica-item">
+            <div class="tecnica-top">
+              <span class="tecnica-nome">Reforço dos Punhos</span>
+              <span class="tecnica-custo">5 EA</span>
+            </div>
+            <span class="tecnica-efeito">1d4 + Mod. FOR</span>
+            <span class="tecnica-desc">Imbui as mãos com energia amaldiçoada para causar mais dano.</span>
+          </div>
+          <div class="tecnica-item">
+            <div class="tecnica-top">
+              <span class="tecnica-nome">Barreira Corporal</span>
+              <span class="tecnica-custo">10 EA</span>
+            </div>
+            <span class="tecnica-efeito">+1d6 + Mod. CON em PVT • +CA por 1 rodada</span>
+            <span class="tecnica-desc">Gera Pontos de Vida Temporários e aumenta CA.</span>
+          </div>
+          <div class="tecnica-item">
+            <div class="tecnica-top">
+              <span class="tecnica-nome">Passo Amaldiçoado</span>
+              <span class="tecnica-custo">15 EA</span>
+            </div>
+            <span class="tecnica-efeito">+3m Deslocamento por 2 rodadas</span>
+            <span class="tecnica-desc">Aumenta o deslocamento temporariamente.</span>
+          </div>
+          <div class="tecnica-item">
+            <div class="tecnica-top">
+              <span class="tecnica-nome">Fortalecimento de Habilidade</span>
+              <span class="tecnica-custo">20 EA</span>
+            </div>
+            <span class="tecnica-efeito">Reforço da Técnica</span>
+            <span class="tecnica-desc">Melhora capacidade, dano e qualidade de uma técnica.</span>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- TÉCNICAS INATAS -->
+      <div>
+        <div class="section-label">Técnicas Inatas</div>
+        <div class="tecnicas-list">
+          <div class="tecnica-item">
+            <div class="tecnica-top">
+              <span class="tecnica-nome">Técnica Inata (Principal)</span>
+              <span class="tecnica-custo" style="color:var(--red);background:rgba(255,74,74,0.1);border-color:rgba(255,74,74,0.3)">8d10</span>
+            </div>
+            <span class="tecnica-efeito">Alcance: 30m • Salvaguarda: FOR (CD 20)</span>
+            <span class="tecnica-desc">Cria um vácuo magnético que atrai alvos falhos e esmaga a matéria ao redor.</span>
+          </div>
+          <div class="tecnica-item">
+            <div class="tecnica-top">
+              <span class="tecnica-nome">Reversão de Técnica</span>
+              <span class="tecnica-custo" style="color:var(--red);background:rgba(255,74,74,0.1);border-color:rgba(255,74,74,0.3)">12d10</span>
+            </div>
+            <span class="tecnica-efeito">Linha 24m • Salvaguarda: DEX (CD 20)</span>
+            <span class="tecnica-desc">Onda repulsiva de energia positiva reversa — joga alvos a 15m de distância.</span>
+          </div>
+          <div class="tecnica-item">
+            <div class="tecnica-top">
+              <span class="tecnica-nome">Fusão Completa</span>
+              <span class="tecnica-custo" style="color:var(--red);background:rgba(255,74,74,0.1);border-color:rgba(255,74,74,0.3)">20d12</span>
+            </div>
+            <span class="tecnica-efeito">Área 18m • Ignora coberturas</span>
+            <span class="tecnica-desc">Fusão e colisão instantânea — apaga completamente toda a matéria tocada.</span>
+          </div>
+          <div class="tecnica-item">
+            <div class="tecnica-top">
+              <span class="tecnica-nome">Técnica Inversa: Cura</span>
+              <span class="tecnica-custo" style="color:var(--online);background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.3)">4d10+CHA</span>
+            </div>
+            <span class="tecnica-efeito">Toque / Pessoal • Cessa Sangrando</span>
+            <span class="tecnica-desc">Regenera PV e cessa a condição Sangrando via multiplicação de energia negativa.</span>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- BARREIRAS / DOMÍNIOS -->
+      <div>
+        <div class="section-label">Barreiras &amp; Domínios</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+ 
+          <div class="dominio-box simples">
+            <div class="dominio-title">🛡️ Domínio Simples</div>
+            <div class="dominio-desc">Técnica defensiva ancestral — projeta uma barreira mística ao redor dos pés do usuário.</div>
+            <div class="dominio-efeito">
+              • Neutraliza <strong>Acerto Infalível</strong> de Expansões inimigas (raio 3m)<br>
+              • <strong>+2 CA</strong> e vantagem em salvaguardas de DEX enquanto ativo
+            </div>
+          </div>
+ 
+          <div class="dominio-box expansao">
+            <div class="dominio-title">💀 Expansão de Domínio</div>
+            <div class="dominio-desc">O ápice da manipulação de energia — manifesta o mundo inato do feiticeiro na realidade física.</div>
+            <div class="dominio-efeito">
+              • Custo fixo: <strong>100 EA</strong><br>
+              • Redoma impenetrável de <strong>18 metros</strong><br>
+              • Todos os feitiços ganham <strong>Acerto Infalível</strong><br>
+              • Ao desativar: técnica queimada por <strong>1d4 turnos</strong>
+            </div>
+          </div>
+ 
+        </div>
+      </div>
+
+    </div>`;
+ 
+  if (ismine) {
+    card.querySelectorAll('input.num-input').forEach(inp => {
+      inp.addEventListener('change', () => salvarCampo(slot, inp.dataset.field, Number(inp.value)));
+    });
+ 
+    card.querySelectorAll('[contenteditable="true"]').forEach(el => {
+      el.addEventListener('blur', () => {
+        let val = el.textContent.trim();
+        const numFields = ['deslocamento','ca','for','dex','con','int','wis','cha'];
+        if (numFields.includes(el.dataset.field)) val = parseInt(val) || 0;
+        salvarCampo(slot, el.dataset.field, val);
+      });
+      el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
+    });
+  }
+ 
+  return card;
+}
+ 
+// ── SALVAR CAMPO NO FIREBASE ──
+function salvarCampo(slot, field, value) {
+  const fieldRef = ref(db, `sessoes/${sessaoId}/fichas/${slot}/${field}`);
+  set(fieldRef, value).catch(() => showToast('Erro ao salvar', 'error'));
+}
+
+// ════════════════════════════════════════════
+// SISTEMA DE CHAT E DADOS
+// ════════════════════════════════════════════
+
+// ── Rolar Iniciativa ──
+window.rolarIniciativa = function(slot) {
+  if (slot !== meuSlot) return; 
+  
+  const ficha = fichasData[slot];
+  const dex = ficha.dex || 10;
+  const mod = Math.floor((dex - 10) / 2);
+  const d20 = Math.floor(Math.random() * 20) + 1;
+  const total = d20 + mod;
+  
+  const expressao = `1d20 (${d20}) ${mod >= 0 ? '+' : '-'} DEX (${Math.abs(mod)})`;
+  enviarParaFirebase(ficha.nome || slot, 'Iniciativa', expressao, total);
+};
+
+// ── Rolar Dados Customizados ──
+window.rolarDadoPersonalizado = function() {
+  const qtd = parseInt(document.getElementById('diceQty').value) || 1;
+  const lados = parseInt(document.getElementById('diceSides').value) || 20;
+  
+  if (qtd <= 0 || lados <= 1) {
+    showToast('Valores inválidos para os dados!', 'error');
+    return;
+  }
+
+  let total = 0;
+  let rolagens = [];
+  for(let i = 0; i < qtd; i++) {
+    const res = Math.floor(Math.random() * lados) + 1;
+    rolagens.push(res);
+    total += res;
+  }
+
+  const autor = fichasData[meuSlot].nome || meuSlot;
+  const titulo = `Rolagem: ${qtd}d${lados}`;
+  const expressao = `[ ${rolagens.join(', ')} ]`;
+  
+  enviarParaFirebase(autor, titulo, expressao, total);
+};
+
+// ── Enviar Mensagem de Texto Normal ──
+window.enviarMensagemChat = function() {
+  const input = document.getElementById('chatInput');
+  const texto = input.value.trim();
+  if (!texto) return;
+
+  const autor = fichasData[meuSlot].nome || meuSlot;
+  
+  push(ref(db, `sessoes/${sessaoId}/chat`), {
+    tipo: 'texto',
+    autor: autor,
+    texto: texto,
+    slot: meuSlot,
+    timestamp: serverTimestamp()
+  });
+
+  input.value = '';
+};
+
+// ── Enviar Rolagem Genérica pro Firebase ──
+function enviarParaFirebase(autor, titulo, expressao, resultadoTotal) {
+  push(ref(db, `sessoes/${sessaoId}/chat`), {
+    tipo: 'rolagem',
+    autor: autor,
+    titulo: titulo,
+    expressao: expressao,
+    resultado: resultadoTotal,
+    slot: meuSlot,
+    timestamp: serverTimestamp()
+  });
+}
+
+// ── Renderizar no DOM ──
+function renderizarMensagemChat(msg) {
+  const chatHistory = document.getElementById('chatHistory');
+  const isMine = msg.slot === meuSlot;
+  const div = document.createElement('div');
+  
+  if (msg.tipo === 'texto') {
+    div.className = `chat-msg ${isMine ? 'mine' : ''}`;
+    div.innerHTML = `
+      <div class="msg-header">
+        <span class="msg-author">${msg.autor}</span>
+      </div>
+      <div class="msg-content">${msg.texto}</div>
+    `;
+  } else if (msg.tipo === 'rolagem') {
+    div.className = `chat-msg roll ${isMine ? 'mine' : ''}`;
+    div.innerHTML = `
+      <div class="msg-header">
+        <span class="msg-author">${msg.autor}</span>
+        <span>${msg.titulo}</span>
+      </div>
+      <div class="msg-content" style="font-size:11px; color:var(--text2)">
+        ${msg.expressao}
+      </div>
+      <div class="msg-result">
+        Total: ${msg.resultado}
+      </div>
+    `;
+  }
+  
+  chatHistory.appendChild(div);
+  chatHistory.scrollTop = chatHistory.scrollHeight; 
+}
+ 
+// ── Expor funções globais ──
+window.entrarSessao = window.entrarSessao;
+</script>
+</body>
+</html>
