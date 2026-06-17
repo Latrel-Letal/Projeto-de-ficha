@@ -1,0 +1,1163 @@
+
+/
+Claude terminou a resposta
+Chat, a minha ideia é a seguinte, eu pensei em criar uma ficha em um site online, onde eu ia colocar o site pelo GitHub, para que todos nós conseguíssemos entrar, e cada um personalizaria sua própria ficha com os seus próprios dados, mas que durante a sessão todos conseguíssemos ver conforme nós vamos editando elas, tipo, diminuindo os pontos de vida ou melhorando os outros atributos simultaneamente. É possível?
+
+22:45
+Sim, é totalmente possível! O que você está descrevendo é basicamente uma ficha de RPG colaborativa em tempo real.
+
+Para isso funcionar com todos vendo as mudanças simultaneamente, você vai precisar de algumas tecnologias específicas. Deixa eu te explicar as opções:
+
+
+
+Sim, é totalmente possível! Deixa eu explicar o que você precisa entender sobre cada parte:
+
+O que o GitHub Pages pode fazer: hospedar o frontend (o HTML, CSS e JavaScript da ficha). Mas ele é estático — não processa nada no servidor. Por isso, para o tempo real, você precisa de um serviço externo.
+
+A parte que faz a mágica acontecer — o backend em tempo real — tem 3 opções:
+
+Firebase (recomendo para começar) — é do Google, tem plano gratuito generoso, e lida com tudo: banco de dados, autenticação e sincronização em tempo real. Você literalmente escreve db.ref('fichas/jogador1/hp').set(15) e todos os navegadores conectados atualizam instantaneamente.
+
+Supabase — alternativa open source ao Firebase, também gratuita. Usa PostgreSQL por baixo e tem funcionalidade de "Realtime" via WebSocket.
+
+Servidor WebSocket próprio (Node.js + Socket.io) — mais flexível, mas exige um servidor rodando (não cabe no GitHub Pages). Mais trabalhoso de configurar e manter.
+
+Resumindo o fluxo: O site fica no GitHub Pages → quando alguém edita a ficha, o navegador manda a mudança para o Firebase → o Firebase avisa todos os outros navegadores conectados → cada ficha atualiza em tempo real.
+
+Quer que eu te mostre como ficaria o código de uma ficha básica com Firebase, ou prefere explorar alguma das outras opções primeiro?
+
+Qual seria melhor forma de implementar isso?
+
+22:47
+A melhor forma depende do seu contexto. Deixa eu te fazer algumas perguntas rápidas:
+
+P: Qual é o seu nível de experiência com programação?
+R: Faço faculdade e estou aprendendo, mas tenho uma noção basica de front end
+
+P: Quantas pessoas vão usar a ficha simultaneamente?
+R: Pequeno grupo (2–6 pessoas)
+
+P: O que é mais importante para você?
+R: Custo zero e controle total sobre os dados
+
+22:48
+Perfeito! Com esse perfil, a recomendação é clara:
+
+Firebase + GitHub Pages
+É a combinação ideal para você porque:
+
+Custo zero — o plano gratuito do Firebase (Spark) suporta tranquilamente 2–6 pessoas em tempo real, com até 1GB de banco de dados e 10GB de transferência por mês
+Você controla os dados — as fichas ficam no seu banco de dados Firebase, você define as regras de quem pode ler/escrever
+Acessível para quem está aprendendo — não precisa de backend próprio, tudo é JavaScript no frontend, que você já conhece
+GitHub Pages hospeda o site — grátis, com domínio seuusuario.github.io/rpg-ficha
+A estrutura do projeto seria assim:
+
+GitHub Pages (frontend)
+├── index.html       ← tela de login / escolher personagem
+├── ficha.html       ← a ficha em si
+└── ficha.js         ← lógica + conexão com Firebase
+
+Firebase (backend gratuito)
+└── Realtime Database
+    └── sessao-001/
+        ├── jogador1/ { nome, hp, mana, força... }
+        ├── jogador2/ { nome, hp, mana, força... }
+        └── jogador3/ { nome, hp, mana, força... }
+Quando um jogador altera o HP dele, o Firebase atualiza instantaneamente na tela de todos os outros — sem precisar recarregar a página.
+
+Os passos para implementar seriam:
+
+Criar uma conta no Firebase e um projeto novo
+Ativar o Realtime Database com as regras de segurança
+Criar o HTML da ficha com os campos que você quer (HP, mana, atributos...)
+Adicionar o SDK do Firebase no seu JS e conectar os campos ao banco
+Subir tudo no GitHub Pages
+Quer que eu já te gere o código base completo da ficha com a integração Firebase funcionando? Você só precisaria criar o projeto no Firebase e colar a chave de configuração que eles te dão.
+
+é o firebase studio?
+
+22:49
+Não exatamente! São coisas diferentes:
+
+Firebase — é a plataforma de backend do Google (banco de dados, autenticação, etc.). É o que você vai usar para o tempo real.
+Firebase Studio — é uma IDE online do Google (lançada em 2025), tipo um VS Code no navegador integrado com IA. É uma ferramenta de desenvolvimento, não o banco de dados em si.
+Para o seu projeto, você vai usar o Firebase (a plataforma), acessando pelo console em console.firebase.google.com. O Firebase Studio é opcional e você provavelmente não vai precisar dele agora.
+
+O fluxo seria:
+
+Acessa console.firebase.google.com
+Cria um projeto
+Ativa o Realtime Database
+Copia as credenciais que eles te dão
+Cola no seu código JavaScript
+Quer que eu gere o código completo da ficha agora? Você só precisaria criar o projeto no console do Firebase e substituir as credenciais no código.
+
+1781661091887_image.png
+este?
+
+22:51
+Não, esse não! 😄 Esse é um site brasileiro sem relação com o Google.
+
+O Firebase que você precisa é o do Google. Acesse:
+
+firebase.google.com
+
+Vai aparecer o site oficial do Google com o logo azul/laranja e o botão "Começar". É gratuito e você entra com sua conta Google normalmente.
+
+1781661132723_image.png
+este?
+
+22:52
+Esse é o certo! ✅ Logo laranja do Google Firebase.
+
+Agora clique em "Ir para o console" no canto superior direito — é por lá que você cria e gerencia seus projetos. O botão "Comece já" que aparece na tela é para um plano pago, pode ignorar ele.
+
+1781661355976_image.png
+e agora?
+
+22:55
+Perfeito, Arthur! Você já criou o projeto "Ficha Online" no plano Spark (gratuito). Agora precisa ativar o banco de dados.
+
+Siga esses passos:
+
+No menu esquerdo, clique em "Bancos de dados e ar..."
+Vai aparecer as opções — clique em "Realtime Database"
+Clique em "Criar banco de dados"
+Escolha a localização United States (melhor para o plano gratuito)
+Nas regras de segurança, escolha "Iniciar no modo de teste" por enquanto
+Me manda um print de cada etapa que eu te guio!
+
+Iniciar modo bloqueado ou modo de teste?
+
+22:57
+Escolha "Modo de teste" por enquanto!
+
+Ele permite que qualquer pessoa leia e escreva no banco durante 30 dias — perfeito para você desenvolver e testar com os amigos sem complicação.
+
+Depois, quando o projeto estiver pronto, a gente configura as regras de segurança adequadas para proteger os dados. Por ora, modo de teste é o caminho certo.
+
+certo chat e agora?
+
+22:58
+Agora você precisa pegar as credenciais do seu projeto para colocar no código. Siga esses passos:
+
+No menu esquerdo, clique na engrenagem (⚙️) ao lado de "Ficha Online" no topo
+Clique em "Configurações do projeto"
+Role a página para baixo até encontrar "Seus aplicativos"
+Clique em "Adicionar app" e escolha o ícone </> (Web)
+Dê um nome pro app (pode ser "ficha") e clique em Registrar app
+O Firebase vai te mostrar um bloco de código com suas credenciais — me manda um print dessa parte
+Essas credenciais são o que vou usar para gerar o código completo da ficha já conectado ao seu banco!
+
+1781661630104_image.png
+não estou achando
+
+23:00
+Clique em "Geral" nesse menu que já está aberto! É a primeira opção da lista. Depois role a página para baixo até encontrar a seção "Seus aplicativos".
+
+1781661681554_image.png
+era para mandar um print desta parte?
+
+23:01
+Perfeito, já está na tela certa! O nome "Ficha" está ótimo.
+
+Agora clique em "Registrar app" e me manda o print da próxima tela — vai aparecer o bloco de credenciais que precisamos.
+
+1781661771634_image.png
+e agora?
+
+23:02
+Perfeito, tenho tudo que preciso! Já consigo ver suas credenciais na tela.
+
+Agora vou gerar o código completo da ficha. Mas antes, me diz rapidamente: qual sistema de RPG vocês jogam? Por exemplo:
+
+D&D / Pathfinder (atributos como Força, Destreza, HP, CA...)
+Tormenta
+Outro sistema personalizado
+Assim eu já monto a ficha com os campos certos para o seu grupo!
+
+
+Manual_Jujutsu_Com_Dominios.docx
+docx
+
+este é um exemplo de ficha e tudo que precisamos ter nas fichas
+
+23:03
+Deixa eu ler o manual para entender o sistema!
+
+
+Visualizou um arquivo, executou um comando
+Visualizou um arquivo, executou um comando
+Lido! É um sistema de RPG temático de Jujutsu Kaisen com mecânicas de D&D 5e. Agora vou gerar o código completo da ficha com todos os campos do manual — PV, Energia Amaldiçoada, Atributos, Técnicas, Domínios — tudo integrado com o Firebase do seu projeto.
+
+
+Executou 2 comandos, visualizou um arquivo, criou um arquivo
+Executou 2 comandos, visualizou um arquivo, criou um arquivo
+Pronto, Arthur! O arquivo está gerado com as suas credenciais do Firebase já inseridas. Veja o que foi feito:
+
+O que a ficha tem:
+
+Tela de entrada com código de sessão — você cria um código (ex: SESSAO01) e compartilha com os amigos
+Cada pessoa escolhe seu slot (Jogador 1, 2, 3, 4 ou Mestre)
+Barras visuais de PV (vermelho), PV Temporário (dourado) e EA (azul) que atualizam em tempo real
+Todos os atributos (FOR, DEX, CON, INT, WIS, CHA) com modificadores calculados automaticamente
+Todas as técnicas de reforço, técnicas inatas e domínios do seu manual
+Sua ficha é editável, as dos outros ficam só-leitura
+Para publicar no GitHub Pages:
+
+Crie um repositório público no GitHub
+Suba o arquivo ficha.html renomeado para index.html
+Vá em Settings → Pages → selecione a branch main
+Pronto — o link fica seuusuario.github.io/nome-do-repo
+Quer que eu te ajude com os passos do GitHub também?
+
+
+Ficha
+Código · HTML 
+1781662272384_image.png
+calma chat, cheguei até aqui e agora?
+
+23:11
+Perfeito! Está tudo certo aí. Só faça uma coisa antes de criar:
+
+Ative o "Adicionar README" — ligue o toggle dele. Isso facilita o próximo passo.
+
+O resto está ótimo: nome "Projeto-de-ficha", visibilidade Pública. Depois clique em "Criar repositório"!
+
+1781662312476_image.png
+e agora?
+
+23:11
+Repositório criado! Agora vamos subir o arquivo da ficha. Siga esses passos:
+
+Clique no botão "+" (ao lado do "Go to file" na barra superior)
+Clique em "Criar novo arquivo"
+No campo do nome do arquivo, digite exatamente: index.html
+Abra o arquivo ficha.html que você baixou, copie todo o conteúdo e cole na área de edição do GitHub
+Me manda um print quando chegar na tela de edição!
+
+1781662715084_image.png
+assim?
+
+23:18
+Perfeito! Agora:
+
+Clique na área onde está escrito "Enter file contents here"
+Selecione tudo com Ctrl+A e delete
+Abra o arquivo ficha.html que você baixou no seu computador, selecione tudo (Ctrl+A), copie (Ctrl+C) e cole aqui (Ctrl+V)
+Depois me manda um print para confirmar que o conteúdo apareceu!
+
+
+
+Claude Fable 5 está indisponível no momento.
+Saiba mais(opens in new tab)
+
+
+
+
+
+Claude é uma IA e pode cometer erros. Por favor, verifique as respostas.
+
+
+Ficha · HTML
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha — Jujutsu Kaisen RPG</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+ 
+  :root {
+    --bg:        #0a0a0f;
+    --bg2:       #11111a;
+    --bg3:       #1a1a28;
+    --border:    #2a2a40;
+    --border2:   #3a3a55;
+    --blue:      #4a9eff;
+    --blue-glow: rgba(74,158,255,0.15);
+    --red:       #ff4a4a;
+    --red-glow:  rgba(255,74,74,0.15);
+    --purple:    #a855f7;
+    --purple-glow: rgba(168,85,247,0.15);
+    --gold:      #f0c040;
+    --text:      #e0e0f0;
+    --text2:     #8888aa;
+    --text3:     #5555777;
+    --online:    #22c55e;
+    --radius:    10px;
+  }
+ 
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+ 
+  /* ── HEADER ── */
+  .app-header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .app-title {
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .session-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 13px;
+    color: var(--text2);
+  }
+  .online-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--online);
+    box-shadow: 0 0 6px var(--online);
+    display: inline-block;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+ 
+  /* ── SELETOR DE JOGADOR ── */
+  .player-select-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 32px;
+    padding: 40px 20px;
+  }
+  .player-select-title {
+    font-family: 'Cinzel', serif;
+    font-size: 28px;
+    color: var(--gold);
+    letter-spacing: 4px;
+    text-align: center;
+  }
+  .player-select-subtitle {
+    color: var(--text2);
+    text-align: center;
+    margin-top: -20px;
+    font-size: 14px;
+  }
+  .player-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    max-width: 700px;
+    width: 100%;
+  }
+  .player-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .player-card:hover {
+    border-color: var(--purple);
+    box-shadow: 0 0 20px var(--purple-glow);
+    transform: translateY(-2px);
+  }
+  .player-card .slot-name {
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .player-card .slot-status {
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .player-card.occupied .slot-status { color: var(--online); }
+  .session-id-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 24px;
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+  }
+  .session-id-box label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 8px; }
+  .session-id-box input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+    text-align: center;
+    letter-spacing: 2px;
+  }
+  .session-id-box input:focus { border-color: var(--purple); }
+  .btn-enter {
+    background: var(--purple);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 32px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+    transition: opacity 0.2s;
+    letter-spacing: 1px;
+  }
+  .btn-enter:hover { opacity: 0.85; }
+ 
+  /* ── LAYOUT PRINCIPAL ── */
+  .main-layout { display: none; }
+  .main-layout.visible { display: block; }
+ 
+  .fichas-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+    padding: 24px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+ 
+  /* ── FICHA CARD ── */
+  .ficha-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: box-shadow 0.3s;
+  }
+  .ficha-card.is-mine {
+    border-color: var(--purple);
+    box-shadow: 0 0 30px var(--purple-glow);
+  }
+  .ficha-card.is-mine .card-header { background: linear-gradient(135deg, #1e1030, #16101e); }
+ 
+  .card-header {
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-header-left { flex: 1; }
+  .char-name {
+    font-family: 'Cinzel', serif;
+    font-size: 16px;
+    color: var(--gold);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .char-name[contenteditable="true"]:focus {
+    outline: 1px solid var(--gold);
+    border-radius: 3px;
+    padding: 2px 4px;
+  }
+  .char-meta {
+    font-size: 11px;
+    color: var(--text2);
+    margin-top: 4px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .char-meta span { display: flex; align-items: center; gap: 4px; }
+  .char-meta [contenteditable="true"]:focus {
+    outline: 1px solid var(--border2);
+    border-radius: 3px;
+    padding: 1px 4px;
+    color: var(--text);
+  }
+  .player-badge {
+    font-size: 11px;
+    background: var(--purple-glow);
+    border: 1px solid var(--purple);
+    color: var(--purple);
+    border-radius: 20px;
+    padding: 3px 10px;
+    white-space: nowrap;
+  }
+  .player-badge.other {
+    background: rgba(74,158,255,0.1);
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+ 
+  .card-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 16px; }
+ 
+  /* ── SEÇÃO ── */
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--text2);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+ 
+  /* ── BARRAS DE RECURSO ── */
+  .resource-bars { display: flex; flex-direction: column; gap: 10px; }
+ 
+  .resource-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .resource-label {
+    font-size: 11px;
+    font-weight: 600;
+    width: 28px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .resource-label.pv  { color: var(--red); }
+  .resource-label.ea  { color: var(--blue); }
+  .resource-label.pvt { color: var(--gold); }
+ 
+  .bar-track {
+    flex: 1;
+    height: 12px;
+    background: var(--bg3);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+  .bar-fill.pv  { background: linear-gradient(90deg, #7f1d1d, var(--red)); }
+  .bar-fill.ea  { background: linear-gradient(90deg, #1e3a6e, var(--blue)); }
+  .bar-fill.pvt { background: linear-gradient(90deg, #78350f, var(--gold)); }
+ 
+  .resource-inputs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .num-input {
+    width: 44px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    padding: 3px 4px;
+    outline: none;
+  }
+  .num-input:focus { border-color: var(--border2); }
+  .num-sep { color: var(--text2); font-size: 12px; }
+ 
+  /* ── ATRIBUTOS ── */
+  .attrs-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+  }
+  .attr-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 4px;
+    text-align: center;
+  }
+  .attr-abbr {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text2);
+    letter-spacing: 1px;
+  }
+  .attr-val {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    display: block;
+    line-height: 1.2;
+  }
+  .attr-val[contenteditable="true"]:focus {
+    outline: 1px solid var(--border2);
+    border-radius: 3px;
+  }
+  .attr-mod {
+    font-size: 11px;
+    color: var(--text2);
+    margin-top: 2px;
+  }
+ 
+  /* ── STATUS EXTRAS ── */
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .status-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+  }
+  .status-box .s-label { font-size: 10px; color: var(--text2); letter-spacing: 1px; text-transform: uppercase; }
+  .status-box .s-val {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    display: block;
+    margin-top: 2px;
+  }
+  .status-box .s-val[contenteditable="true"]:focus {
+    outline: 1px solid var(--border2);
+    border-radius: 3px;
+  }
+ 
+  /* ── TÉCNICAS ── */
+  .tecnicas-list { display: flex; flex-direction: column; gap: 6px; }
+  .tecnica-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .tecnica-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .tecnica-nome { font-size: 13px; font-weight: 600; color: var(--text); }
+  .tecnica-custo {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--blue);
+    background: rgba(74,158,255,0.1);
+    border: 1px solid rgba(74,158,255,0.3);
+    border-radius: 20px;
+    padding: 2px 8px;
+    white-space: nowrap;
+  }
+  .tecnica-efeito { font-size: 11px; color: var(--text2); }
+  .tecnica-desc { font-size: 11px; color: var(--text2); font-style: italic; }
+ 
+  /* ── DOMÍNIO ── */
+  .dominio-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .dominio-box.expansao {
+    border-color: rgba(168,85,247,0.5);
+    background: linear-gradient(135deg, #0f0a1a, #160e22);
+  }
+  .dominio-box.simples {
+    border-color: rgba(74,158,255,0.4);
+    background: linear-gradient(135deg, #0a0f1a, #0e1622);
+  }
+  .dominio-title {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .dominio-box.expansao .dominio-title { color: var(--purple); }
+  .dominio-box.simples  .dominio-title { color: var(--blue); }
+  .dominio-desc { font-size: 11px; color: var(--text2); line-height: 1.6; }
+  .dominio-efeito {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--text);
+    background: rgba(255,255,255,0.04);
+    border-radius: 6px;
+    padding: 8px 10px;
+    line-height: 1.5;
+  }
+ 
+  /* ── LOCKED OVERLAY ── */
+  .locked-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10,10,15,0.0);
+    pointer-events: none;
+  }
+  .ficha-card:not(.is-mine) .resource-inputs input,
+  .ficha-card:not(.is-mine) [contenteditable] {
+    pointer-events: none;
+    cursor: default;
+  }
+ 
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-size: 13px;
+    color: var(--text);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    z-index: 999;
+    max-width: 280px;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.success { border-color: var(--online); color: var(--online); }
+  .toast.error   { border-color: var(--red); color: var(--red); }
+</style>
+</head>
+<body>
+ 
+<!-- ════════════════════════════════════
+     TELA DE SELEÇÃO DE SESSÃO/JOGADOR
+════════════════════════════════════ -->
+<div class="player-select-screen" id="selectScreen">
+  <div>
+    <h1 class="player-select-title">✦ JUJUTSU KAISEN RPG ✦</h1>
+    <p class="player-select-subtitle">Fichas de Personagem — Sessão Colaborativa</p>
+  </div>
+ 
+  <div class="session-id-box">
+    <label>CÓDIGO DA SESSÃO</label>
+    <input type="text" id="sessionInput" placeholder="Ex: SESSAO01" maxlength="20">
+    <button class="btn-enter" onclick="entrarSessao()">ENTRAR NA SESSÃO</button>
+  </div>
+ 
+  <div id="playerGrid" class="player-grid" style="display:none">
+    <p style="color:var(--text2);font-size:13px;text-align:center;grid-column:1/-1;">Escolha seu slot de personagem:</p>
+  </div>
+</div>
+ 
+<!-- ════════════════════════════════════
+     LAYOUT PRINCIPAL — FICHAS
+════════════════════════════════════ -->
+<header class="app-header" id="appHeader" style="display:none">
+  <span class="app-title">✦ Jujutsu Kaisen RPG</span>
+  <div class="session-info">
+    <span><span class="online-dot"></span> <span id="onlineCount">0</span> online</span>
+    <span id="sessionLabel" style="color:var(--gold)"></span>
+    <span id="mySlotLabel" style="color:var(--purple)"></span>
+  </div>
+</header>
+ 
+<div class="main-layout" id="mainLayout">
+  <div class="fichas-container" id="fichasContainer"></div>
+</div>
+ 
+<div class="toast" id="toast"></div>
+ 
+<!-- ════════════════════════════════════
+     FIREBASE SDK
+════════════════════════════════════ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getDatabase, ref, set, onValue, update, get }
+  from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+ 
+// ══ SUBSTITUA ABAIXO COM SUAS CREDENCIAIS DO FIREBASE ══
+const firebaseConfig = {
+  apiKey:            "AIzaSyCssTD1j4VUVsbOYRDq6t0NQ-L_oeQ5O8U",
+  authDomain:        "ficha-online-c3048.firebaseapp.com",
+  databaseURL:       "https://ficha-online-c3048-default-rtdb.firebaseio.com",
+  projectId:         "ficha-online-c3048",
+  storageBucket:     "ficha-online-c3048.firebasestorage.app",
+  messagingSenderId: "449356287217",
+  appId:             "1:449356287217:web:e0b3969bb9e97e44ee2d50",
+  measurementId:     "G-MX7CT6E12J"
+};
+// ═════════════════════════════════════════════════════
+ 
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+ 
+// ══ ESTADO LOCAL ══
+let sessaoId   = null;
+let meuSlot    = null;
+let fichasData = {};
+const SLOTS = ['Jogador 1','Jogador 2','Jogador 3','Jogador 4','Mestre'];
+ 
+// ── DEFAULTS de uma ficha nova ──
+function fichaDefault(slot) {
+  return {
+    nome: slot,
+    linhagem: 'Linhagem Técnica',
+    grau: 'Grau 3',
+    nivel: 'Nível 01',
+    afiliacao: 'Instituto',
+    pv: 84, pvMax: 84,
+    pvt: 0, pvtMax: 0,
+    ea: 125, eaMax: 125,
+    deslocamento: 13,
+    ca: 13,
+    for: 19, dex: 14, con: 12, int: 9, wis: 9, cha: 11,
+  };
+}
+ 
+// ── TOAST ──
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.className = 'toast', 2500);
+}
+ 
+// ════════════════════════════════════════════
+// TELA DE SELEÇÃO
+// ════════════════════════════════════════════
+window.entrarSessao = function() {
+  const val = document.getElementById('sessionInput').value.trim().toUpperCase();
+  if (!val) { showToast('Digite um código de sessão', 'error'); return; }
+  sessaoId = val;
+  mostrarEscolhaSlot();
+};
+ 
+function mostrarEscolhaSlot() {
+  const grid = document.getElementById('playerGrid');
+  grid.style.display = 'grid';
+  grid.innerHTML = '<p style="color:var(--text2);font-size:13px;text-align:center;grid-column:1/-1;">Escolha seu personagem:</p>';
+ 
+  const sessRef = ref(db, `sessoes/${sessaoId}/fichas`);
+  onValue(sessRef, (snap) => {
+    const dados = snap.val() || {};
+    grid.innerHTML = '<p style="color:var(--text2);font-size:13px;text-align:center;grid-column:1/-1;">Escolha seu personagem:</p>';
+    SLOTS.forEach(slot => {
+      const ficha = dados[slot];
+      const card = document.createElement('div');
+      card.className = 'player-card' + (ficha ? ' occupied' : '');
+      card.innerHTML = `
+        <div class="slot-name">${slot}</div>
+        <div class="slot-status">${ficha ? '● ' + (ficha.nome || slot) : '○ Disponível'}</div>`;
+      card.onclick = () => escolherSlot(slot);
+      grid.appendChild(card);
+    });
+  }, { onlyOnce: true });
+}
+ 
+async function escolherSlot(slot) {
+  meuSlot = slot;
+  const fichaRef = ref(db, `sessoes/${sessaoId}/fichas/${slot}`);
+  const snap = await get(fichaRef);
+  if (!snap.exists()) {
+    await set(fichaRef, fichaDefault(slot));
+  }
+  iniciarApp();
+}
+ 
+// ════════════════════════════════════════════
+// APP PRINCIPAL
+// ════════════════════════════════════════════
+function iniciarApp() {
+  document.getElementById('selectScreen').style.display = 'none';
+  document.getElementById('appHeader').style.display = 'flex';
+  document.getElementById('mainLayout').classList.add('visible');
+  document.getElementById('sessionLabel').textContent = 'Sessão: ' + sessaoId;
+  document.getElementById('mySlotLabel').textContent = '[ ' + meuSlot + ' ]';
+ 
+  // Ouvir TODAS as fichas da sessão em tempo real
+  const sessRef = ref(db, `sessoes/${sessaoId}/fichas`);
+  onValue(sessRef, (snap) => {
+    fichasData = snap.val() || {};
+    renderFichas();
+  });
+}
+ 
+// ── RENDERIZAR FICHAS ──
+function renderFichas() {
+  const container = document.getElementById('fichasContainer');
+  const onlineSlots = Object.keys(fichasData);
+  document.getElementById('onlineCount').textContent = onlineSlots.length;
+ 
+  // Renderizar minha ficha primeiro, depois as outras
+  const ordem = [meuSlot, ...SLOTS.filter(s => s !== meuSlot && fichasData[s])];
+ 
+  container.innerHTML = '';
+  ordem.forEach(slot => {
+    if (!fichasData[slot]) return;
+    container.appendChild(criarFichaCard(slot, fichasData[slot]));
+  });
+}
+ 
+// ── CRIAR CARD DE FICHA ──
+function criarFichaCard(slot, d) {
+  const ismine = slot === meuSlot;
+  const card = document.createElement('div');
+  card.className = 'ficha-card' + (ismine ? ' is-mine' : '');
+  card.dataset.slot = slot;
+ 
+  const editAttr = ismine ? 'contenteditable="true"' : 'contenteditable="false"';
+  const pvPct   = Math.max(0, Math.min(100, (d.pv  / d.pvMax)  * 100));
+  const eaPct   = Math.max(0, Math.min(100, (d.ea  / d.eaMax)  * 100));
+  const pvtPct  = Math.max(0, Math.min(100, (d.pvtMax > 0 ? (d.pvt / d.pvtMax) * 100 : 0)));
+ 
+  const attrMod = v => { const m = Math.floor((v-10)/2); return (m>=0?'+':'')+m; };
+ 
+  card.innerHTML = `
+    <div class="card-header">
+      <div class="card-header-left">
+        <div class="char-name" ${editAttr} data-field="nome">${d.nome || slot}</div>
+        <div class="char-meta">
+          <span>⚡ <span ${editAttr} data-field="linhagem">${d.linhagem||'—'}</span></span>
+          <span>◆ <span ${editAttr} data-field="grau">${d.grau||'—'}</span></span>
+          <span>▲ <span ${editAttr} data-field="nivel">${d.nivel||'—'}</span></span>
+          <span>🏛 <span ${editAttr} data-field="afiliacao">${d.afiliacao||'—'}</span></span>
+        </div>
+      </div>
+      <span class="player-badge ${ismine?'':'other'}">${ismine ? '✦ Você' : slot}</span>
+    </div>
+ 
+    <div class="card-body">
+ 
+      <!-- RECURSOS -->
+      <div>
+        <div class="section-label">Recursos</div>
+        <div class="resource-bars">
+ 
+          <div class="resource-row">
+            <span class="resource-label pv">PV</span>
+            <div class="bar-track"><div class="bar-fill pv" style="width:${pvPct}%"></div></div>
+            <div class="resource-inputs">
+              <input class="num-input" type="number" data-field="pv" value="${d.pv}" min="0" max="${d.pvMax}" ${ismine?'':'disabled'}>
+              <span class="num-sep">/</span>
+              <input class="num-input" type="number" data-field="pvMax" value="${d.pvMax}" min="1" ${ismine?'':'disabled'}>
+            </div>
+          </div>
+ 
+          <div class="resource-row">
+            <span class="resource-label pvt">PVT</span>
+            <div class="bar-track"><div class="bar-fill pvt" style="width:${pvtPct}%"></div></div>
+            <div class="resource-inputs">
+              <input class="num-input" type="number" data-field="pvt" value="${d.pvt}" min="0" max="${d.pvtMax||99}" ${ismine?'':'disabled'}>
+              <span class="num-sep">/</span>
+              <input class="num-input" type="number" data-field="pvtMax" value="${d.pvtMax||0}" min="0" ${ismine?'':'disabled'}>
+            </div>
+          </div>
+ 
+          <div class="resource-row">
+            <span class="resource-label ea">EA</span>
+            <div class="bar-track"><div class="bar-fill ea" style="width:${eaPct}%"></div></div>
+            <div class="resource-inputs">
+              <input class="num-input" type="number" data-field="ea" value="${d.ea}" min="0" max="${d.eaMax}" ${ismine?'':'disabled'}>
+              <span class="num-sep">/</span>
+              <input class="num-input" type="number" data-field="eaMax" value="${d.eaMax}" min="1" ${ismine?'':'disabled'}>
+            </div>
+          </div>
+ 
+        </div>
+      </div>
+ 
+      <!-- STATUS -->
+      <div>
+        <div class="section-label">Status</div>
+        <div class="status-grid">
+          <div class="status-box">
+            <span class="s-label">Deslocamento</span>
+            <span class="s-val" ${editAttr} data-field="deslocamento">${d.deslocamento||13}m</span>
+          </div>
+          <div class="status-box">
+            <span class="s-label">CA</span>
+            <span class="s-val" ${editAttr} data-field="ca">${d.ca||13}</span>
+          </div>
+          <div class="status-box">
+            <span class="s-label">Grau</span>
+            <span class="s-val" style="font-size:14px" ${editAttr} data-field="grau2">${d.grau||'3'}</span>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- ATRIBUTOS -->
+      <div>
+        <div class="section-label">Atributos</div>
+        <div class="attrs-grid">
+          ${['for','dex','con','int','wis','cha'].map(a => `
+            <div class="attr-box">
+              <div class="attr-abbr">${a.toUpperCase()}</div>
+              <span class="attr-val" ${editAttr} data-field="${a}">${d[a]||10}</span>
+              <div class="attr-mod">${attrMod(d[a]||10)}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+ 
+      <!-- TÉCNICAS DE REFORÇO -->
+      <div>
+        <div class="section-label">Técnicas de Reforço</div>
+        <div class="tecnicas-list">
+          <div class="tecnica-item">
+            <div class="tecnica-top">
+              <span class="tecnica-nome">Reforço dos Punhos</span>
+              <span class="tecnica-custo">5 EA</span>
+            </div>
+            <span class="tecnica-efeito">1d4 + Mod. FOR</span>
+            <span class="tecnica-desc">Imbui as mãos com energia amaldiçoada para causar mais dano.</span>
+          </div>
+          <div class="tecnica-item">
+            <div class="tecnica-top">
+              <span class="tecnica-nome">Barreira Corporal</span>
+              <span class="tecnica-custo">10 EA</span>
+            </div>
+            <span class="tecnica-efeito">+1d6 + Mod. CON em PVT • +CA por 1 rodada</span>
+            <span class="tecnica-desc">Gera Pontos de Vida Temporários e aumenta CA.</span>
+          </div>
+          <div class="tecnica-item">
+            <div class="tecnica-top">
+              <span class="tecnica-nome">Passo Amaldiçoado</span>
+              <span class="tecnica-custo">15 EA</span>
+            </div>
+            <span class="tecnica-efeito">+3m Deslocamento por 2 rodadas</span>
+            <span class="tecnica-desc">Aumenta o deslocamento temporariamente.</span>
+          </div>
+          <div class="tecnica-item">
+            <div class="tecnica-top">
+              <span class="tecnica-nome">Fortalecimento de Habilidade</span>
+              <span class="tecnica-custo">20 EA</span>
+            </div>
+            <span class="tecnica-efeito">Reforço da Técnica</span>
+            <span class="tecnica-desc">Melhora capacidade, dano e qualidade de uma técnica.</span>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- TÉCNICAS INATAS -->
+      <div>
+        <div class="section-label">Técnicas Inatas</div>
+        <div class="tecnicas-list">
+          <div class="tecnica-item">
+            <div class="tecnica-top">
+              <span class="tecnica-nome">Técnica Inata (Principal)</span>
+              <span class="tecnica-custo" style="color:var(--red);background:rgba(255,74,74,0.1);border-color:rgba(255,74,74,0.3)">8d10</span>
+            </div>
+            <span class="tecnica-efeito">Alcance: 30m • Salvaguarda: FOR (CD 20)</span>
+            <span class="tecnica-desc">Cria um vácuo magnético que atrai alvos falhos e esmaga a matéria ao redor.</span>
+          </div>
+          <div class="tecnica-item">
+            <div class="tecnica-top">
+              <span class="tecnica-nome">Reversão de Técnica</span>
+              <span class="tecnica-custo" style="color:var(--red);background:rgba(255,74,74,0.1);border-color:rgba(255,74,74,0.3)">12d10</span>
+            </div>
+            <span class="tecnica-efeito">Linha 24m • Salvaguarda: DEX (CD 20)</span>
+            <span class="tecnica-desc">Onda repulsiva de energia positiva reversa — joga alvos a 15m de distância.</span>
+          </div>
+          <div class="tecnica-item">
+            <div class="tecnica-top">
+              <span class="tecnica-nome">Fusão Completa</span>
+              <span class="tecnica-custo" style="color:var(--red);background:rgba(255,74,74,0.1);border-color:rgba(255,74,74,0.3)">20d12</span>
+            </div>
+            <span class="tecnica-efeito">Área 18m • Ignora coberturas</span>
+            <span class="tecnica-desc">Fusão e colisão instantânea — apaga completamente toda a matéria tocada.</span>
+          </div>
+          <div class="tecnica-item">
+            <div class="tecnica-top">
+              <span class="tecnica-nome">Técnica Inversa: Cura</span>
+              <span class="tecnica-custo" style="color:var(--online);background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.3)">4d10+CHA</span>
+            </div>
+            <span class="tecnica-efeito">Toque / Pessoal • Cessa Sangrando</span>
+            <span class="tecnica-desc">Regenera PV e cessa a condição Sangrando via multiplicação de energia negativa.</span>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- BARREIRAS / DOMÍNIOS -->
+      <div>
+        <div class="section-label">Barreiras &amp; Domínios</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+ 
+          <div class="dominio-box simples">
+            <div class="dominio-title">🛡️ Domínio Simples</div>
+            <div class="dominio-desc">Técnica defensiva ancestral — projeta uma barreira mística ao redor dos pés do usuário.</div>
+            <div class="dominio-efeito">
+              • Neutraliza <strong>Acerto Infalível</strong> de Expansões inimigas (raio 3m)<br>
+              • <strong>+2 CA</strong> e vantagem em salvaguardas de DEX enquanto ativo
+            </div>
+          </div>
+ 
+          <div class="dominio-box expansao">
+            <div class="dominio-title">💀 Expansão de Domínio</div>
+            <div class="dominio-desc">O ápice da manipulação de energia — manifesta o mundo inato do feiticeiro na realidade física.</div>
+            <div class="dominio-efeito">
+              • Custo fixo: <strong>100 EA</strong><br>
+              • Redoma impenetrável de <strong>18 metros</strong><br>
+              • Todos os feitiços ganham <strong>Acerto Infalível</strong><br>
+              • Ao desativar: técnica queimada por <strong>1d4 turnos</strong>
+            </div>
+          </div>
+ 
+        </div>
+      </div>
+ 
+    </div>`;
+ 
+  // ── Eventos: inputs numéricos ──
+  if (ismine) {
+    card.querySelectorAll('input.num-input').forEach(inp => {
+      inp.addEventListener('change', () => salvarCampo(slot, inp.dataset.field, Number(inp.value)));
+    });
+ 
+    // ── Eventos: contenteditable ──
+    card.querySelectorAll('[contenteditable="true"]').forEach(el => {
+      el.addEventListener('blur', () => {
+        let val = el.textContent.trim();
+        // Para campos numéricos, converter
+        const numFields = ['deslocamento','ca','for','dex','con','int','wis','cha'];
+        if (numFields.includes(el.dataset.field)) val = parseInt(val) || 0;
+        salvarCampo(slot, el.dataset.field, val);
+      });
+      el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
+    });
+  }
+ 
+  return card;
+}
+ 
+// ── SALVAR CAMPO NO FIREBASE ──
+function salvarCampo(slot, field, value) {
+  const fieldRef = ref(db, `sessoes/${sessaoId}/fichas/${slot}/${field}`);
+  set(fieldRef, value)
+    .then(() => { /* silencioso */ })
+    .catch(() => showToast('Erro ao salvar', 'error'));
+}
+ 
+// ── Expor funções globais ──
+window.entrarSessao = window.entrarSessao;
+</script>
+</body>
+</html>
+ 
