@@ -772,6 +772,106 @@
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
   .turno-ativo-banner span { animation: blink 1.2s infinite; }
 
+  /* ══════════════════════════════════════
+     BARDO — BARRA DE MÚSICA NO RODAPÉ
+  ══════════════════════════════════════ */
+  #bardoBar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 500;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.5);
+  }
+  #bardoBar.visible { display: flex; }
+
+  .bardo-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    flex-wrap: wrap;
+  }
+  .bardo-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 2px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .bardo-now-playing {
+    font-size: 11px;
+    color: var(--text2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+    flex-shrink: 1;
+  }
+  .bardo-now-playing span { color: var(--text); }
+  .bardo-input-wrap {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+    min-width: 180px;
+  }
+  .bardo-input {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    padding: 6px 12px;
+    color: var(--text);
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .bardo-input:focus { border-color: var(--gold); }
+  .bardo-input::placeholder { color: var(--text2); }
+  .bardo-btn {
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    white-space: nowrap;
+  }
+  .bardo-btn.play { border-color: var(--gold); color: var(--gold); }
+  .bardo-btn.play:hover { background: var(--gold); color: #0a0a0f; }
+  .bardo-btn.stop { border-color: var(--red); color: var(--red); }
+  .bardo-btn.stop:hover { background: var(--red); color: white; }
+  .bardo-btn.toggle-player { border-color: var(--border2); color: var(--text2); font-size: 10px; padding: 5px 9px; }
+  .bardo-btn.toggle-player:hover { border-color: var(--blue); color: var(--blue); }
+
+  .bardo-player-wrap {
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+    max-height: 0;
+  }
+  .bardo-player-wrap.open { max-height: 200px; }
+  .bardo-player-wrap iframe {
+    display: block;
+    width: 100%;
+    height: 190px;
+    border: none;
+    border-top: 1px solid var(--border);
+  }
+
+  /* empurrar conteúdo para cima quando o bardo está ativo */
+  body.bardo-ativo .main-layout,
+  body.bardo-ativo .player-select-screen {
+    padding-bottom: 60px;
+  }
+
   /* ── INVENTÁRIO ── */
   .inventario-list { display: flex; flex-direction: column; gap: 5px; }
   .inventario-item {
@@ -959,6 +1059,23 @@
   </div>
 </div>
 
+<!-- BARDO — PLAYER DE MÚSICA -->
+<div id="bardoBar">
+  <div class="bardo-top">
+    <div class="bardo-logo">🎵 BARDO</div>
+    <div class="bardo-now-playing" id="bardoNowPlaying">Nenhuma música tocando</div>
+    <div class="bardo-input-wrap">
+      <input class="bardo-input" id="bardoInput" type="text" placeholder="Cole um link do YouTube..." onkeydown="if(event.key==='Enter') bardoTocar()" />
+      <button class="bardo-btn play" onclick="bardoTocar()">▶ Tocar</button>
+      <button class="bardo-btn stop" onclick="bardoParar()">■ Parar</button>
+      <button class="bardo-btn toggle-player" onclick="bardoTogglePlayer()">▼ Player</button>
+    </div>
+  </div>
+  <div class="bardo-player-wrap" id="bardoPlayerWrap">
+    <iframe id="bardoIframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <!-- FIREBASE -->
@@ -997,6 +1114,97 @@ window.__remove = remove;
 window.__getSessaoId = () => sessaoId;
 window.__getMeuSlot  = () => meuSlot;
 window.__getFichas   = () => fichasData;
+
+/* ══════════════════════════════════════
+   BARDO — MÚSICA SINCRONIZADA VIA FIREBASE
+══════════════════════════════════════ */
+let bardoPlayerAberto = false;
+
+function bardoExtrairVideoId(url) {
+  // Suporta: youtube.com/watch?v=ID, youtu.be/ID, youtube.com/live/ID
+  const patterns = [
+    /[?&]v=([a-zA-Z0-9_-]{11})/,
+    /youtu\.be\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/(?:live|embed|shorts)\/([a-zA-Z0-9_-]{11})/,
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+function bardoAtualizarUI(data) {
+  const bar = document.getElementById('bardoBar');
+  const nowPlaying = document.getElementById('bardoNowPlaying');
+  const iframe = document.getElementById('bardoIframe');
+
+  if (!data || !data.videoId) {
+    bar.classList.remove('visible');
+    document.body.classList.remove('bardo-ativo');
+    iframe.src = '';
+    nowPlaying.innerHTML = 'Nenhuma música tocando';
+    return;
+  }
+
+  bar.classList.add('visible');
+  document.body.classList.add('bardo-ativo');
+  nowPlaying.innerHTML = `♪ <span>${data.titulo || 'YouTube'}</span> — por ${data.quem || '?'}`;
+
+  const embedUrl = `https://www.youtube.com/embed/${data.videoId}?autoplay=1&rel=0`;
+  if (iframe.src !== embedUrl) {
+    iframe.src = embedUrl;
+  }
+}
+
+window.bardoTocar = function() {
+  const input = document.getElementById('bardoInput').value.trim();
+  if (!input) { showToast('Cole um link do YouTube!', 'error'); return; }
+  const videoId = bardoExtrairVideoId(input);
+  if (!videoId) { showToast('Link do YouTube inválido.', 'error'); return; }
+
+  const sid = window.__getSessaoId();
+  if (!sid) { showToast('Entre em uma sessão primeiro.', 'error'); return; }
+
+  const quem = window.__getMeuSlot() || 'Mestre';
+  const fichas = window.__getFichas();
+  const nomeQuem = fichas[quem]?.nome || quem;
+
+  // Buscar título via oEmbed (sem API key)
+  fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`)
+    .then(r => r.json())
+    .then(d => {
+      const titulo = d.title || 'Música';
+      window.__set(window.__ref(window.__db, `sessoes/${sid}/bardo`), { videoId, titulo, quem: nomeQuem, ts: Date.now() });
+      document.getElementById('bardoInput').value = '';
+    })
+    .catch(() => {
+      // Se falhar oEmbed, toca mesmo assim sem título
+      window.__set(window.__ref(window.__db, `sessoes/${sid}/bardo`), { videoId, titulo: 'YouTube', quem: nomeQuem, ts: Date.now() });
+      document.getElementById('bardoInput').value = '';
+    });
+};
+
+window.bardoParar = function() {
+  const sid = window.__getSessaoId();
+  if (!sid) return;
+  window.__set(window.__ref(window.__db, `sessoes/${sid}/bardo`), null);
+};
+
+window.bardoTogglePlayer = function() {
+  bardoPlayerAberto = !bardoPlayerAberto;
+  const wrap = document.getElementById('bardoPlayerWrap');
+  const btn = document.querySelector('.bardo-btn.toggle-player');
+  wrap.classList.toggle('open', bardoPlayerAberto);
+  btn.textContent = bardoPlayerAberto ? '▲ Player' : '▼ Player';
+};
+
+// Escutar mudanças do Bardo no Firebase (chamado após entrar na sessão)
+window.__iniciarBardoListener = function(sid) {
+  onValue(window.__ref(window.__db, `sessoes/${sid}/bardo`), snap => {
+    bardoAtualizarUI(snap.val());
+  });
+};
 
 /* ── DEFAULT ── */
 function tecnicasInatasDefault() {
@@ -1213,6 +1421,9 @@ function iniciarApp() {
 
   // Mensagem de entrada
   enviarSistema(meuNome + ' entrou na sessão.');
+
+  // Bardo — música sincronizada
+  window.__iniciarBardoListener(sessaoId);
 }
 
 /* ══════════════════════════════════════
