@@ -671,6 +671,166 @@
   .toast.error   { border-color: var(--red); color: var(--red); }
   .toast.roll    { border-color: var(--gold); color: var(--gold); font-family: 'Cinzel', serif; }
 
+  /* ── MODO MESTRE ── */
+  .btn-header.mestre { border-color: var(--gold); color: var(--gold); }
+  .btn-header.mestre:hover { background: var(--gold); color: #0a0a0f; }
+  .btn-header.mestre.active { background: rgba(240,192,64,0.15); border-color: var(--gold); color: var(--gold); }
+  .mestre-badge {
+    font-size: 10px; background: rgba(240,192,64,0.15);
+    border: 1px solid var(--gold); color: var(--gold);
+    border-radius: 20px; padding: 3px 9px; white-space: nowrap; flex-shrink: 0;
+  }
+  .ficha-card.mestre-mode { border-color: var(--gold); box-shadow: 0 0 28px rgba(240,192,64,0.12); }
+  .ficha-card.mestre-mode .card-header { background: linear-gradient(135deg,#1a1400,#140f00); }
+
+  /* ── AVATAR ── */
+  .avatar-area {
+    display: flex; align-items: center; gap: 12px; padding: 10px 18px 0;
+  }
+  .avatar-circle {
+    width: 52px; height: 52px; border-radius: 50%;
+    border: 2px solid var(--border2);
+    background: var(--bg3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; cursor: pointer; flex-shrink: 0;
+    overflow: hidden; position: relative; transition: border-color 0.2s;
+  }
+  .avatar-circle:hover { border-color: var(--purple); }
+  .avatar-circle img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .avatar-circle.editable::after {
+    content: '📷'; position: absolute; inset: 0;
+    background: rgba(0,0,0,0.6); display: flex; align-items: center;
+    justify-content: center; border-radius: 50%; opacity: 0; transition: opacity 0.2s;
+    font-size: 16px;
+  }
+  .avatar-circle.editable:hover::after { opacity: 1; }
+  .avatar-input { display: none; }
+
+  /* ── STATUS / CONDIÇÕES ── */
+  .status-overlay {
+    position: absolute; inset: 0; background: rgba(10,10,15,0.88);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; z-index: 10; border-radius: 13px;
+    animation: fadeIn 0.3s ease;
+  }
+  .status-overlay-text {
+    font-family: 'Cinzel', serif; font-size: 22px; font-weight: 700;
+    color: var(--red); text-shadow: 0 0 20px var(--red); letter-spacing: 2px;
+  }
+  .status-overlay-sub { font-size: 11px; color: var(--text2); }
+  .ficha-card { position: relative; }
+
+  .condicoes-area { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+  .condicao-tag {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 600; border-radius: 20px;
+    padding: 2px 8px; border: 1px solid; cursor: default;
+    animation: fadeIn 0.2s ease;
+  }
+  .condicao-tag .remove-cond { cursor: pointer; opacity: 0.6; font-size: 9px; }
+  .condicao-tag .remove-cond:hover { opacity: 1; }
+  .cond-sangrando  { color: #ff6b6b; border-color: rgba(255,107,107,0.4); background: rgba(255,107,107,0.08); }
+  .cond-atordoado  { color: #fbbf24; border-color: rgba(251,191,36,0.4);  background: rgba(251,191,36,0.08); }
+  .cond-envenenado { color: #4ade80; border-color: rgba(74,222,128,0.4);  background: rgba(74,222,128,0.08); }
+  .cond-amedrontado{ color: #a78bfa; border-color: rgba(167,139,250,0.4); background: rgba(167,139,250,0.08); }
+  .cond-paralisado { color: #60a5fa; border-color: rgba(96,165,250,0.4);  background: rgba(96,165,250,0.08); }
+  .cond-invisivel  { color: #e2e8f0; border-color: rgba(226,232,240,0.3); background: rgba(226,232,240,0.05); }
+  .btn-add-cond {
+    font-size: 10px; color: var(--text2); background: transparent;
+    border: 1px dashed var(--border2); border-radius: 20px; padding: 2px 8px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn-add-cond:hover { border-color: var(--purple); color: var(--purple); }
+
+  /* ── TURNO ATIVO (sistema de turnos) ── */
+  .init-row.ativo {
+    border-color: var(--online) !important;
+    background: linear-gradient(135deg,#001a0a,#001208) !important;
+    box-shadow: 0 0 10px rgba(34,197,94,0.2);
+  }
+  .init-row.ativo .init-name { color: var(--online); font-weight: 700; }
+  .init-row.ativo .init-score { color: var(--online); }
+  .turno-controls {
+    display: flex; gap: 5px; margin-top: 8px; align-items: center; justify-content: space-between;
+  }
+  .btn-turno {
+    flex: 1; font-size: 10px; font-weight: 700; border-radius: 5px; padding: 5px 6px;
+    cursor: pointer; transition: all 0.15s; letter-spacing: 0.3px;
+  }
+  .btn-turno.prev { background: transparent; border: 1px solid var(--border2); color: var(--text2); }
+  .btn-turno.prev:hover { border-color: var(--blue); color: var(--blue); }
+  .btn-turno.next { background: linear-gradient(135deg,#001a08,#00120a); border: 1px solid var(--online); color: var(--online); }
+  .btn-turno.next:hover { background: var(--online); color: #0a0a0f; }
+  .turno-counter { font-size: 9px; color: var(--text2); text-align: center; padding: 2px 0; }
+  .ficha-card.turno-ativo { box-shadow: 0 0 30px rgba(34,197,94,0.25) !important; border-color: var(--online) !important; }
+  .turno-ativo-banner {
+    background: linear-gradient(90deg,rgba(34,197,94,0.15),transparent);
+    border-bottom: 1px solid rgba(34,197,94,0.3);
+    padding: 5px 18px; font-size: 10px; color: var(--online);
+    font-weight: 700; letter-spacing: 1px; display: flex; align-items: center; gap: 6px;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .turno-ativo-banner span { animation: blink 1.2s infinite; }
+
+  /* ── INVENTÁRIO ── */
+  .inventario-list { display: flex; flex-direction: column; gap: 5px; }
+  .inventario-item {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 7px;
+    padding: 8px 10px; display: flex; align-items: center; gap: 8px;
+  }
+  .inv-qty {
+    width: 36px; background: var(--bg); border: 1px solid var(--border2);
+    border-radius: 5px; color: var(--gold); font-size: 12px; font-weight: 700;
+    text-align: center; padding: 2px; outline: none;
+  }
+  .inv-qty:focus { border-color: var(--gold); }
+  .inv-nome { flex: 1; font-size: 11px; font-weight: 600; color: var(--text); }
+  .inv-nome[contenteditable="true"]:focus { outline: 1px solid var(--border2); border-radius: 3px; padding: 1px 3px; }
+  .inv-desc { font-size: 10px; color: var(--text2); }
+  .inv-desc[contenteditable="true"]:focus { outline: 1px solid var(--border2); border-radius: 3px; padding: 1px 3px; }
+  .btn-del-item {
+    background: transparent; border: none; color: var(--text2);
+    cursor: pointer; font-size: 12px; padding: 2px 4px; border-radius: 4px;
+    transition: color 0.15s;
+  }
+  .btn-del-item:hover { color: var(--red); }
+  .btn-add-item {
+    width: 100%; padding: 7px; background: transparent;
+    border: 1px dashed var(--border2); border-radius: 7px;
+    color: var(--text2); font-size: 11px; cursor: pointer;
+    transition: all 0.15s; margin-top: 2px;
+  }
+  .btn-add-item:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ── BOTÃO ROLAR TÉCNICA ── */
+  .btn-rolar-tecnica {
+    background: transparent; border: 1px solid rgba(168,85,247,0.4);
+    color: var(--purple); border-radius: 5px; padding: 2px 7px;
+    font-size: 10px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
+  }
+  .btn-rolar-tecnica:hover { background: var(--purple); color: white; }
+
+  /* ── CHAT HEADER com botão limpar ── */
+  .chat-header {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .btn-limpar-chat {
+    font-size: 10px; color: var(--text2); background: none;
+    border: 1px solid var(--border); border-radius: 5px;
+    padding: 2px 8px; cursor: pointer; transition: all 0.15s;
+  }
+  .btn-limpar-chat:hover { color: var(--red); border-color: var(--red); }
+
+  /* ── EDITAR PERSONAGEM NA SELEÇÃO ── */
+  .btn-edit-ficha {
+    margin-top: 6px; background: transparent;
+    border: 1px solid rgba(74,158,255,0.4); color: var(--blue);
+    border-radius: 6px; padding: 5px 10px; font-size: 10px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-edit-ficha:hover { background: var(--blue); color: white; }
+
   /* ── Responsive ── */
   @media (max-width: 860px) {
     .right-panel { width: 260px; }
@@ -678,8 +838,11 @@
   }
   @media (max-width: 640px) {
     .main-layout.visible { flex-direction: column; }
-    .right-panel { width: 100%; height: 380px; position: static; border-left: none; border-top: 1px solid var(--border); }
+    .right-panel { width: 100%; height: auto; min-height: 340px; max-height: 50vh; position: static; border-left: none; border-top: 1px solid var(--border); }
     .fichas-area.collapsed { display: none; }
+    .chat-hint { display: none; }
+    .attrs-grid { grid-template-columns: repeat(3,1fr); }
+    .initiative-panel { max-height: 160px; overflow-y: auto; }
   }
 </style>
 </head>
@@ -709,6 +872,7 @@
       <span id="mySlotLabel" style="color:var(--purple)"></span>
     </div>
     <button class="btn-header dice" onclick="abrirModalDados()">🎲 Dados</button>
+    <button class="btn-header mestre" id="btnMestre" onclick="toggleMestre()">👁 Mestre</button>
     <button class="btn-header toggle" id="btnToggleFichas" onclick="toggleFichas()">📋 Fichas</button>
   </div>
 </header>
@@ -733,10 +897,18 @@
       <div class="initiative-list" id="initiativeList">
         <div class="init-empty">Nenhuma iniciativa rolada ainda.</div>
       </div>
+      <div class="turno-controls" id="turnoControls" style="display:none">
+        <button class="btn-turno prev" onclick="avancarTurno(-1)">◀ Anterior</button>
+        <span class="turno-counter" id="turnoCounter">Turno 1</span>
+        <button class="btn-turno next" onclick="avancarTurno(1)">Próximo ▶</button>
+      </div>
     </div>
 
     <!-- CHAT -->
-    <div class="chat-header">💬 LOG DE SESSÃO</div>
+    <div class="chat-header">
+      <span>💬 LOG DE SESSÃO</span>
+      <button class="btn-limpar-chat" onclick="limparChat()">🗑 Limpar</button>
+    </div>
     <div class="chat-messages" id="chatMessages"></div>
     <div class="chat-hint">Use /r NdX para rolar — ex: /r 2d6</div>
     <div class="chat-input-area">
@@ -812,6 +984,9 @@ let sessaoId   = null;
 let meuSlot    = null;
 let meuNome    = null;
 let fichasData = {};
+let modoMestre = false;
+let turnoAtual = 0;
+let turnoNumero = 1;
 
 // Expor referência ao db para funções globais
 window.__db = db;
@@ -844,7 +1019,8 @@ function fichaDefault(nome) {
     deslocamento:0, ca:0, for:0,dex:0,con:0,int:0,wis:0,cha:0,
     tecnicasInatas: tecnicasInatasDefault(),
     dominioSimples: dominioSimplesDefault(),
-    dominioExpansao: dominioExpansaoDefault()
+    dominioExpansao: dominioExpansaoDefault(),
+    inventario: [], condicoes: [], avatar: null
   };
 }
 
@@ -891,9 +1067,13 @@ function renderSelecaoPersonagens(dados) {
     c.innerHTML = `
       <div class="slot-name">${ficha.nome || 'Personagem'}</div>
       <div class="slot-status">● ${ficha.linhagem||'—'} · ${ficha.grau||'—'}</div>
-      <button class="btn-delete-ficha" type="button">🗑 Excluir</button>
+      <div style="display:flex;gap:5px;justify-content:center;margin-top:10px;flex-wrap:wrap">
+        <button class="btn-edit-ficha" type="button">✏️ Editar</button>
+        <button class="btn-delete-ficha" type="button">🗑 Excluir</button>
+      </div>
     `;
     c.querySelector('.btn-delete-ficha').addEventListener('click', e => { e.stopPropagation(); excluirFicha(id, ficha.nome); });
+    c.querySelector('.btn-edit-ficha').addEventListener('click', e => { e.stopPropagation(); abrirEditarPersonagem(id, ficha); });
     c.addEventListener('click', () => escolherPersonagem(id, ficha));
     grid.appendChild(c);
   });
@@ -903,6 +1083,13 @@ function renderSelecaoPersonagens(dados) {
   novo.innerHTML = `<div class="slot-name">＋ Novo Personagem</div><div class="slot-status">Criar ficha</div>`;
   novo.onclick = () => abrirCriarPersonagem();
   grid.appendChild(novo);
+
+  const mestre = document.createElement('div');
+  mestre.className = 'player-card new-card';
+  mestre.style.cssText = 'border-color:rgba(240,192,64,0.5);';
+  mestre.innerHTML = `<div class="slot-name" style="color:var(--gold)">👁 Entrar como Mestre</div><div class="slot-status">Controle total da sessão</div>`;
+  mestre.onclick = () => entrarComoMestre();
+  grid.appendChild(mestre);
 }
 
 function abrirCriarPersonagem() {
@@ -931,6 +1118,38 @@ async function criarPersonagem() {
   escolherPersonagem(novaRef.key, ficha);
 }
 
+function abrirEditarPersonagem(id, ficha) {
+  const grid = document.getElementById('playerGrid');
+  grid.innerHTML = `
+    <div class="session-id-box" style="grid-column:1/-1;">
+      <label>EDITAR PERSONAGEM</label>
+      <input type="text" id="editNomeInput" placeholder="Nome" maxlength="30" value="${ficha.nome||''}">
+      <input type="text" id="editLinhagemInput" placeholder="Linhagem" maxlength="40" value="${ficha.linhagem||''}" style="margin-top:6px;">
+      <input type="text" id="editGrauInput" placeholder="Grau" maxlength="20" value="${ficha.grau||''}" style="margin-top:6px;">
+      <button class="btn-enter" id="btnSalvarEdicao">💾 Salvar</button>
+      <button class="btn-enter" id="btnVoltarDeEdicao" style="background:transparent;border:1px solid var(--border2);color:var(--text2);margin-top:8px;">← Voltar</button>
+    </div>
+  `;
+  document.getElementById('btnSalvarEdicao').onclick = async () => {
+    const nome = document.getElementById('editNomeInput').value.trim() || ficha.nome;
+    const linhagem = document.getElementById('editLinhagemInput').value.trim() || ficha.linhagem;
+    const grau = document.getElementById('editGrauInput').value.trim() || ficha.grau;
+    await set(ref(db, `sessoes/${sessaoId}/fichas/${id}/nome`), nome);
+    await set(ref(db, `sessoes/${sessaoId}/fichas/${id}/linhagem`), linhagem);
+    await set(ref(db, `sessoes/${sessaoId}/fichas/${id}/grau`), grau);
+    showToast('Personagem atualizado!','success');
+    carregarSelecaoPersonagens();
+  };
+  document.getElementById('btnVoltarDeEdicao').onclick = carregarSelecaoPersonagens;
+}
+
+function entrarComoMestre() {
+  modoMestre = true;
+  meuSlot = '__mestre__';
+  meuNome = '👁 Mestre';
+  iniciarApp();
+}
+
 function escolherPersonagem(id, ficha) {
   meuSlot = id;
   meuNome = (ficha && ficha.nome) || 'Personagem';
@@ -954,12 +1173,19 @@ function iniciarApp() {
   document.getElementById('sessionLabel').textContent = 'Sessão: '+sessaoId;
   document.getElementById('mySlotLabel').textContent = '[ '+meuNome+' ]';
 
+  if (modoMestre) {
+    document.getElementById('btnMestre').classList.add('active');
+    document.getElementById('mySlotLabel').style.color = 'var(--gold)';
+  }
+
   // Fichas em tempo real
   onValue(ref(db, `sessoes/${sessaoId}/fichas`), snap => {
     fichasData = snap.val() || {};
     renderFichas();
-    const nomeAtual = fichasData[meuSlot]?.nome || meuNome;
-    document.getElementById('mySlotLabel').textContent = '[ '+nomeAtual+' ]';
+    if (!modoMestre) {
+      const nomeAtual = fichasData[meuSlot]?.nome || meuNome;
+      document.getElementById('mySlotLabel').textContent = '[ '+nomeAtual+' ]';
+    }
   });
 
   // Chat em tempo real
@@ -970,6 +1196,19 @@ function iniciarApp() {
   // Iniciativa em tempo real
   onValue(ref(db, `sessoes/${sessaoId}/iniciativa`), snap => {
     renderIniciativa(snap.val() || {});
+  });
+
+  // Turno em tempo real
+  onValue(ref(db, `sessoes/${sessaoId}/turno`), snap => {
+    const t = snap.val();
+    if (t !== null && t !== undefined) {
+      turnoAtual = t.indice || 0;
+      turnoNumero = t.numero || 1;
+    } else {
+      turnoAtual = 0;
+      turnoNumero = 1;
+    }
+    renderIniciativa(window.__iniciativaCache || {});
   });
 
   // Mensagem de entrada
@@ -996,27 +1235,62 @@ window.toggleFichas = function() {
 };
 
 /* ══════════════════════════════════════
+   MODO MESTRE
+══════════════════════════════════════ */
+window.toggleMestre = function() {
+  if (!modoMestre) {
+    const senha = prompt('Senha do Mestre (deixe em branco para continuar):');
+    if (senha === null) return; // cancelou
+    modoMestre = true;
+    document.getElementById('btnMestre').classList.add('active');
+    document.getElementById('btnMestre').textContent = '👁 Mestre ✓';
+    document.getElementById('mySlotLabel').style.color = 'var(--gold)';
+    document.getElementById('mySlotLabel').textContent = '[ 👁 Mestre ]';
+    renderFichas();
+    showToast('Modo Mestre ativado!','success');
+  } else {
+    modoMestre = false;
+    document.getElementById('btnMestre').classList.remove('active');
+    document.getElementById('btnMestre').textContent = '👁 Mestre';
+    document.getElementById('mySlotLabel').style.color = 'var(--purple)';
+    const nomeAtual = fichasData[meuSlot]?.nome || meuNome;
+    document.getElementById('mySlotLabel').textContent = '[ '+nomeAtual+' ]';
+    renderFichas();
+    showToast('Modo Mestre desativado.','');
+  }
+};
+
+/* ══════════════════════════════════════
    ORDEM DE INICIATIVA
 ══════════════════════════════════════ */
 function renderIniciativa(data) {
+  window.__iniciativaCache = data;
   const list = document.getElementById('initiativeList');
   const entries = Object.values(data);
 
   if (entries.length === 0) {
     list.innerHTML = '<div class="init-empty">Nenhuma iniciativa rolada ainda.</div>';
+    document.getElementById('turnoControls').style.display = 'none';
+    // Remover destaque de turno de todos os cards
+    document.querySelectorAll('.ficha-card.turno-ativo').forEach(c => c.classList.remove('turno-ativo'));
+    document.querySelectorAll('.turno-ativo-banner').forEach(b => b.remove());
     return;
   }
 
-  // Ordenar do maior para o menor
   entries.sort((a, b) => b.total - a.total);
+
+  // Garantir que turnoAtual seja válido
+  if (turnoAtual >= entries.length) turnoAtual = 0;
+  const ativoEntry = entries[turnoAtual];
 
   list.innerHTML = '';
   entries.forEach((e, i) => {
     const row = document.createElement('div');
-    const rankClass = i === 0 ? 'first' : i === 1 ? 'second' : '';
+    const isAtivo = i === turnoAtual;
+    const rankClass = isAtivo ? 'ativo' : (i === 0 && turnoAtual !== 0 ? 'first' : i === 1 ? 'second' : '');
     row.className = 'init-row ' + rankClass;
 
-    const rankIcon = i === 0 ? '👑' : i === 1 ? '②' : i === 2 ? '③' : (i + 1);
+    const rankIcon = isAtivo ? '▶' : i === 0 ? '👑' : i === 1 ? '②' : i === 2 ? '③' : (i + 1);
     const natTag = e.roll === 20
       ? '<span class="init-nat crit">NAT 20</span>'
       : e.roll === 1
@@ -1031,12 +1305,56 @@ function renderIniciativa(data) {
     `;
     list.appendChild(row);
   });
+
+  // Mostrar/esconder controles de turno (só mestre ou se já há iniciativa)
+  const turnoCtrl = document.getElementById('turnoControls');
+  turnoCtrl.style.display = 'flex';
+  document.getElementById('turnoCounter').textContent = `Turno ${turnoNumero} · ${ativoEntry?.charName||''}`;
+
+  // Destacar card da ficha ativa
+  document.querySelectorAll('.ficha-card').forEach(card => {
+    const isTurnoAtivo = ativoEntry && card.dataset.slot === ativoEntry.slot;
+    card.classList.toggle('turno-ativo', isTurnoAtivo);
+
+    // Banner de turno ativo
+    const bannerExistente = card.querySelector('.turno-ativo-banner');
+    if (isTurnoAtivo && !bannerExistente) {
+      const banner = document.createElement('div');
+      banner.className = 'turno-ativo-banner';
+      banner.innerHTML = '<span>●</span> VEZ DESTE PERSONAGEM';
+      card.insertBefore(banner, card.querySelector('.card-header'));
+    } else if (!isTurnoAtivo && bannerExistente) {
+      bannerExistente.remove();
+    }
+  });
 }
+
+window.avancarTurno = function(dir) {
+  const entries = Object.values(window.__iniciativaCache || {});
+  if (entries.length === 0) return;
+  entries.sort((a, b) => b.total - a.total);
+
+  const novoIndice = (turnoAtual + dir + entries.length) % entries.length;
+  let novoNumero = turnoNumero;
+  if (dir > 0 && novoIndice === 0) novoNumero++;
+  if (dir < 0 && turnoAtual === 0) novoNumero = Math.max(1, novoNumero - 1);
+
+  set(ref(db, `sessoes/${sessaoId}/turno`), { indice: novoIndice, numero: novoNumero });
+  const nome = entries[novoIndice]?.charName || '';
+  enviarSistema(`⚔️ Turno ${novoNumero} — vez de ${nome}.`);
+};
 
 window.limparIniciativa = function() {
   if (!sessaoId) return;
   remove(ref(db, `sessoes/${sessaoId}/iniciativa`));
+  remove(ref(db, `sessoes/${sessaoId}/turno`));
   enviarSistema('Ordem de iniciativa reiniciada.');
+};
+
+window.limparChat = function() {
+  if (!sessaoId) return;
+  if (!confirm('Limpar todo o log de sessão? Esta ação não pode ser desfeita.')) return;
+  remove(ref(db, `sessoes/${sessaoId}/chat`));
 };
 
 /* ══════════════════════════════════════
@@ -1135,11 +1453,12 @@ function publicarRolagem(qty, sides, bonus, label, tipo) {
   const total  = soma + (bonus||0);
   const isCrit = qty===1 && sides===20 && rolls[0]===20;
   const isFail = qty===1 && sides===20 && rolls[0]===1;
-  const charName = fichasData[meuSlot]?.nome || meuSlot;
+  const slotEfetivo = window.__rolarComoSlot || meuSlot;
+  const charName = fichasData[slotEfetivo]?.nome || (modoMestre ? '👁 Mestre' : meuSlot);
   const formula  = bonus ? `${qty}d${sides}+${bonus}` : `${qty}d${sides}`;
 
   push(ref(db, `sessoes/${sessaoId}/chat`), {
-    type: tipo||'roll', slot:meuSlot, charName, formula, rolls, bonus:bonus||0, total,
+    type: tipo||'roll', slot:slotEfetivo, charName, formula, rolls, bonus:bonus||0, total,
     label: label || (isCrit?'⚡ Crítico Natural!': isFail?'💀 Falha Crítica!':''),
     special: isCrit?'nat20': isFail?'critical':'',
     ts: Date.now()
@@ -1229,15 +1548,21 @@ function renderFichas() {
   const container = document.getElementById('fichasContainer');
   const ids = Object.keys(fichasData);
   document.getElementById('onlineCount').textContent = ids.length;
-  const ordem = [meuSlot, ...ids.filter(id => id !== meuSlot)];
+  const ordem = modoMestre ? ids : [meuSlot, ...ids.filter(id => id !== meuSlot)];
   container.innerHTML = '';
   ordem.forEach(id => { if (fichasData[id]) container.appendChild(criarCard(id, fichasData[id])); });
+  // Re-aplicar destaque de turno
+  if (window.__iniciativaCache) renderIniciativa(window.__iniciativaCache);
 }
 
 function criarCard(slot, d) {
-  const ismine = slot === meuSlot;
+  const ismine = (slot === meuSlot) || modoMestre;
+  const isMeuCard = slot === meuSlot;
   const card = document.createElement('div');
-  card.className = 'ficha-card' + (ismine?' is-mine':'');
+  let cardClass = 'ficha-card';
+  if (isMeuCard) cardClass += ' is-mine';
+  if (modoMestre && !isMeuCard) cardClass += ' mestre-mode';
+  card.className = cardClass;
   card.dataset.slot = slot;
 
   const ea = ismine ? 'contenteditable="true"' : 'contenteditable="false"';
@@ -1250,10 +1575,59 @@ function criarCard(slot, d) {
   const tecnicasInatas = d.tecnicasInatas || tecnicasInatasDefault();
   const dominioSimples = d.dominioSimples || dominioSimplesDefault();
   const dominioExpansao = d.dominioExpansao || dominioExpansaoDefault();
+  const inventario = d.inventario || [];
+  const condicoes = d.condicoes || [];
+
+  // Avatar
+  const avatarSrc = d.avatar ? `<img src="${d.avatar}" alt="avatar">` : `<span style="font-size:22px">${(d.nome||'?')[0]}</span>`;
+  const avatarEditable = ismine ? 'class="avatar-circle editable"' : 'class="avatar-circle"';
+
+  // Badge mestre
+  const badgeLabel = modoMestre && !isMeuCard ? '👁 Mestre' : (isMeuCard ? '✦ Você' : (d.nome||'Jogador'));
+  const badgeClass = isMeuCard ? '' : (modoMestre ? '' : 'other');
+
+  // Condições HTML
+  const COND_INFO = {
+    sangrando:  { icon:'🩸', label:'Sangrando' },
+    atordoado:  { icon:'💫', label:'Atordoado' },
+    envenenado: { icon:'☠️', label:'Envenenado' },
+    amedrontado:{ icon:'😨', label:'Amedrontado' },
+    paralisado: { icon:'🧊', label:'Paralisado' },
+    invisivel:  { icon:'👻', label:'Invisível' },
+  };
+  const condicoesHTML = condicoes.map(c => {
+    const info = COND_INFO[c] || { icon:'⚠️', label: c };
+    const rem = ismine ? `<span class="remove-cond" data-cond="${c}" title="Remover">✕</span>` : '';
+    return `<span class="condicao-tag cond-${c}">${info.icon} ${info.label} ${rem}</span>`;
+  }).join('');
+  const addCondBtn = ismine ? `<button class="btn-add-cond" data-slot="${slot}">+ Condição</button>` : '';
+
+  // Inventário HTML
+  const inventarioHTML = inventario.map((item, idx) => `
+    <div class="inventario-item" data-idx="${idx}">
+      <input class="inv-qty num-input" type="number" value="${item.qty||1}" min="0" data-field="inventario/${idx}/qty" ${ismine?'':'disabled'}>
+      <div style="flex:1;display:flex;flex-direction:column;gap:1px">
+        <span class="inv-nome" ${ea} data-field="inventario/${idx}/nome">${item.nome||'Item'}</span>
+        <span class="inv-desc" ${ea} data-field="inventario/${idx}/desc">${item.desc||''}</span>
+      </div>
+      ${ismine ? `<button class="btn-del-item" data-idx="${idx}" title="Remover item">✕</button>` : ''}
+    </div>`).join('');
+
+  // Técnicas de reforço fixas com botão rolar
+  const tecnicasReforcoFixed = [
+    { nome:'Reforço dos Punhos',      custo:'5 EA',  formula:'1d4', label:'Reforço dos Punhos', efeito:'1d4 + Mod. FOR',            desc:'Imbui as mãos com energia amaldiçoada para causar mais dano.' },
+    { nome:'Barreira Corporal',       custo:'10 EA', formula:'1d6', label:'Barreira Corporal',   efeito:'+1d6 + Mod. CON em PVT • +CA por 1 rodada', desc:'Gera Pontos de Vida Temporários e aumenta CA.' },
+    { nome:'Passo Amaldiçoado',       custo:'15 EA', formula:'1d6', label:'Passo Amaldiçoado',   efeito:'+3m Deslocamento por 2 rodadas', desc:'Aumenta o deslocamento temporariamente.' },
+    { nome:'Fortalecimento de Habilidade', custo:'20 EA', formula:'1d8', label:'Fortalecimento', efeito:'Reforço da Técnica',       desc:'Melhora capacidade, dano e qualidade de uma técnica.' },
+  ];
 
   card.innerHTML = `
     <div class="card-header">
-      <div class="card-header-left">
+      <div ${avatarEditable} data-slot="${slot}" title="${ismine?'Clique para alterar avatar':''}">
+        ${avatarSrc}
+      </div>
+      ${ismine ? `<input type="file" class="avatar-input" accept="image/*" data-slot="${slot}">` : ''}
+      <div class="card-header-left" style="margin-left:10px">
         <div class="char-name" ${ea} data-field="nome">${d.nome||slot}</div>
         <div class="char-meta">
           <span>⚡ <span ${ea} data-field="linhagem">${d.linhagem||'—'}</span></span>
@@ -1261,8 +1635,9 @@ function criarCard(slot, d) {
           <span>▲ <span ${ea} data-field="nivel">${d.nivel||'—'}</span></span>
           <span>🏛 <span ${ea} data-field="afiliacao">${d.afiliacao||'—'}</span></span>
         </div>
+        <div class="condicoes-area">${condicoesHTML}${addCondBtn}</div>
       </div>
-      <span class="player-badge ${ismine?'':'other'}">${ismine?'✦ Você':(d.nome||'Jogador')}</span>
+      <span class="player-badge ${badgeClass}">${badgeLabel}</span>
     </div>
 
     <div class="card-body">
@@ -1319,7 +1694,7 @@ function criarCard(slot, d) {
               <div class="attr-mod">${mod(d[a]??0)}</div>
             </div>`).join('')}
         </div>
-        ${ismine ? `
+        ${isMeuCard ? `
         <button class="btn-iniciativa" onclick="rolarIniciativa('${slot}', ${d.dex??0})">
           🎲 Iniciativa &nbsp;<small style="opacity:0.65;font-size:10px;">(1d20 ${dexStr})</small>
         </button>` : `
@@ -1331,10 +1706,18 @@ function criarCard(slot, d) {
       <div>
         <div class="section-label">Técnicas de Reforço</div>
         <div class="tecnicas-list">
-          <div class="tecnica-item"><div class="tecnica-top"><span class="tecnica-nome">Reforço dos Punhos</span><span class="tecnica-custo">5 EA</span></div><span class="tecnica-efeito">1d4 + Mod. FOR</span><span class="tecnica-desc">Imbui as mãos com energia amaldiçoada para causar mais dano.</span></div>
-          <div class="tecnica-item"><div class="tecnica-top"><span class="tecnica-nome">Barreira Corporal</span><span class="tecnica-custo">10 EA</span></div><span class="tecnica-efeito">+1d6 + Mod. CON em PVT • +CA por 1 rodada</span><span class="tecnica-desc">Gera Pontos de Vida Temporários e aumenta CA.</span></div>
-          <div class="tecnica-item"><div class="tecnica-top"><span class="tecnica-nome">Passo Amaldiçoado</span><span class="tecnica-custo">15 EA</span></div><span class="tecnica-efeito">+3m Deslocamento por 2 rodadas</span><span class="tecnica-desc">Aumenta o deslocamento temporariamente.</span></div>
-          <div class="tecnica-item"><div class="tecnica-top"><span class="tecnica-nome">Fortalecimento de Habilidade</span><span class="tecnica-custo">20 EA</span></div><span class="tecnica-efeito">Reforço da Técnica</span><span class="tecnica-desc">Melhora capacidade, dano e qualidade de uma técnica.</span></div>
+          ${tecnicasReforcoFixed.map(t => `
+          <div class="tecnica-item">
+            <div class="tecnica-top">
+              <span class="tecnica-nome">${t.nome}</span>
+              <div style="display:flex;gap:4px;align-items:center">
+                <span class="tecnica-custo">${t.custo}</span>
+                ${ismine ? `<button class="btn-rolar-tecnica" data-formula="${t.formula}" data-label="${t.label}">🎲</button>` : ''}
+              </div>
+            </div>
+            <span class="tecnica-efeito">${t.efeito}</span>
+            <span class="tecnica-desc">${t.desc}</span>
+          </div>`).join('')}
         </div>
       </div>
 
@@ -1345,12 +1728,23 @@ function criarCard(slot, d) {
           <div class="tecnica-item">
             <div class="tecnica-top">
               <span class="tecnica-nome" ${ea} data-field="tecnicasInatas/${i}/nome">${t.nome||('Técnica Inata '+(i+1))}</span>
-              <span class="tecnica-custo" ${ea} data-field="tecnicasInatas/${i}/custo">${t.custo||'— EA'}</span>
+              <div style="display:flex;gap:4px;align-items:center">
+                <span class="tecnica-custo" ${ea} data-field="tecnicasInatas/${i}/custo">${t.custo||'— EA'}</span>
+                ${ismine ? `<button class="btn-rolar-tecnica" data-formula="${parseTecnicaFormula(t.efeito)}" data-label="${t.nome||'Técnica'}">🎲</button>` : ''}
+              </div>
             </div>
             <span class="tecnica-efeito" ${ea} data-field="tecnicasInatas/${i}/efeito">${t.efeito||'Alcance / Dano / Salvaguarda'}</span>
             <span class="tecnica-desc" ${ea} data-field="tecnicasInatas/${i}/desc">${t.desc||'Descreva o efeito da técnica...'}</span>
           </div>`).join('')}
         </div>
+      </div>
+
+      <div>
+        <div class="section-label">Inventário</div>
+        <div class="inventario-list" id="inv-${slot}">
+          ${inventarioHTML}
+        </div>
+        ${ismine ? `<button class="btn-add-item" data-slot="${slot}">＋ Adicionar item</button>` : ''}
       </div>
 
       <div>
@@ -1371,10 +1765,33 @@ function criarCard(slot, d) {
 
     </div>`;
 
+  // Overlay inconsciente/derrotado
+  if (d.pvMax > 0 && d.pv <= 0) {
+    const overlay = document.createElement('div');
+    overlay.className = 'status-overlay';
+    overlay.innerHTML = `<div class="status-overlay-text">💀 INCONSCIENTE</div><div class="status-overlay-sub">PV chegou a 0</div>`;
+    if (ismine) {
+      const btnAcordar = document.createElement('button');
+      btnAcordar.textContent = '↑ Recuperar (1 PV)';
+      btnAcordar.style.cssText = 'margin-top:8px;padding:6px 14px;background:var(--online);border:none;border-radius:6px;color:#0a0a0f;font-size:11px;font-weight:700;cursor:pointer;';
+      btnAcordar.onclick = () => salvar(slot, 'pv', 1);
+      overlay.appendChild(btnAcordar);
+    }
+    card.appendChild(overlay);
+  }
+
+  // Eventos
   if (ismine) {
+    // Inputs numéricos
     card.querySelectorAll('input.num-input').forEach(inp => {
-      inp.addEventListener('change', () => salvar(slot, inp.dataset.field, Number(inp.value)));
+      if (inp.classList.contains('inv-qty')) {
+        inp.addEventListener('change', () => salvar(slot, inp.dataset.field, Number(inp.value)));
+      } else {
+        inp.addEventListener('change', () => salvar(slot, inp.dataset.field, Number(inp.value)));
+      }
     });
+
+    // Contenteditable
     card.querySelectorAll('[contenteditable="true"]').forEach(el => {
       el.addEventListener('blur', () => {
         let v = el.textContent.trim();
@@ -1383,9 +1800,95 @@ function criarCard(slot, d) {
       });
       el.addEventListener('keydown', e => { if (e.key==='Enter'){e.preventDefault();el.blur();} });
     });
+
+    // Botões rolar técnica
+    card.querySelectorAll('.btn-rolar-tecnica').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const formula = btn.dataset.formula || '1d6';
+        const label = btn.dataset.label || 'Técnica';
+        const m = formula.match(/(\d+)d(\d+)(?:\+(\d+))?/i);
+        if (m) {
+          // Temporariamente mudar meuSlot para o slot correto
+          const slotOriginal = meuSlot;
+          if (modoMestre) window.__rolarComoSlot = slot;
+          publicarRolagem(parseInt(m[1]), parseInt(m[2]), m[3]?parseInt(m[3]):0, `🔥 ${label}`, 'roll');
+          if (modoMestre) window.__rolarComoSlot = null;
+        } else {
+          publicarRolagem(1, 6, 0, `🔥 ${label}`, 'roll');
+        }
+      });
+    });
+
+    // Avatar click
+    const avatarEl = card.querySelector('.avatar-circle');
+    const fileInput = card.querySelector('.avatar-input');
+    if (avatarEl && fileInput) {
+      avatarEl.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => salvar(slot, 'avatar', ev.target.result);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Adicionar condição
+    const addCondBtnEl = card.querySelector('.btn-add-cond');
+    if (addCondBtnEl) {
+      addCondBtnEl.addEventListener('click', () => abrirMenuCondicao(slot, d.condicoes||[]));
+    }
+
+    // Remover condição
+    card.querySelectorAll('.remove-cond').forEach(el => {
+      el.addEventListener('click', e => {
+        e.stopPropagation();
+        const cond = el.dataset.cond;
+        const novas = (d.condicoes||[]).filter(c => c !== cond);
+        salvar(slot, 'condicoes', novas);
+      });
+    });
+
+    // Adicionar item ao inventário
+    const addItemBtn = card.querySelector('.btn-add-item');
+    if (addItemBtn) {
+      addItemBtn.addEventListener('click', () => {
+        const inv = [...(fichasData[slot]?.inventario || []), { nome:'Novo Item', qty:1, desc:'' }];
+        salvar(slot, 'inventario', inv);
+      });
+    }
+
+    // Remover item do inventário
+    card.querySelectorAll('.btn-del-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx);
+        const inv = [...(fichasData[slot]?.inventario || [])];
+        inv.splice(idx, 1);
+        salvar(slot, 'inventario', inv.length ? inv : null);
+      });
+    });
   }
 
   return card;
+}
+
+// Extrai fórmula de dado de um texto de efeito ex: "1d6 + Mod. FOR" → "1d6"
+function parseTecnicaFormula(efeito) {
+  const m = (efeito||'').match(/(\d+d\d+(?:\+\d+)?)/i);
+  return m ? m[1] : '1d6';
+}
+
+function abrirMenuCondicao(slot, condicoesAtuais) {
+  const CONDS = ['sangrando','atordoado','envenenado','amedrontado','paralisado','invisivel'];
+  const disponiveis = CONDS.filter(c => !condicoesAtuais.includes(c));
+  if (disponiveis.length === 0) { showToast('Todas as condições já aplicadas.',''); return; }
+  const escolha = prompt(`Adicionar condição:\n${disponiveis.map((c,i)=>`${i+1}. ${c}`).join('\n')}\n\nDigite o número:`);
+  if (!escolha) return;
+  const idx = parseInt(escolha) - 1;
+  if (idx >= 0 && idx < disponiveis.length) {
+    const novas = [...condicoesAtuais, disponiveis[idx]];
+    salvar(slot, 'condicoes', novas);
+  }
 }
 
 function salvar(slot, field, value) {
