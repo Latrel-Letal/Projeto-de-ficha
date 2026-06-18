@@ -1139,15 +1139,15 @@ function bardoAtualizarUI(data) {
   const nowPlaying = document.getElementById('bardoNowPlaying');
   const iframe = document.getElementById('bardoIframe');
 
+  // Bardo sempre visível após entrar na sessão
+  bar.classList.add('visible');
+  document.body.classList.add('bardo-ativo');
+
   if (!data || !data.videoId) {
-    bar.classList.remove('visible');
-    document.body.classList.remove('bardo-ativo');
     iframe.src = '';
     nowPlaying.innerHTML = 'Nenhuma música tocando';
     return;
   }
-
-  bar.classList.add('visible');
   document.body.classList.add('bardo-ativo');
   nowPlaying.innerHTML = `♪ <span>${data.titulo || 'YouTube'}</span> — por ${data.quem || '?'}`;
 
