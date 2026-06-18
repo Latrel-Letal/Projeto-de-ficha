@@ -1052,9 +1052,8 @@
       <div class="dice-result-breakdown" id="diceResultBreakdown"></div>
     </div>
     <div class="modal-actions">
-      <button class="btn-roll" onclick="rolarModal(false)">🎲 Rolar</button>
-      <button class="btn-roll-send" onclick="rolarModal(true)">📢 Enviar</button>
-      <button class="btn-close-modal" onclick="fecharModal()">✕</button>
+      <button class="btn-roll" onclick="rolarModal()">🎲 Rolar & Enviar</button>
+      <button class="btn-close-modal" onclick="fecharModal()">✕ Cancelar</button>
     </div>
   </div>
 </div>
@@ -1699,25 +1698,39 @@ window.clearPresets = function() {
   document.querySelectorAll('.dice-preset-btn').forEach(b => b.classList.remove('active'));
 };
 
-window.rolarModal = function(enviar) {
+window.rolarModal = function() {
+  if (!sessaoId) { showToast('Entre em uma sessão primeiro.', 'error'); return; }
+
   const qty   = Math.max(1, Math.min(20, parseInt(document.getElementById('diceQty').value)||1));
   const sides = Math.max(2, Math.min(100, parseInt(document.getElementById('diceSides').value)||6));
+
+  // Rola UMA vez e já envia — sem chance de re-rolar antes de publicar
   const rolls  = rolarDice(qty, sides);
   const total  = rolls.reduce((a,b)=>a+b,0);
   const isCrit = qty===1 && sides===20 && rolls[0]===20;
   const isFail = qty===1 && sides===20 && rolls[0]===1;
 
+  // Mostra animação brevemente e fecha
   const numEl = document.getElementById('diceResultNum');
   numEl.className = 'dice-result-num rolling' + (isCrit?' crit':isFail?' fail':'');
-  setTimeout(()=>numEl.classList.remove('rolling'),600);
+  setTimeout(()=>numEl.classList.remove('rolling'), 400);
   numEl.textContent = total;
-  document.getElementById('diceResultDetail').textContent = isCrit?'⚡ CRÍTICO!':isFail?'💀 FALHA!':(`${qty}d${sides}`);
+  document.getElementById('diceResultDetail').textContent = isCrit?'⚡ CRÍTICO!':isFail?'💀 FALHA!':`${qty}d${sides}`;
   document.getElementById('diceResultBreakdown').textContent = rolls.length>1 ? `[${rolls.join(' + ')}]` : '';
 
-  if (enviar && sessaoId) {
-    publicarRolagem(qty, sides, 0, null, 'roll');
-    fecharModal();
-  }
+  // Publica os MESMOS dados já rolados (sem re-rolar)
+  const slotEfetivo = window.__rolarComoSlot || meuSlot;
+  const charName = fichasData[slotEfetivo]?.nome || (modoMestre ? '👁 Mestre' : meuSlot);
+  const formula  = `${qty}d${sides}`;
+  push(ref(db, `sessoes/${sessaoId}/chat`), {
+    type: 'roll', slot: slotEfetivo, charName, formula, rolls, bonus: 0, total,
+    label: isCrit ? '⚡ Crítico Natural!' : isFail ? '💀 Falha Crítica!' : '',
+    special: isCrit ? 'nat20' : isFail ? 'critical' : '',
+    ts: Date.now()
+  });
+
+  // Fecha o modal após breve delay para o jogador ver o resultado
+  setTimeout(() => fecharModal(), 900);
 };
 
 /* ══════════════════════════════════════
