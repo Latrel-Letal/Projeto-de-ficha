@@ -735,6 +735,11 @@
   .cond-amedrontado{ color: #a78bfa; border-color: rgba(167,139,250,0.4); background: rgba(167,139,250,0.08); }
   .cond-paralisado { color: #60a5fa; border-color: rgba(96,165,250,0.4);  background: rgba(96,165,250,0.08); }
   .cond-invisivel  { color: #e2e8f0; border-color: rgba(226,232,240,0.3); background: rgba(226,232,240,0.05); }
+  /* Técnicas de Reforço como condição ativas */
+  .cond-reforco-punhos      { color: #f0c040; border-color: rgba(240,192,64,0.5);  background: rgba(240,192,64,0.1); }
+  .cond-barreira-corporal   { color: #4a9eff; border-color: rgba(74,158,255,0.5);  background: rgba(74,158,255,0.1); }
+  .cond-passo-amaldicado    { color: #34d399; border-color: rgba(52,211,153,0.5);  background: rgba(52,211,153,0.1); }
+  .cond-fortalecimento      { color: #f97316; border-color: rgba(249,115,22,0.5);  background: rgba(249,115,22,0.1); }
   .btn-add-cond {
     font-size: 10px; color: var(--text2); background: transparent;
     border: 1px dashed var(--border2); border-radius: 20px; padding: 2px 8px;
@@ -1812,12 +1817,16 @@ function criarCard(slot, d) {
 
   // Condições HTML
   const COND_INFO = {
-    sangrando:  { icon:'🩸', label:'Sangrando' },
-    atordoado:  { icon:'💫', label:'Atordoado' },
-    envenenado: { icon:'☠️', label:'Envenenado' },
-    amedrontado:{ icon:'😨', label:'Amedrontado' },
-    paralisado: { icon:'🧊', label:'Paralisado' },
-    invisivel:  { icon:'👻', label:'Invisível' },
+    sangrando:           { icon:'🩸', label:'Sangrando' },
+    atordoado:           { icon:'💫', label:'Atordoado' },
+    envenenado:          { icon:'☠️', label:'Envenenado' },
+    amedrontado:         { icon:'😨', label:'Amedrontado' },
+    paralisado:          { icon:'🧊', label:'Paralisado' },
+    invisivel:           { icon:'👻', label:'Invisível' },
+    'reforco-punhos':    { icon:'👊', label:'Reforço dos Punhos' },
+    'barreira-corporal': { icon:'🛡️', label:'Barreira Corporal' },
+    'passo-amaldicado':  { icon:'💨', label:'Passo Amaldiçoado' },
+    'fortalecimento':    { icon:'⚡', label:'Fortalecimento' },
   };
   const condicoesHTML = condicoes.map(c => {
     const info = COND_INFO[c] || { icon:'⚠️', label: c };
@@ -2106,14 +2115,29 @@ function parseTecnicaFormula(efeito) {
 
 function abrirMenuCondicao(slot, condicoesRaw) {
   const condicoesAtuais = Array.isArray(condicoesRaw) ? condicoesRaw : Object.values(condicoesRaw || {});
-  const CONDS = ['sangrando','atordoado','envenenado','amedrontado','paralisado','invisivel'];
-  const disponiveis = CONDS.filter(c => !condicoesAtuais.includes(c));
-  if (disponiveis.length === 0) { showToast('Todas as condições já aplicadas.',''); return; }
-  const escolha = prompt(`Adicionar condição:\n${disponiveis.map((c,i)=>`${i+1}. ${c}`).join('\n')}\n\nDigite o número:`);
+  const CONDS_STATUS  = ['sangrando','atordoado','envenenado','amedrontado','paralisado','invisivel'];
+  const CONDS_REFORCO = ['reforco-punhos','barreira-corporal','passo-amaldicado','fortalecimento'];
+  const LABELS = {
+    'sangrando':'🦸 Sangrando','atordoado':'💫 Atordoado','envenenado':'☠️ Envenenado',
+    'amedrontado':'😨 Amedrontado','paralisado':'🧊 Paralisado','invisivel':'👻 Invisível',
+    'reforco-punhos':'👊 Reforço dos Punhos','barreira-corporal':'🛡️ Barreira Corporal',
+    'passo-amaldicado':'💨 Passo Amaldiçoado','fortalecimento':'⚡ Fortalecimento',
+  };
+  const dispStatus  = CONDS_STATUS.filter(c => !condicoesAtuais.includes(c));
+  const dispReforco = CONDS_REFORCO.filter(c => !condicoesAtuais.includes(c));
+  const todas = [...dispStatus, ...dispReforco];
+  if (todas.length === 0) { showToast('Todas as condições já aplicadas.',''); return; }
+
+  let msg = 'Adicionar condição:';
+  if (dispStatus.length)  msg += '\n\n── Status ──\n'  + dispStatus.map((c,i)=>`${i+1}. ${LABELS[c]}`).join('\n');
+  if (dispReforco.length) msg += '\n\n── Técnicas de Reforço ──\n' + dispReforco.map((c,i)=>`${dispStatus.length+i+1}. ${LABELS[c]}`).join('\n');
+  msg += '\n\nDigite o número:';
+
+  const escolha = prompt(msg);
   if (!escolha) return;
   const idx = parseInt(escolha) - 1;
-  if (idx >= 0 && idx < disponiveis.length) {
-    const novas = [...condicoesAtuais, disponiveis[idx]];
+  if (idx >= 0 && idx < todas.length) {
+    const novas = [...condicoesAtuais, todas[idx]];
     salvar(slot, 'condicoes', novas);
   }
 }
