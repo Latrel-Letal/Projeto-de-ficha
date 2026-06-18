@@ -1575,8 +1575,8 @@ function criarCard(slot, d) {
   const tecnicasInatas = d.tecnicasInatas || tecnicasInatasDefault();
   const dominioSimples = d.dominioSimples || dominioSimplesDefault();
   const dominioExpansao = d.dominioExpansao || dominioExpansaoDefault();
-  const inventario = d.inventario || [];
-  const condicoes = d.condicoes || [];
+  const inventario = Array.isArray(d.inventario) ? d.inventario : Object.values(d.inventario || {});
+  const condicoes  = Array.isArray(d.condicoes)  ? d.condicoes  : Object.values(d.condicoes  || {});
 
   // Avatar
   const avatarSrc = d.avatar ? `<img src="${d.avatar}" alt="avatar">` : `<span style="font-size:22px">${(d.nome||'?')[0]}</span>`;
@@ -1844,8 +1844,10 @@ function criarCard(slot, d) {
       el.addEventListener('click', e => {
         e.stopPropagation();
         const cond = el.dataset.cond;
-        const novas = (d.condicoes||[]).filter(c => c !== cond);
-        salvar(slot, 'condicoes', novas);
+        const raw = fichasData[slot]?.condicoes || {};
+        const atual = Array.isArray(raw) ? raw : Object.values(raw);
+        const novas = atual.filter(c => c !== cond);
+        salvar(slot, 'condicoes', novas.length ? novas : null);
       });
     });
 
@@ -1853,7 +1855,7 @@ function criarCard(slot, d) {
     const addItemBtn = card.querySelector('.btn-add-item');
     if (addItemBtn) {
       addItemBtn.addEventListener('click', () => {
-        const inv = [...(fichasData[slot]?.inventario || []), { nome:'Novo Item', qty:1, desc:'' }];
+        const inv = [...(Array.isArray(fichasData[slot]?.inventario) ? fichasData[slot].inventario : Object.values(fichasData[slot]?.inventario || {})), { nome:'Novo Item', qty:1, desc:'' }];
         salvar(slot, 'inventario', inv);
       });
     }
@@ -1862,7 +1864,7 @@ function criarCard(slot, d) {
     card.querySelectorAll('.btn-del-item').forEach(btn => {
       btn.addEventListener('click', () => {
         const idx = parseInt(btn.dataset.idx);
-        const inv = [...(fichasData[slot]?.inventario || [])];
+        const inv = [...(Array.isArray(fichasData[slot]?.inventario) ? fichasData[slot].inventario : Object.values(fichasData[slot]?.inventario || {}))];
         inv.splice(idx, 1);
         salvar(slot, 'inventario', inv.length ? inv : null);
       });
@@ -1878,7 +1880,8 @@ function parseTecnicaFormula(efeito) {
   return m ? m[1] : '1d6';
 }
 
-function abrirMenuCondicao(slot, condicoesAtuais) {
+function abrirMenuCondicao(slot, condicoesRaw) {
+  const condicoesAtuais = Array.isArray(condicoesRaw) ? condicoesRaw : Object.values(condicoesRaw || {});
   const CONDS = ['sangrando','atordoado','envenenado','amedrontado','paralisado','invisivel'];
   const disponiveis = CONDS.filter(c => !condicoesAtuais.includes(c));
   if (disponiveis.length === 0) { showToast('Todas as condições já aplicadas.',''); return; }
@@ -1892,7 +1895,9 @@ function abrirMenuCondicao(slot, condicoesAtuais) {
 }
 
 function salvar(slot, field, value) {
-  set(ref(db, `sessoes/${sessaoId}/fichas/${slot}/${field}`), value)
+  // Firebase ignora arrays vazios; gravar null para limpar o nó
+  const val = (Array.isArray(value) && value.length === 0) ? null : value;
+  set(ref(db, `sessoes/${sessaoId}/fichas/${slot}/${field}`), val)
     .catch(() => showToast('Erro ao salvar','error'));
 }
 </script>
