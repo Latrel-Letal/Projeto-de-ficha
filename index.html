@@ -6,87 +6,114 @@
 <title>Ficha — Jujutsu Kaisen RPG</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
- 
+
   :root {
-    --bg:        #0a0a0f;
-    --bg2:       #11111a;
-    --bg3:       #1a1a28;
-    --border:    #2a2a40;
-    --border2:   #3a3a55;
-    --blue:      #4a9eff;
-    --blue-glow: rgba(74,158,255,0.15);
-    --red:       #ff4a4a;
-    --red-glow:  rgba(255,74,74,0.15);
-    --purple:    #a855f7;
+    --bg:          #0a0a0f;
+    --bg2:         #11111a;
+    --bg3:         #1a1a28;
+    --border:      #2a2a40;
+    --border2:     #3a3a55;
+    --blue:        #4a9eff;
+    --blue-glow:   rgba(74,158,255,0.15);
+    --red:         #ff4a4a;
+    --red-glow:    rgba(255,74,74,0.15);
+    --purple:      #a855f7;
     --purple-glow: rgba(168,85,247,0.15);
-    --gold:      #f0c040;
-    --text:      #e0e0f0;
-    --text2:     #8888aa;
-    --text3:     #555577;
-    --online:    #22c55e;
-    --radius:    10px;
+    --gold:        #f0c040;
+    --text:        #e0e0f0;
+    --text2:       #8888aa;
+    --online:      #22c55e;
+    --radius:      10px;
   }
- 
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
- 
+
   body {
     font-family: 'Inter', sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    padding: 0;
-    overflow-x: hidden;
   }
- 
+
   /* ── HEADER ── */
   .app-header {
     background: var(--bg2);
     border-bottom: 1px solid var(--border);
-    padding: 14px 24px;
+    padding: 10px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 200;
+    gap: 10px;
+    flex-wrap: wrap;
   }
   .app-title {
     font-family: 'Cinzel', serif;
-    font-size: 15px;
+    font-size: 14px;
     letter-spacing: 3px;
     color: var(--gold);
-    text-transform: uppercase;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
   }
   .session-info {
     display: flex;
     align-items: center;
-    gap: 16px;
-    font-size: 13px;
+    gap: 12px;
+    font-size: 12px;
     color: var(--text2);
   }
   .online-dot {
-    width: 8px; height: 8px;
+    width: 7px; height: 7px;
     border-radius: 50%;
     background: var(--online);
     box-shadow: 0 0 6px var(--online);
     display: inline-block;
     animation: pulse 2s infinite;
   }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
- 
-  /* ── SELETOR DE JOGADOR ── */
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+
+  .btn-header {
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    background: transparent;
+  }
+  .btn-header.dice {
+    border-color: var(--purple);
+    color: var(--purple);
+  }
+  .btn-header.dice:hover { background: var(--purple); color: white; }
+  .btn-header.toggle {
+    border-color: var(--border2);
+    color: var(--text2);
+  }
+  .btn-header.toggle:hover { border-color: var(--blue); color: var(--blue); }
+  .btn-header.toggle.active { border-color: var(--blue); color: var(--blue); background: var(--blue-glow); }
+
+  /* ── SELECT SCREEN ── */
   .player-select-screen {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    gap: 32px;
+    gap: 28px;
     padding: 40px 20px;
   }
   .player-select-title {
     font-family: 'Cinzel', serif;
-    font-size: 28px;
+    font-size: 26px;
     color: var(--gold);
     letter-spacing: 4px;
     text-align: center;
@@ -94,51 +121,39 @@
   .player-select-subtitle {
     color: var(--text2);
     text-align: center;
-    margin-top: -20px;
-    font-size: 14px;
+    margin-top: -18px;
+    font-size: 13px;
   }
   .player-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    max-width: 700px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    max-width: 680px;
     width: 100%;
   }
   .player-card {
     background: var(--bg2);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 24px;
+    padding: 22px;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s;
   }
-  .player-card:hover {
-    border-color: var(--purple);
-    box-shadow: 0 0 20px var(--purple-glow);
-    transform: translateY(-2px);
-  }
-  .player-card .slot-name {
-    font-family: 'Cinzel', serif;
-    font-size: 15px;
-    color: var(--text);
-    margin-bottom: 6px;
-  }
-  .player-card .slot-status {
-    font-size: 12px;
-    color: var(--text2);
-  }
+  .player-card:hover { border-color: var(--purple); box-shadow: 0 0 18px var(--purple-glow); transform: translateY(-2px); }
+  .player-card .slot-name { font-family: 'Cinzel', serif; font-size: 14px; color: var(--text); margin-bottom: 5px; }
+  .player-card .slot-status { font-size: 11px; color: var(--text2); }
   .player-card.occupied .slot-status { color: var(--online); }
   .session-id-box {
     background: var(--bg2);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 16px 24px;
+    padding: 16px 22px;
     text-align: center;
-    max-width: 400px;
+    max-width: 380px;
     width: 100%;
   }
-  .session-id-box label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 8px; }
+  .session-id-box label { font-size: 11px; color: var(--text2); display: block; margin-bottom: 8px; letter-spacing: 1px; }
   .session-id-box input {
     width: 100%;
     background: var(--bg3);
@@ -157,8 +172,8 @@
     color: white;
     border: none;
     border-radius: 6px;
-    padding: 12px 32px;
-    font-size: 14px;
+    padding: 11px 28px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     margin-top: 10px;
@@ -167,148 +182,34 @@
     letter-spacing: 1px;
   }
   .btn-enter:hover { opacity: 0.85; }
- 
-  /* ── LAYOUT PRINCIPAL (GRID COM CHAT) ── */
-  .main-layout { 
-    display: none; 
-    height: calc(100vh - 60px); 
+
+  /* ── MAIN LAYOUT ── */
+  .main-layout { display: none; }
+  .main-layout.visible { display: flex; align-items: flex-start; }
+
+  /* ── FICHAS AREA ── */
+  .fichas-area {
+    flex: 1;
+    min-width: 0;
+    transition: all 0.3s;
   }
-  .main-layout.visible { 
-    display: grid; 
-    grid-template-columns: 1fr 350px; 
+  .fichas-area.collapsed {
+    flex: 0 0 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    padding: 0;
   }
- 
   .fichas-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-    gap: 20px;
-    padding: 24px;
-    overflow-y: auto;
-    align-content: start;
+    gap: 18px;
+    padding: 20px;
+    max-width: 1600px;
+    margin: 0 auto;
   }
 
-  /* ── SIDEBAR (CHAT E DADOS) ── */
-  .sidebar {
-    background: var(--bg2);
-    border-left: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-  
-  .dice-roller-area {
-    padding: 16px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg3);
-  }
-  
-  .dice-inputs {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-  
-  .dice-inputs input {
-    width: 50px;
-    background: var(--bg);
-    border: 1px solid var(--border2);
-    color: var(--text);
-    padding: 6px;
-    border-radius: 4px;
-    text-align: center;
-    font-weight: bold;
-  }
-
-  .dice-inputs span {
-    color: var(--text2);
-    font-weight: bold;
-  }
-
-  .btn-roll {
-    width: 100%;
-    background: var(--blue);
-    color: white;
-    border: none;
-    padding: 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: 0.2s;
-  }
-
-  .btn-roll:hover { background: #3b82f6; }
-
-  .chat-history {
-    flex: 1;
-    padding: 16px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .chat-msg {
-    background: var(--bg3);
-    padding: 10px;
-    border-radius: 8px;
-    font-size: 13px;
-    border-left: 3px solid var(--border2);
-  }
-
-  .chat-msg.roll {
-    border-left-color: var(--purple);
-    background: linear-gradient(90deg, rgba(168,85,247,0.1), transparent);
-  }
-
-  .chat-msg.mine {
-    border-left-color: var(--blue);
-  }
-
-  .msg-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 4px;
-    font-size: 11px;
-    color: var(--text2);
-  }
-
-  .msg-author { font-weight: bold; color: var(--gold); }
-  
-  .msg-result {
-    font-size: 16px;
-    font-weight: bold;
-    color: var(--purple);
-    margin-top: 4px;
-  }
-
-  .chat-input-area {
-    padding: 16px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 8px;
-  }
-
-  .chat-input-area input {
-    flex: 1;
-    background: var(--bg3);
-    border: 1px solid var(--border2);
-    color: var(--text);
-    padding: 10px;
-    border-radius: 4px;
-    outline: none;
-  }
-
-  .chat-input-area button {
-    background: var(--gold);
-    color: var(--bg);
-    border: none;
-    padding: 0 16px;
-    border-radius: 4px;
-    font-weight: bold;
-    cursor: pointer;
-  }
- 
   /* ── FICHA CARD ── */
   .ficha-card {
     background: var(--bg2);
@@ -317,383 +218,552 @@
     overflow: hidden;
     transition: box-shadow 0.3s;
   }
-  .ficha-card.is-mine {
-    border-color: var(--purple);
-    box-shadow: 0 0 30px var(--purple-glow);
-  }
-  .ficha-card.is-mine .card-header { background: linear-gradient(135deg, #1e1030, #16101e); }
- 
+  .ficha-card.is-mine { border-color: var(--purple); box-shadow: 0 0 28px var(--purple-glow); }
+  .ficha-card.is-mine .card-header { background: linear-gradient(135deg,#1e1030,#16101e); }
   .card-header {
     background: var(--bg3);
     border-bottom: 1px solid var(--border);
-    padding: 16px 20px;
+    padding: 14px 18px;
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
-  .card-header-left { flex: 1; }
+  .card-header-left { flex: 1; min-width: 0; }
   .char-name {
     font-family: 'Cinzel', serif;
-    font-size: 16px;
+    font-size: 15px;
     color: var(--gold);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .char-name[contenteditable="true"]:focus {
-    outline: 1px solid var(--gold);
-    border-radius: 3px;
-    padding: 2px 4px;
-  }
-  .char-meta {
-    font-size: 11px;
-    color: var(--text2);
-    margin-top: 4px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .char-meta span { display: flex; align-items: center; gap: 4px; }
-  .char-meta [contenteditable="true"]:focus {
-    outline: 1px solid var(--border2);
-    border-radius: 3px;
-    padding: 1px 4px;
-    color: var(--text);
-  }
+  .char-name[contenteditable="true"]:focus { outline: 1px solid var(--gold); border-radius: 3px; padding: 2px 4px; }
+  .char-meta { font-size: 10px; color: var(--text2); margin-top: 4px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .char-meta span { display: flex; align-items: center; gap: 3px; }
+  .char-meta [contenteditable="true"]:focus { outline: 1px solid var(--border2); border-radius: 3px; padding: 1px 3px; color: var(--text); }
   .player-badge {
-    font-size: 11px;
+    font-size: 10px;
     background: var(--purple-glow);
     border: 1px solid var(--purple);
     color: var(--purple);
     border-radius: 20px;
-    padding: 3px 10px;
+    padding: 3px 9px;
     white-space: nowrap;
+    flex-shrink: 0;
   }
-  .player-badge.other {
-    background: rgba(74,158,255,0.1);
-    border-color: var(--blue);
-    color: var(--blue);
-  }
- 
-  .card-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 16px; }
- 
-  /* ── SEÇÃO ── */
+  .player-badge.other { background: var(--blue-glow); border-color: var(--blue); color: var(--blue); }
+
+  .card-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 14px; }
+
   .section-label {
     font-size: 10px;
     font-weight: 600;
     letter-spacing: 2px;
     color: var(--text2);
     text-transform: uppercase;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
     gap: 8px;
   }
-  .section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
- 
-  /* ── BARRAS DE RECURSO ── */
-  .resource-bars { display: flex; flex-direction: column; gap: 10px; }
- 
-  .resource-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .resource-label {
-    font-size: 11px;
-    font-weight: 600;
-    width: 28px;
-    text-align: right;
-    flex-shrink: 0;
-  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ── BARS ── */
+  .resource-bars { display: flex; flex-direction: column; gap: 8px; }
+  .resource-row { display: flex; align-items: center; gap: 8px; }
+  .resource-label { font-size: 10px; font-weight: 600; width: 26px; text-align: right; flex-shrink: 0; }
   .resource-label.pv  { color: var(--red); }
   .resource-label.ea  { color: var(--blue); }
   .resource-label.pvt { color: var(--gold); }
- 
-  .bar-track {
-    flex: 1;
-    height: 12px;
-    background: var(--bg3);
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    overflow: hidden;
-    position: relative;
-  }
-  .bar-fill {
-    height: 100%;
-    border-radius: 6px;
-    transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
-  }
-  .bar-fill.pv  { background: linear-gradient(90deg, #7f1d1d, var(--red)); }
-  .bar-fill.ea  { background: linear-gradient(90deg, #1e3a6e, var(--blue)); }
-  .bar-fill.pvt { background: linear-gradient(90deg, #78350f, var(--gold)); }
- 
-  .resource-inputs {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
-  }
+  .bar-track { flex: 1; height: 11px; background: var(--bg3); border-radius: 6px; border: 1px solid var(--border); overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 6px; transition: width 0.4s cubic-bezier(0.4,0,0.2,1); }
+  .bar-fill.pv  { background: linear-gradient(90deg,#7f1d1d,var(--red)); }
+  .bar-fill.ea  { background: linear-gradient(90deg,#1e3a6e,var(--blue)); }
+  .bar-fill.pvt { background: linear-gradient(90deg,#78350f,var(--gold)); }
+  .resource-inputs { display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
   .num-input {
-    width: 44px;
+    width: 42px;
     background: var(--bg3);
     border: 1px solid var(--border);
     border-radius: 5px;
     color: var(--text);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     text-align: center;
-    padding: 3px 4px;
+    padding: 3px 2px;
     outline: none;
   }
   .num-input:focus { border-color: var(--border2); }
-  .num-sep { color: var(--text2); font-size: 12px; }
- 
-  /* ── ATRIBUTOS & BOTÃO INICIATIVA ── */
-  .attrs-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 6px;
-  }
-  .attr-box {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 4px;
-    text-align: center;
-  }
-  .attr-abbr {
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--text2);
-    letter-spacing: 1px;
-  }
-  .attr-val {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text);
-    display: block;
-    line-height: 1.2;
-  }
-  .attr-val[contenteditable="true"]:focus {
-    outline: 1px solid var(--border2);
-    border-radius: 3px;
-  }
-  .attr-mod {
-    font-size: 11px;
-    color: var(--text2);
-    margin-top: 2px;
-  }
+  .num-sep { color: var(--text2); font-size: 11px; }
 
+  /* ── ATTRS ── */
+  .attrs-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 5px; }
+  .attr-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 7px; padding: 7px 3px; text-align: center; }
+  .attr-abbr { font-size: 9px; font-weight: 600; color: var(--text2); letter-spacing: 1px; }
+  .attr-val { font-size: 17px; font-weight: 700; color: var(--text); display: block; line-height: 1.2; }
+  .attr-val[contenteditable="true"]:focus { outline: 1px solid var(--border2); border-radius: 3px; }
+  .attr-mod { font-size: 10px; color: var(--text2); margin-top: 1px; }
+
+  /* ── INICIATIVA BTN ── */
   .btn-iniciativa {
-    background: var(--purple-glow);
+    width: 100%;
+    margin-top: 8px;
+    background: linear-gradient(135deg,#1a1030,#12092a);
     border: 1px solid var(--purple);
     color: var(--purple);
-    padding: 6px;
-    border-radius: 6px;
+    border-radius: 8px;
+    padding: 9px 14px;
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 700;
     cursor: pointer;
-    margin-top: 10px;
-    width: 100%;
-    transition: 0.2s;
-  }
-  .btn-iniciativa:hover:not(:disabled) {
-    background: var(--purple);
-    color: white;
-  }
-  .btn-iniciativa:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
- 
-  /* ── STATUS EXTRAS ── */
-  .status-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
-  .status-box {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px;
-    text-align: center;
-  }
-  .status-box .s-label { font-size: 10px; color: var(--text2); letter-spacing: 1px; text-transform: uppercase; }
-  .status-box .s-val {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text);
-    display: block;
-    margin-top: 2px;
-  }
-  .status-box .s-val[contenteditable="true"]:focus {
-    outline: 1px solid var(--border2);
-    border-radius: 3px;
-  }
- 
-  /* ── TÉCNICAS ── */
-  .tecnicas-list { display: flex; flex-direction: column; gap: 6px; }
-  .tecnica-item {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 14px;
+    letter-spacing: 1px;
+    transition: all 0.2s;
     display: flex;
-    flex-direction: column;
-    gap: 3px;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
   }
+  .btn-iniciativa:hover { background: var(--purple); color: white; box-shadow: 0 0 18px var(--purple-glow); }
+  .btn-iniciativa:active { transform: scale(0.98); }
+
+  /* ── STATUS GRID ── */
+  .status-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
+  .status-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 9px; text-align: center; }
+  .status-box .s-label { font-size: 9px; color: var(--text2); letter-spacing: 1px; text-transform: uppercase; }
+  .status-box .s-val { font-size: 19px; font-weight: 700; color: var(--text); display: block; margin-top: 2px; }
+  .status-box .s-val[contenteditable="true"]:focus { outline: 1px solid var(--border2); border-radius: 3px; }
+
+  /* ── TÉCNICAS ── */
+  .tecnicas-list { display: flex; flex-direction: column; gap: 5px; }
+  .tecnica-item { background: var(--bg3); border: 1px solid var(--border); border-radius: 7px; padding: 9px 12px; display: flex; flex-direction: column; gap: 2px; }
   .tecnica-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .tecnica-nome { font-size: 13px; font-weight: 600; color: var(--text); }
-  .tecnica-custo {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--blue);
-    background: rgba(74,158,255,0.1);
-    border: 1px solid rgba(74,158,255,0.3);
-    border-radius: 20px;
-    padding: 2px 8px;
-    white-space: nowrap;
-  }
-  .tecnica-efeito { font-size: 11px; color: var(--text2); }
-  .tecnica-desc { font-size: 11px; color: var(--text2); font-style: italic; }
- 
+  .tecnica-nome { font-size: 12px; font-weight: 600; color: var(--text); }
+  .tecnica-custo { font-size: 10px; font-weight: 700; color: var(--blue); background: rgba(74,158,255,0.1); border: 1px solid rgba(74,158,255,0.3); border-radius: 20px; padding: 2px 7px; white-space: nowrap; }
+  .tecnica-efeito { font-size: 10px; color: var(--text2); }
+  .tecnica-desc { font-size: 10px; color: var(--text2); font-style: italic; }
+
   /* ── DOMÍNIO ── */
-  .dominio-box {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px;
-    position: relative;
-    overflow: hidden;
-  }
-  .dominio-box.expansao {
-    border-color: rgba(168,85,247,0.5);
-    background: linear-gradient(135deg, #0f0a1a, #160e22);
-  }
-  .dominio-box.simples {
-    border-color: rgba(74,158,255,0.4);
-    background: linear-gradient(135deg, #0a0f1a, #0e1622);
-  }
-  .dominio-title {
-    font-family: 'Cinzel', serif;
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 6px;
-  }
+  .dominio-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 9px; padding: 12px; }
+  .dominio-box.expansao { border-color: rgba(168,85,247,0.5); background: linear-gradient(135deg,#0f0a1a,#160e22); }
+  .dominio-box.simples  { border-color: rgba(74,158,255,0.4); background: linear-gradient(135deg,#0a0f1a,#0e1622); }
+  .dominio-title { font-family: 'Cinzel', serif; font-size: 12px; font-weight: 600; margin-bottom: 5px; }
   .dominio-box.expansao .dominio-title { color: var(--purple); }
   .dominio-box.simples  .dominio-title { color: var(--blue); }
-  .dominio-desc { font-size: 11px; color: var(--text2); line-height: 1.6; }
-  .dominio-efeito {
-    margin-top: 8px;
-    font-size: 11px;
-    color: var(--text);
-    background: rgba(255,255,255,0.04);
-    border-radius: 6px;
-    padding: 8px 10px;
-    line-height: 1.5;
+  .dominio-desc { font-size: 10px; color: var(--text2); line-height: 1.5; }
+  .dominio-efeito { margin-top: 7px; font-size: 10px; color: var(--text); background: rgba(255,255,255,0.04); border-radius: 5px; padding: 7px 9px; line-height: 1.5; }
+
+  /* ════════════════════════════════════
+     PAINEL DIREITO (INICIATIVA + CHAT)
+  ════════════════════════════════════ */
+  .right-panel {
+    width: 300px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 53px);
+    position: sticky;
+    top: 53px;
+    border-left: 1px solid var(--border);
+    background: var(--bg2);
   }
- 
-  /* ── TOAST ── */
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 24px; 
+
+  /* ── ORDEM DE INICIATIVA ── */
+  .initiative-panel {
+    border-bottom: 1px solid var(--border);
+    padding: 10px 12px;
+    flex-shrink: 0;
+  }
+  .initiative-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .initiative-title {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-clear-init {
+    font-size: 10px;
+    color: var(--text2);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-clear-init:hover { color: var(--red); border-color: var(--red); }
+
+  .initiative-list { display: flex; flex-direction: column; gap: 4px; }
+  .init-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn { from { opacity:0; transform:translateX(10px); } to { opacity:1; transform:translateX(0); } }
+  .init-row.first {
+    border-color: var(--gold);
+    background: linear-gradient(135deg,#1a1400,#120f00);
+  }
+  .init-row.second { border-color: rgba(168,85,247,0.5); }
+  .init-rank {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text2);
+    width: 16px;
+    text-align: center;
+  }
+  .init-row.first .init-rank { color: var(--gold); }
+  .init-score {
+    font-family: 'Cinzel', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    width: 28px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .init-row.first .init-score { color: var(--gold); }
+  .init-name { font-size: 11px; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .init-nat {
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+  .init-nat.crit { background: rgba(34,197,94,0.15); color: var(--online); border: 1px solid rgba(34,197,94,0.3); }
+  .init-nat.fail { background: var(--red-glow); color: var(--red); border: 1px solid rgba(255,74,74,0.3); }
+  .init-empty { text-align: center; font-size: 11px; color: var(--text2); font-style: italic; padding: 8px 0; }
+
+  /* ── CHAT ── */
+  .chat-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text2);
+    flex-shrink: 0;
+  }
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    scroll-behavior: smooth;
+  }
+  .chat-messages::-webkit-scrollbar { width: 3px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .chat-msg {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 7px 9px;
+    font-size: 11px;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(3px)} to{opacity:1;transform:translateY(0)} }
+  .chat-msg.system { border-color: rgba(168,85,247,0.3); background: linear-gradient(135deg,#0f0a1a,#1a1030); text-align: center; color: var(--text2); font-style: italic; }
+  .chat-msg.roll { border-color: rgba(240,192,64,0.35); background: linear-gradient(135deg,#100d00,#1a1400); }
+  .chat-msg.roll-iniciativa { border-color: rgba(168,85,247,0.45); background: linear-gradient(135deg,#100a1a,#1c1030); }
+
+  .chat-msg-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; }
+  .chat-msg-author { font-weight: 700; font-size: 10px; }
+  .chat-msg-author.mine  { color: var(--purple); }
+  .chat-msg-author.other { color: var(--blue); }
+  .chat-msg-time { font-size: 9px; color: var(--text2); }
+  .chat-msg-text { color: var(--text); line-height: 1.5; }
+
+  .chat-roll-result { display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+  .chat-roll-dice { font-size: 10px; color: var(--text2); }
+  .chat-roll-total { font-family: 'Cinzel', serif; font-size: 20px; font-weight: 700; color: var(--gold); }
+  .chat-roll-total.nat20 { color: var(--online); text-shadow: 0 0 8px var(--online); }
+  .chat-roll-total.critical { color: var(--red); text-shadow: 0 0 8px var(--red); }
+  .chat-roll-breakdown { font-size: 10px; color: var(--text2); }
+  .chat-roll-label { font-size: 9px; color: var(--text2); margin-top: 2px; }
+
+  .chat-input-area {
+    padding: 8px 10px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 6px;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+  .chat-input {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 7px 10px;
+    color: var(--text);
+    font-size: 12px;
+    outline: none;
+    resize: none;
+    max-height: 70px;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.4;
+  }
+  .chat-input:focus { border-color: var(--purple); }
+  .chat-input::placeholder { color: var(--text2); }
+  .chat-send-btn {
+    background: var(--purple);
+    border: none;
+    border-radius: 7px;
+    color: white;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.2s;
+  }
+  .chat-send-btn:hover { opacity: 0.85; }
+  .chat-hint { font-size: 9px; color: var(--text2); padding: 0 10px 6px; }
+
+  /* ════════════════════════════════════
+     MODAL DADOS
+  ════════════════════════════════════ */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.72);
+    z-index: 500;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.show { opacity: 1; pointer-events: all; }
+  .modal-box {
     background: var(--bg2);
     border: 1px solid var(--border2);
-    border-radius: 8px;
-    padding: 12px 18px;
-    font-size: 13px;
-    color: var(--text);
-    opacity: 0;
+    border-radius: 16px;
+    padding: 26px;
+    width: 330px;
+    max-width: 92vw;
     transform: translateY(10px);
-    transition: all 0.3s;
-    z-index: 999;
-    max-width: 280px;
+    transition: transform 0.2s;
   }
-  .toast.show { opacity: 1; transform: translateY(0); }
+  .modal-overlay.show .modal-box { transform: translateY(0); }
+  .modal-title { font-family: 'Cinzel', serif; font-size: 15px; color: var(--gold); letter-spacing: 2px; margin-bottom: 18px; text-align: center; }
+
+  .dice-presets { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; }
+  .dice-preset-btn {
+    background: var(--bg3); border: 1px solid var(--border); color: var(--text2);
+    border-radius: 5px; padding: 4px 9px; font-size: 11px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; letter-spacing: 0.5px;
+  }
+  .dice-preset-btn:hover { border-color: var(--purple); color: var(--purple); }
+  .dice-preset-btn.active { background: var(--purple-glow); border-color: var(--purple); color: var(--purple); }
+
+  .dice-config { display: flex; gap: 14px; margin-bottom: 16px; align-items: flex-end; }
+  .dice-config-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+  .dice-config-group label { font-size: 10px; color: var(--text2); letter-spacing: 1px; text-transform: uppercase; }
+  .dice-config-group input {
+    background: var(--bg3); border: 1px solid var(--border2); border-radius: 7px;
+    padding: 9px 10px; color: var(--text); font-size: 22px; font-weight: 700;
+    text-align: center; outline: none; width: 100%;
+  }
+  .dice-config-group input:focus { border-color: var(--purple); }
+  .dice-sep { font-family: 'Cinzel', serif; font-size: 20px; color: var(--text2); padding-bottom: 9px; flex-shrink: 0; }
+
+  .dice-result-preview {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px; text-align: center; margin-bottom: 14px; min-height: 76px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  }
+  .dice-result-num {
+    font-family: 'Cinzel', serif; font-size: 40px; font-weight: 700;
+    color: var(--gold); line-height: 1; transition: all 0.2s;
+  }
+  @keyframes diceRoll {
+    0%,100%{transform:scale(1)} 30%{transform:scale(1.15) rotate(-4deg)} 70%{transform:scale(1.15) rotate(4deg)}
+  }
+  .dice-result-num.rolling { animation: diceRoll 0.5s ease; }
+  .dice-result-num.crit { color: var(--online); text-shadow: 0 0 14px var(--online); }
+  .dice-result-num.fail { color: var(--red); text-shadow: 0 0 14px var(--red); }
+  .dice-result-detail { font-size: 11px; color: var(--text2); }
+  .dice-result-breakdown { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+  .modal-actions { display: flex; gap: 8px; }
+  .btn-roll {
+    flex: 1; background: linear-gradient(135deg,var(--purple),#7c3aed);
+    border: none; border-radius: 8px; color: white;
+    padding: 11px; font-size: 13px; font-weight: 700; cursor: pointer;
+    letter-spacing: 0.5px; transition: opacity 0.2s;
+  }
+  .btn-roll:hover { opacity: 0.9; }
+  .btn-roll-send {
+    flex: 1; background: linear-gradient(135deg,#1a3a5e,#0e2040);
+    border: 1px solid var(--blue); border-radius: 8px; color: var(--blue);
+    padding: 11px; font-size: 12px; font-weight: 600; cursor: pointer;
+    letter-spacing: 0.5px; transition: all 0.2s;
+  }
+  .btn-roll-send:hover { background: var(--blue); color: white; }
+  .btn-close-modal {
+    background: transparent; border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text2);
+    padding: 11px 14px; cursor: pointer; font-size: 12px; transition: all 0.2s;
+  }
+  .btn-close-modal:hover { border-color: var(--red); color: var(--red); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 20px; left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 8px; padding: 10px 16px;
+    font-size: 12px; color: var(--text);
+    opacity: 0; transition: all 0.3s; z-index: 999;
+    max-width: 300px; text-align: center; white-space: pre-line;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .toast.success { border-color: var(--online); color: var(--online); }
   .toast.error   { border-color: var(--red); color: var(--red); }
+  .toast.roll    { border-color: var(--gold); color: var(--gold); font-family: 'Cinzel', serif; }
+
+  /* ── Responsive ── */
+  @media (max-width: 860px) {
+    .right-panel { width: 260px; }
+    .fichas-container { grid-template-columns: 1fr; padding: 12px; }
+  }
+  @media (max-width: 640px) {
+    .main-layout.visible { flex-direction: column; }
+    .right-panel { width: 100%; height: 380px; position: static; border-left: none; border-top: 1px solid var(--border); }
+    .fichas-area.collapsed { display: none; }
+  }
 </style>
 </head>
 <body>
- 
-<!-- ════════════════════════════════════
-     TELA DE SELEÇÃO DE SESSÃO/JOGADOR
-════════════════════════════════════ -->
+
+<!-- SELECT SCREEN -->
 <div class="player-select-screen" id="selectScreen">
   <div>
     <h1 class="player-select-title">✦ JUJUTSU KAISEN RPG ✦</h1>
     <p class="player-select-subtitle">Fichas de Personagem — Sessão Colaborativa</p>
   </div>
- 
   <div class="session-id-box">
     <label>CÓDIGO DA SESSÃO</label>
     <input type="text" id="sessionInput" placeholder="Ex: SESSAO01" maxlength="20">
     <button class="btn-enter" onclick="entrarSessao()">ENTRAR NA SESSÃO</button>
   </div>
- 
-  <div id="playerGrid" class="player-grid" style="display:none">
-    <p style="color:var(--text2);font-size:13px;text-align:center;grid-column:1/-1;">Escolha seu slot de personagem:</p>
-  </div>
+  <div id="playerGrid" class="player-grid" style="display:none"></div>
 </div>
- 
-<!-- ════════════════════════════════════
-     LAYOUT PRINCIPAL — FICHAS E CHAT
-════════════════════════════════════ -->
+
+<!-- HEADER -->
 <header class="app-header" id="appHeader" style="display:none">
   <span class="app-title">✦ Jujutsu Kaisen RPG</span>
-  <div class="session-info">
-    <span><span class="online-dot"></span> <span id="onlineCount">0</span> online</span>
-    <span id="sessionLabel" style="color:var(--gold)"></span>
-    <span id="mySlotLabel" style="color:var(--purple)"></span>
+  <div class="header-right">
+    <div class="session-info">
+      <span><span class="online-dot"></span> <span id="onlineCount">0</span> online</span>
+      <span id="sessionLabel" style="color:var(--gold)"></span>
+      <span id="mySlotLabel" style="color:var(--purple)"></span>
+    </div>
+    <button class="btn-header dice" onclick="abrirModalDados()">🎲 Dados</button>
+    <button class="btn-header toggle" id="btnToggleFichas" onclick="toggleFichas()">📋 Fichas</button>
   </div>
 </header>
- 
-<div class="main-layout" id="mainLayout">
-  <!-- ÁREA DAS FICHAS -->
-  <div class="fichas-container" id="fichasContainer"></div>
 
-  <!-- SIDEBAR (ROLADOR E CHAT) -->
-  <div class="sidebar">
-    <div class="dice-roller-area">
-      <div class="section-label" style="margin-bottom: 12px;">Rolar Dados</div>
-      <div class="dice-inputs">
-        <input type="number" id="diceQty" value="1" min="1" max="50">
-        <span>d</span>
-        <input type="number" id="diceSides" value="20" min="2" max="100">
+<!-- MAIN -->
+<div class="main-layout" id="mainLayout">
+
+  <!-- Fichas -->
+  <div class="fichas-area" id="fichasArea">
+    <div class="fichas-container" id="fichasContainer"></div>
+  </div>
+
+  <!-- Painel Direito: Iniciativa + Chat -->
+  <div class="right-panel" id="rightPanel">
+
+    <!-- ORDEM DE INICIATIVA -->
+    <div class="initiative-panel">
+      <div class="initiative-header">
+        <div class="initiative-title">⚔️ ORDEM DE INICIATIVA</div>
+        <button class="btn-clear-init" onclick="limparIniciativa()">Limpar</button>
       </div>
-      <button class="btn-roll" onclick="rolarDadoPersonalizado()">🎲 ROLAR</button>
+      <div class="initiative-list" id="initiativeList">
+        <div class="init-empty">Nenhuma iniciativa rolada ainda.</div>
+      </div>
     </div>
-    
-    <div class="chat-history" id="chatHistory">
-      <!-- Mensagens aparecerão aqui -->
-    </div>
-    
+
+    <!-- CHAT -->
+    <div class="chat-header">💬 LOG DE SESSÃO</div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-hint">Use /r NdX para rolar — ex: /r 2d6</div>
     <div class="chat-input-area">
-      <input type="text" id="chatInput" placeholder="Digite uma mensagem..." onkeydown="if(event.key==='Enter') enviarMensagemChat()">
-      <button onclick="enviarMensagemChat()">➤</button>
+      <textarea class="chat-input" id="chatInput" placeholder="Mensagem..." rows="1"
+        onkeydown="chatKeydown(event)"></textarea>
+      <button class="chat-send-btn" onclick="enviarMensagem()">↑</button>
     </div>
   </div>
 </div>
- 
+
+<!-- MODAL DADOS -->
+<div class="modal-overlay" id="diceModal" onclick="fecharModalSeFora(event)">
+  <div class="modal-box">
+    <div class="modal-title">🎲 ROLAR DADOS</div>
+    <div class="dice-presets" id="dicePresets">
+      <button class="dice-preset-btn" onclick="setPreset(1,4,this)">1d4</button>
+      <button class="dice-preset-btn" onclick="setPreset(1,6,this)">1d6</button>
+      <button class="dice-preset-btn" onclick="setPreset(1,8,this)">1d8</button>
+      <button class="dice-preset-btn" onclick="setPreset(1,10,this)">1d10</button>
+      <button class="dice-preset-btn" onclick="setPreset(1,12,this)">1d12</button>
+      <button class="dice-preset-btn" onclick="setPreset(1,20,this)">1d20</button>
+      <button class="dice-preset-btn" onclick="setPreset(2,6,this)">2d6</button>
+      <button class="dice-preset-btn" onclick="setPreset(3,6,this)">3d6</button>
+      <button class="dice-preset-btn" onclick="setPreset(4,6,this)">4d6</button>
+      <button class="dice-preset-btn" onclick="setPreset(2,12,this)">2d12</button>
+    </div>
+    <div class="dice-config">
+      <div class="dice-config-group">
+        <label>Quantidade</label>
+        <input type="number" id="diceQty" value="1" min="1" max="20" oninput="clearPresets()">
+      </div>
+      <div class="dice-sep">d</div>
+      <div class="dice-config-group">
+        <label>Lados</label>
+        <input type="number" id="diceSides" value="6" min="2" max="100" oninput="clearPresets()">
+      </div>
+    </div>
+    <div class="dice-result-preview">
+      <div class="dice-result-num" id="diceResultNum">—</div>
+      <div class="dice-result-detail" id="diceResultDetail"></div>
+      <div class="dice-result-breakdown" id="diceResultBreakdown"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-roll" onclick="rolarModal(false)">🎲 Rolar</button>
+      <button class="btn-roll-send" onclick="rolarModal(true)">📢 Enviar</button>
+      <button class="btn-close-modal" onclick="fecharModal()">✕</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
- 
-<!-- ════════════════════════════════════
-     FIREBASE SDK
-════════════════════════════════════ -->
+
+<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getDatabase, ref, set, onValue, update, get, push, serverTimestamp, onChildAdded }
+import { getDatabase, ref, set, get, push, onValue, remove }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
- 
-// ══ SUBSTITUA ABAIXO COM SUAS CREDENCIAIS DO FIREBASE ══
+
 const firebaseConfig = {
   apiKey:            "AIzaSyCssTD1j4VUVsbOYRDq6t0NQ-L_oeQ5O8U",
   authDomain:        "ficha-online-c3048.firebaseapp.com",
@@ -701,158 +771,392 @@ const firebaseConfig = {
   projectId:         "ficha-online-c3048",
   storageBucket:     "ficha-online-c3048.firebasestorage.app",
   messagingSenderId: "449356287217",
-  appId:             "1:449356287217:web:e0b3969bb9e97e44ee2d50",
-  measurementId:     "G-MX7CT6E12J"
+  appId:             "1:449356287217:web:e0b3969bb9e97e44ee2d50"
 };
-// ═════════════════════════════════════════════════════
- 
+
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
- 
-// ══ ESTADO LOCAL ══
+
 let sessaoId   = null;
 let meuSlot    = null;
 let fichasData = {};
 const SLOTS = ['Jogador 1','Jogador 2','Jogador 3','Jogador 4','Mestre'];
- 
-// ── DEFAULTS de uma ficha nova ──
+
+// Expor referência ao db para funções globais
+window.__db = db;
+window.__ref = ref;
+window.__push = push;
+window.__set = set;
+window.__remove = remove;
+window.__getSessaoId = () => sessaoId;
+window.__getMeuSlot  = () => meuSlot;
+window.__getFichas   = () => fichasData;
+
+/* ── DEFAULT ── */
 function fichaDefault(slot) {
-  return {
-    nome: slot,
-    linhagem: 'Linhagem Técnica',
-    grau: 'Grau 3',
-    nivel: 'Nível 01',
-    afiliacao: 'Instituto',
-    pv: 84, pvMax: 84,
-    pvt: 0, pvtMax: 0,
-    ea: 125, eaMax: 125,
-    deslocamento: 13,
-    ca: 13,
-    for: 19, dex: 14, con: 12, int: 9, wis: 9, cha: 11,
-  };
+  return { nome:slot, linhagem:'Linhagem Técnica', grau:'Grau 3', nivel:'Nível 01', afiliacao:'Instituto',
+    pv:84,pvMax:84, pvt:0,pvtMax:0, ea:125,eaMax:125,
+    deslocamento:13, ca:13, for:19,dex:14,con:12,int:9,wis:9,cha:11 };
 }
- 
-// ── TOAST ──
-function showToast(msg, type='') {
+
+/* ── TOAST ── */
+window.showToast = function(msg, type='') {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast ' + type + ' show';
-  setTimeout(() => t.className = 'toast', 2500);
-}
- 
-// ════════════════════════════════════════════
-// TELA DE SELEÇÃO
-// ════════════════════════════════════════════
+  t.textContent = msg; t.className = 'toast '+type+' show';
+  setTimeout(() => t.className = 'toast', 2800);
+};
+
+/* ══════════════════════════════════════
+   SELECT SCREEN
+══════════════════════════════════════ */
 window.entrarSessao = function() {
   const val = document.getElementById('sessionInput').value.trim().toUpperCase();
-  if (!val) { showToast('Digite um código de sessão', 'error'); return; }
+  if (!val) { showToast('Digite um código de sessão','error'); return; }
   sessaoId = val;
-  mostrarEscolhaSlot();
+  mostrarSlots();
 };
- 
-function mostrarEscolhaSlot() {
+
+function mostrarSlots() {
   const grid = document.getElementById('playerGrid');
   grid.style.display = 'grid';
-  grid.innerHTML = '<p style="color:var(--text2);font-size:13px;text-align:center;grid-column:1/-1;">Escolha seu personagem:</p>';
- 
-  const sessRef = ref(db, `sessoes/${sessaoId}/fichas`);
-  onValue(sessRef, (snap) => {
+  grid.innerHTML = '<p style="color:var(--text2);font-size:12px;text-align:center;grid-column:1/-1;">Escolha seu personagem:</p>';
+  get(ref(db, `sessoes/${sessaoId}/fichas`)).then(snap => {
     const dados = snap.val() || {};
-    grid.innerHTML = '<p style="color:var(--text2);font-size:13px;text-align:center;grid-column:1/-1;">Escolha seu personagem:</p>';
     SLOTS.forEach(slot => {
       const ficha = dados[slot];
-      const card = document.createElement('div');
-      card.className = 'player-card' + (ficha ? ' occupied' : '');
-      card.innerHTML = `
-        <div class="slot-name">${slot}</div>
-        <div class="slot-status">${ficha ? '● ' + (ficha.nome || slot) : '○ Disponível'}</div>`;
-      card.onclick = () => escolherSlot(slot);
-      grid.appendChild(card);
+      const c = document.createElement('div');
+      c.className = 'player-card' + (ficha ? ' occupied' : '');
+      c.innerHTML = `<div class="slot-name">${slot}</div>
+        <div class="slot-status">${ficha ? '● '+(ficha.nome||slot) : '○ Disponível'}</div>`;
+      c.onclick = () => escolherSlot(slot, dados[slot]);
+      grid.appendChild(c);
     });
-  }, { onlyOnce: true });
+  });
 }
- 
-async function escolherSlot(slot) {
+
+async function escolherSlot(slot, existente) {
   meuSlot = slot;
-  const fichaRef = ref(db, `sessoes/${sessaoId}/fichas/${slot}`);
-  const snap = await get(fichaRef);
-  if (!snap.exists()) {
-    await set(fichaRef, fichaDefault(slot));
-  }
+  if (!existente) await set(ref(db, `sessoes/${sessaoId}/fichas/${slot}`), fichaDefault(slot));
   iniciarApp();
 }
- 
-// ════════════════════════════════════════════
-// APP PRINCIPAL
-// ════════════════════════════════════════════
+
+/* ══════════════════════════════════════
+   APP PRINCIPAL
+══════════════════════════════════════ */
 function iniciarApp() {
   document.getElementById('selectScreen').style.display = 'none';
   document.getElementById('appHeader').style.display = 'flex';
   document.getElementById('mainLayout').classList.add('visible');
-  document.getElementById('sessionLabel').textContent = 'Sessão: ' + sessaoId;
-  document.getElementById('mySlotLabel').textContent = '[ ' + meuSlot + ' ]';
- 
-  // Ouvir TODAS as fichas
-  const sessRef = ref(db, `sessoes/${sessaoId}/fichas`);
-  onValue(sessRef, (snap) => {
+  document.getElementById('sessionLabel').textContent = 'Sessão: '+sessaoId;
+  document.getElementById('mySlotLabel').textContent = '[ '+meuSlot+' ]';
+
+  // Fichas em tempo real
+  onValue(ref(db, `sessoes/${sessaoId}/fichas`), snap => {
     fichasData = snap.val() || {};
     renderFichas();
   });
 
-  // Ouvir o CHAT
-  const chatRef = ref(db, `sessoes/${sessaoId}/chat`);
-  onChildAdded(chatRef, (snap) => {
-    const msg = snap.val();
-    renderizarMensagemChat(msg);
+  // Chat em tempo real
+  onValue(ref(db, `sessoes/${sessaoId}/chat`), snap => {
+    renderChat(snap.val() || {});
+  });
+
+  // Iniciativa em tempo real
+  onValue(ref(db, `sessoes/${sessaoId}/iniciativa`), snap => {
+    renderIniciativa(snap.val() || {});
+  });
+
+  // Mensagem de entrada
+  enviarSistema(meuSlot + ' entrou na sessão.');
+}
+
+/* ══════════════════════════════════════
+   TOGGLE FICHAS (collapsar para focar no chat)
+══════════════════════════════════════ */
+let fichasVisivel = true;
+window.toggleFichas = function() {
+  fichasVisivel = !fichasVisivel;
+  const area = document.getElementById('fichasArea');
+  const btn  = document.getElementById('btnToggleFichas');
+  if (fichasVisivel) {
+    area.classList.remove('collapsed');
+    btn.classList.remove('active');
+    btn.textContent = '📋 Fichas';
+  } else {
+    area.classList.add('collapsed');
+    btn.classList.add('active');
+    btn.textContent = '📋 Oculto';
+  }
+};
+
+/* ══════════════════════════════════════
+   ORDEM DE INICIATIVA
+══════════════════════════════════════ */
+function renderIniciativa(data) {
+  const list = document.getElementById('initiativeList');
+  const entries = Object.values(data);
+
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="init-empty">Nenhuma iniciativa rolada ainda.</div>';
+    return;
+  }
+
+  // Ordenar do maior para o menor
+  entries.sort((a, b) => b.total - a.total);
+
+  list.innerHTML = '';
+  entries.forEach((e, i) => {
+    const row = document.createElement('div');
+    const rankClass = i === 0 ? 'first' : i === 1 ? 'second' : '';
+    row.className = 'init-row ' + rankClass;
+
+    const rankIcon = i === 0 ? '👑' : i === 1 ? '②' : i === 2 ? '③' : (i + 1);
+    const natTag = e.roll === 20
+      ? '<span class="init-nat crit">NAT 20</span>'
+      : e.roll === 1
+      ? '<span class="init-nat fail">FALHA</span>'
+      : '';
+
+    row.innerHTML = `
+      <span class="init-rank">${rankIcon}</span>
+      <span class="init-score">${e.total}</span>
+      <span class="init-name">${e.charName || e.slot}</span>
+      ${natTag}
+    `;
+    list.appendChild(row);
   });
 }
- 
-// ── RENDERIZAR FICHAS ──
+
+window.limparIniciativa = function() {
+  if (!sessaoId) return;
+  remove(ref(db, `sessoes/${sessaoId}/iniciativa`));
+  enviarSistema('Ordem de iniciativa reiniciada.');
+};
+
+/* ══════════════════════════════════════
+   CHAT
+══════════════════════════════════════ */
+function renderChat(msgs) {
+  const container = document.getElementById('chatMessages');
+  const atBottom = container.scrollHeight - container.clientHeight <= container.scrollTop + 50;
+
+  const lista = Object.values(msgs).sort((a,b) => (a.ts||0)-(b.ts||0));
+  container.innerHTML = '';
+
+  lista.forEach(msg => {
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + (msg.type||'');
+    const hora = msg.ts ? new Date(msg.ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '';
+
+    if (msg.type === 'system') {
+      div.innerHTML = `<span style="font-size:10px;">⚙ ${msg.text}</span>`;
+    } else if (msg.type === 'roll' || msg.type === 'roll-iniciativa') {
+      const ac = msg.slot === meuSlot ? 'mine' : 'other';
+      const breakdown = msg.rolls.length > 1
+        ? `[${msg.rolls.join(' + ')}]` + (msg.bonus ? ` +${msg.bonus}` : '')
+        : (msg.bonus ? `+${msg.bonus}` : '');
+      div.innerHTML = `
+        <div class="chat-msg-header">
+          <span class="chat-msg-author ${ac}">${msg.charName||msg.slot}</span>
+          <span class="chat-msg-time">${hora}</span>
+        </div>
+        <div class="chat-roll-result">
+          <span class="chat-roll-dice">${msg.formula}</span>
+          <span class="chat-roll-total ${msg.special||''}">${msg.total}</span>
+          <span class="chat-roll-breakdown">${breakdown}</span>
+        </div>
+        ${msg.label ? `<div class="chat-roll-label">${msg.label}</div>` : ''}
+      `;
+    } else {
+      const ac = msg.slot === meuSlot ? 'mine' : 'other';
+      div.innerHTML = `
+        <div class="chat-msg-header">
+          <span class="chat-msg-author ${ac}">${msg.charName||msg.slot}</span>
+          <span class="chat-msg-time">${hora}</span>
+        </div>
+        <div class="chat-msg-text">${esc(msg.text)}</div>
+      `;
+    }
+    container.appendChild(div);
+  });
+
+  if (atBottom) container.scrollTop = container.scrollHeight;
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function enviarSistema(texto) {
+  push(ref(db, `sessoes/${sessaoId}/chat`), { type:'system', text:texto, ts:Date.now() });
+}
+
+window.chatKeydown = function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviarMensagem(); }
+};
+
+window.enviarMensagem = function() {
+  const inp = document.getElementById('chatInput');
+  const texto = inp.value.trim();
+  if (!texto) return;
+  inp.value = '';
+
+  // /r NdX ou /r NdX+B
+  const m = texto.match(/^\/r(?:oll)?\s+(\d+)d(\d+)(?:\s*[+]\s*(\d+))?$/i);
+  if (m) {
+    publicarRolagem(parseInt(m[1]), parseInt(m[2]), m[3] ? parseInt(m[3]) : 0, null, 'roll');
+    return;
+  }
+
+  const charName = fichasData[meuSlot]?.nome || meuSlot;
+  push(ref(db, `sessoes/${sessaoId}/chat`), {
+    type:'msg', slot:meuSlot, charName, text:texto, ts:Date.now()
+  });
+};
+
+/* ══════════════════════════════════════
+   ROLAGEM GENÉRICA
+══════════════════════════════════════ */
+function rolarDice(qty, sides) {
+  const r = [];
+  for (let i = 0; i < qty; i++) r.push(Math.floor(Math.random()*sides)+1);
+  return r;
+}
+
+function publicarRolagem(qty, sides, bonus, label, tipo) {
+  const rolls  = rolarDice(qty, sides);
+  const soma   = rolls.reduce((a,b)=>a+b,0);
+  const total  = soma + (bonus||0);
+  const isCrit = qty===1 && sides===20 && rolls[0]===20;
+  const isFail = qty===1 && sides===20 && rolls[0]===1;
+  const charName = fichasData[meuSlot]?.nome || meuSlot;
+  const formula  = bonus ? `${qty}d${sides}+${bonus}` : `${qty}d${sides}`;
+
+  push(ref(db, `sessoes/${sessaoId}/chat`), {
+    type: tipo||'roll', slot:meuSlot, charName, formula, rolls, bonus:bonus||0, total,
+    label: label || (isCrit?'⚡ Crítico Natural!': isFail?'💀 Falha Crítica!':''),
+    special: isCrit?'nat20': isFail?'critical':'',
+    ts: Date.now()
+  });
+  return { rolls, total, isCrit, isFail };
+}
+
+/* ══════════════════════════════════════
+   MODAL DADOS
+══════════════════════════════════════ */
+window.abrirModalDados = function() {
+  document.getElementById('diceModal').classList.add('show');
+  document.getElementById('diceResultNum').textContent = '—';
+  document.getElementById('diceResultDetail').textContent = '';
+  document.getElementById('diceResultBreakdown').textContent = '';
+};
+window.fecharModal = function() { document.getElementById('diceModal').classList.remove('show'); };
+window.fecharModalSeFora = function(e) { if (e.target===document.getElementById('diceModal')) fecharModal(); };
+
+window.setPreset = function(qty, sides, btn) {
+  document.getElementById('diceQty').value = qty;
+  document.getElementById('diceSides').value = sides;
+  document.querySelectorAll('.dice-preset-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+};
+window.clearPresets = function() {
+  document.querySelectorAll('.dice-preset-btn').forEach(b => b.classList.remove('active'));
+};
+
+window.rolarModal = function(enviar) {
+  const qty   = Math.max(1, Math.min(20, parseInt(document.getElementById('diceQty').value)||1));
+  const sides = Math.max(2, Math.min(100, parseInt(document.getElementById('diceSides').value)||6));
+  const rolls  = rolarDice(qty, sides);
+  const total  = rolls.reduce((a,b)=>a+b,0);
+  const isCrit = qty===1 && sides===20 && rolls[0]===20;
+  const isFail = qty===1 && sides===20 && rolls[0]===1;
+
+  const numEl = document.getElementById('diceResultNum');
+  numEl.className = 'dice-result-num rolling' + (isCrit?' crit':isFail?' fail':'');
+  setTimeout(()=>numEl.classList.remove('rolling'),600);
+  numEl.textContent = total;
+  document.getElementById('diceResultDetail').textContent = isCrit?'⚡ CRÍTICO!':isFail?'💀 FALHA!':(`${qty}d${sides}`);
+  document.getElementById('diceResultBreakdown').textContent = rolls.length>1 ? `[${rolls.join(' + ')}]` : '';
+
+  if (enviar && sessaoId) {
+    publicarRolagem(qty, sides, 0, null, 'roll');
+    fecharModal();
+  }
+};
+
+/* ══════════════════════════════════════
+   INICIATIVA
+══════════════════════════════════════ */
+window.rolarIniciativa = function(slot, dexVal) {
+  if (slot !== meuSlot) return;
+  const dex    = parseInt(dexVal)||10;
+  const bonus  = Math.floor((dex-10)/2);
+  const roll   = Math.floor(Math.random()*20)+1;
+  const total  = roll + bonus;
+  const bonusStr = (bonus>=0?'+':'')+bonus;
+  const isCrit = roll===20;
+  const isFail = roll===1;
+  const charName = fichasData[meuSlot]?.nome || meuSlot;
+
+  // Salvar na ordem de iniciativa (keyed por slot para sobrescrever re-rolls)
+  set(ref(db, `sessoes/${sessaoId}/iniciativa/${slot.replace(/\s+/g,'_')}`), {
+    slot, charName, roll, bonus, total, ts: Date.now()
+  });
+
+  // Postar no chat
+  push(ref(db, `sessoes/${sessaoId}/chat`), {
+    type:'roll-iniciativa', slot, charName,
+    formula: `1d20${bonusStr} (Iniciativa)`,
+    rolls:[roll], bonus, total,
+    label: '⚔️ Iniciativa' + (isCrit?' — Crítico!': isFail?' — Falha!':''),
+    special: isCrit?'nat20': isFail?'critical':'',
+    ts: Date.now()
+  });
+
+  showToast(`⚔️ Iniciativa: ${roll}${bonusStr} = ${total}`, 'roll');
+};
+
+/* ══════════════════════════════════════
+   RENDERIZAR FICHAS
+══════════════════════════════════════ */
 function renderFichas() {
   const container = document.getElementById('fichasContainer');
-  const onlineSlots = Object.keys(fichasData);
-  document.getElementById('onlineCount').textContent = onlineSlots.length;
- 
-  const ordem = [meuSlot, ...SLOTS.filter(s => s !== meuSlot && fichasData[s])];
- 
+  document.getElementById('onlineCount').textContent = Object.keys(fichasData).length;
+  const ordem = [meuSlot, ...SLOTS.filter(s => s!==meuSlot && fichasData[s])];
   container.innerHTML = '';
-  ordem.forEach(slot => {
-    if (!fichasData[slot]) return;
-    container.appendChild(criarFichaCard(slot, fichasData[slot]));
-  });
+  ordem.forEach(slot => { if (fichasData[slot]) container.appendChild(criarCard(slot, fichasData[slot])); });
 }
- 
-// ── CRIAR CARD DE FICHA ──
-function criarFichaCard(slot, d) {
+
+function criarCard(slot, d) {
   const ismine = slot === meuSlot;
   const card = document.createElement('div');
-  card.className = 'ficha-card' + (ismine ? ' is-mine' : '');
+  card.className = 'ficha-card' + (ismine?' is-mine':'');
   card.dataset.slot = slot;
- 
-  const editAttr = ismine ? 'contenteditable="true"' : 'contenteditable="false"';
-  const pvPct   = Math.max(0, Math.min(100, (d.pv  / d.pvMax)  * 100));
-  const eaPct   = Math.max(0, Math.min(100, (d.ea  / d.eaMax)  * 100));
-  const pvtPct  = Math.max(0, Math.min(100, (d.pvtMax > 0 ? (d.pvt / d.pvtMax) * 100 : 0)));
- 
-  const attrMod = v => { const m = Math.floor((v-10)/2); return (m>=0?'+':'')+m; };
- 
+
+  const ea = ismine ? 'contenteditable="true"' : 'contenteditable="false"';
+  const pvPct  = Math.max(0,Math.min(100,(d.pv/d.pvMax)*100));
+  const eaPct  = Math.max(0,Math.min(100,(d.ea/d.eaMax)*100));
+  const pvtPct = Math.max(0,Math.min(100, d.pvtMax>0?(d.pvt/d.pvtMax)*100:0));
+  const mod = v => { const m=Math.floor((v-10)/2); return (m>=0?'+':'')+m; };
+  const dexMod = Math.floor(((d.dex||10)-10)/2);
+  const dexStr = (dexMod>=0?'+':'')+dexMod;
+
   card.innerHTML = `
     <div class="card-header">
       <div class="card-header-left">
-        <div class="char-name" ${editAttr} data-field="nome">${d.nome || slot}</div>
+        <div class="char-name" ${ea} data-field="nome">${d.nome||slot}</div>
         <div class="char-meta">
-          <span>⚡ <span ${editAttr} data-field="linhagem">${d.linhagem||'—'}</span></span>
-          <span>◆ <span ${editAttr} data-field="grau">${d.grau||'—'}</span></span>
-          <span>▲ <span ${editAttr} data-field="nivel">${d.nivel||'—'}</span></span>
-          <span>🏛 <span ${editAttr} data-field="afiliacao">${d.afiliacao||'—'}</span></span>
+          <span>⚡ <span ${ea} data-field="linhagem">${d.linhagem||'—'}</span></span>
+          <span>◆ <span ${ea} data-field="grau">${d.grau||'—'}</span></span>
+          <span>▲ <span ${ea} data-field="nivel">${d.nivel||'—'}</span></span>
+          <span>🏛 <span ${ea} data-field="afiliacao">${d.afiliacao||'—'}</span></span>
         </div>
       </div>
-      <span class="player-badge ${ismine?'':'other'}">${ismine ? '✦ Você' : slot}</span>
+      <span class="player-badge ${ismine?'':'other'}">${ismine?'✦ Você':slot}</span>
     </div>
- 
+
     <div class="card-body">
- 
-      <!-- RECURSOS -->
+
       <div>
         <div class="section-label">Recursos</div>
         <div class="resource-bars">
@@ -860,7 +1164,7 @@ function criarFichaCard(slot, d) {
             <span class="resource-label pv">PV</span>
             <div class="bar-track"><div class="bar-fill pv" style="width:${pvPct}%"></div></div>
             <div class="resource-inputs">
-              <input class="num-input" type="number" data-field="pv" value="${d.pv}" min="0" max="${d.pvMax}" ${ismine?'':'disabled'}>
+              <input class="num-input" type="number" data-field="pv"    value="${d.pv}"    min="0" max="${d.pvMax}"  ${ismine?'':'disabled'}>
               <span class="num-sep">/</span>
               <input class="num-input" type="number" data-field="pvMax" value="${d.pvMax}" min="1" ${ismine?'':'disabled'}>
             </div>
@@ -869,7 +1173,7 @@ function criarFichaCard(slot, d) {
             <span class="resource-label pvt">PVT</span>
             <div class="bar-track"><div class="bar-fill pvt" style="width:${pvtPct}%"></div></div>
             <div class="resource-inputs">
-              <input class="num-input" type="number" data-field="pvt" value="${d.pvt}" min="0" max="${d.pvtMax||99}" ${ismine?'':'disabled'}>
+              <input class="num-input" type="number" data-field="pvt"    value="${d.pvt}"     min="0" max="${d.pvtMax||99}" ${ismine?'':'disabled'}>
               <span class="num-sep">/</span>
               <input class="num-input" type="number" data-field="pvtMax" value="${d.pvtMax||0}" min="0" ${ismine?'':'disabled'}>
             </div>
@@ -878,294 +1182,101 @@ function criarFichaCard(slot, d) {
             <span class="resource-label ea">EA</span>
             <div class="bar-track"><div class="bar-fill ea" style="width:${eaPct}%"></div></div>
             <div class="resource-inputs">
-              <input class="num-input" type="number" data-field="ea" value="${d.ea}" min="0" max="${d.eaMax}" ${ismine?'':'disabled'}>
+              <input class="num-input" type="number" data-field="ea"    value="${d.ea}"    min="0" max="${d.eaMax}"  ${ismine?'':'disabled'}>
               <span class="num-sep">/</span>
               <input class="num-input" type="number" data-field="eaMax" value="${d.eaMax}" min="1" ${ismine?'':'disabled'}>
             </div>
           </div>
         </div>
       </div>
- 
-      <!-- STATUS -->
+
       <div>
         <div class="section-label">Status</div>
         <div class="status-grid">
-          <div class="status-box">
-            <span class="s-label">Deslocamento</span>
-            <span class="s-val" ${editAttr} data-field="deslocamento">${d.deslocamento||13}m</span>
-          </div>
-          <div class="status-box">
-            <span class="s-label">CA</span>
-            <span class="s-val" ${editAttr} data-field="ca">${d.ca||13}</span>
-          </div>
-          <div class="status-box">
-            <span class="s-label">Grau</span>
-            <span class="s-val" style="font-size:14px" ${editAttr} data-field="grau2">${d.grau||'3'}</span>
-          </div>
+          <div class="status-box"><span class="s-label">Deslocamento</span><span class="s-val" ${ea} data-field="deslocamento">${d.deslocamento||13}m</span></div>
+          <div class="status-box"><span class="s-label">CA</span><span class="s-val" ${ea} data-field="ca">${d.ca||13}</span></div>
+          <div class="status-box"><span class="s-label">Grau</span><span class="s-val" style="font-size:13px" ${ea} data-field="grau2">${d.grau||'3'}</span></div>
         </div>
       </div>
- 
-      <!-- ATRIBUTOS -->
+
       <div>
         <div class="section-label">Atributos</div>
         <div class="attrs-grid">
-          ${['for','dex','con','int','wis','cha'].map(a => `
+          ${['for','dex','con','int','wis','cha'].map(a=>`
             <div class="attr-box">
               <div class="attr-abbr">${a.toUpperCase()}</div>
-              <span class="attr-val" ${editAttr} data-field="${a}">${d[a]||10}</span>
-              <div class="attr-mod">${attrMod(d[a]||10)}</div>
+              <span class="attr-val" ${ea} data-field="${a}">${d[a]||10}</span>
+              <div class="attr-mod">${mod(d[a]||10)}</div>
             </div>`).join('')}
         </div>
-        <!-- BOTÃO DE INICIATIVA ADICIONADO AQUI -->
-        <button class="btn-iniciativa" onclick="window.rolarIniciativa('${slot}')" ${ismine?'':'disabled'}>
-          ⚡ Rolar Iniciativa
-        </button>
+        ${ismine ? `
+        <button class="btn-iniciativa" onclick="rolarIniciativa('${slot}', ${d.dex||10})">
+          🎲 Iniciativa &nbsp;<small style="opacity:0.65;font-size:10px;">(1d20 ${dexStr})</small>
+        </button>` : `
+        <div style="margin-top:8px;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;text-align:center;font-size:10px;color:var(--text2);">
+          ⚔️ Iniciativa DEX ${dexStr}
+        </div>`}
       </div>
- 
-      <!-- TÉCNICAS DE REFORÇO -->
+
       <div>
         <div class="section-label">Técnicas de Reforço</div>
         <div class="tecnicas-list">
-          <div class="tecnica-item">
-            <div class="tecnica-top">
-              <span class="tecnica-nome">Reforço dos Punhos</span>
-              <span class="tecnica-custo">5 EA</span>
-            </div>
-            <span class="tecnica-efeito">1d4 + Mod. FOR</span>
-            <span class="tecnica-desc">Imbui as mãos com energia amaldiçoada para causar mais dano.</span>
-          </div>
-          <div class="tecnica-item">
-            <div class="tecnica-top">
-              <span class="tecnica-nome">Barreira Corporal</span>
-              <span class="tecnica-custo">10 EA</span>
-            </div>
-            <span class="tecnica-efeito">+1d6 + Mod. CON em PVT • +CA por 1 rodada</span>
-            <span class="tecnica-desc">Gera Pontos de Vida Temporários e aumenta CA.</span>
-          </div>
-          <div class="tecnica-item">
-            <div class="tecnica-top">
-              <span class="tecnica-nome">Passo Amaldiçoado</span>
-              <span class="tecnica-custo">15 EA</span>
-            </div>
-            <span class="tecnica-efeito">+3m Deslocamento por 2 rodadas</span>
-            <span class="tecnica-desc">Aumenta o deslocamento temporariamente.</span>
-          </div>
-          <div class="tecnica-item">
-            <div class="tecnica-top">
-              <span class="tecnica-nome">Fortalecimento de Habilidade</span>
-              <span class="tecnica-custo">20 EA</span>
-            </div>
-            <span class="tecnica-efeito">Reforço da Técnica</span>
-            <span class="tecnica-desc">Melhora capacidade, dano e qualidade de uma técnica.</span>
-          </div>
+          <div class="tecnica-item"><div class="tecnica-top"><span class="tecnica-nome">Reforço dos Punhos</span><span class="tecnica-custo">5 EA</span></div><span class="tecnica-efeito">1d4 + Mod. FOR</span><span class="tecnica-desc">Imbui as mãos com energia amaldiçoada para causar mais dano.</span></div>
+          <div class="tecnica-item"><div class="tecnica-top"><span class="tecnica-nome">Barreira Corporal</span><span class="tecnica-custo">10 EA</span></div><span class="tecnica-efeito">+1d6 + Mod. CON em PVT • +CA por 1 rodada</span><span class="tecnica-desc">Gera Pontos de Vida Temporários e aumenta CA.</span></div>
+          <div class="tecnica-item"><div class="tecnica-top"><span class="tecnica-nome">Passo Amaldiçoado</span><span class="tecnica-custo">15 EA</span></div><span class="tecnica-efeito">+3m Deslocamento por 2 rodadas</span><span class="tecnica-desc">Aumenta o deslocamento temporariamente.</span></div>
+          <div class="tecnica-item"><div class="tecnica-top"><span class="tecnica-nome">Fortalecimento de Habilidade</span><span class="tecnica-custo">20 EA</span></div><span class="tecnica-efeito">Reforço da Técnica</span><span class="tecnica-desc">Melhora capacidade, dano e qualidade de uma técnica.</span></div>
         </div>
       </div>
- 
-      <!-- TÉCNICAS INATAS -->
+
       <div>
         <div class="section-label">Técnicas Inatas</div>
         <div class="tecnicas-list">
-          <div class="tecnica-item">
-            <div class="tecnica-top">
-              <span class="tecnica-nome">Técnica Inata (Principal)</span>
-              <span class="tecnica-custo" style="color:var(--red);background:rgba(255,74,74,0.1);border-color:rgba(255,74,74,0.3)">8d10</span>
-            </div>
-            <span class="tecnica-efeito">Alcance: 30m • Salvaguarda: FOR (CD 20)</span>
-            <span class="tecnica-desc">Cria um vácuo magnético que atrai alvos falhos e esmaga a matéria ao redor.</span>
-          </div>
-          <div class="tecnica-item">
-            <div class="tecnica-top">
-              <span class="tecnica-nome">Reversão de Técnica</span>
-              <span class="tecnica-custo" style="color:var(--red);background:rgba(255,74,74,0.1);border-color:rgba(255,74,74,0.3)">12d10</span>
-            </div>
-            <span class="tecnica-efeito">Linha 24m • Salvaguarda: DEX (CD 20)</span>
-            <span class="tecnica-desc">Onda repulsiva de energia positiva reversa — joga alvos a 15m de distância.</span>
-          </div>
-          <div class="tecnica-item">
-            <div class="tecnica-top">
-              <span class="tecnica-nome">Fusão Completa</span>
-              <span class="tecnica-custo" style="color:var(--red);background:rgba(255,74,74,0.1);border-color:rgba(255,74,74,0.3)">20d12</span>
-            </div>
-            <span class="tecnica-efeito">Área 18m • Ignora coberturas</span>
-            <span class="tecnica-desc">Fusão e colisão instantânea — apaga completamente toda a matéria tocada.</span>
-          </div>
-          <div class="tecnica-item">
-            <div class="tecnica-top">
-              <span class="tecnica-nome">Técnica Inversa: Cura</span>
-              <span class="tecnica-custo" style="color:var(--online);background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.3)">4d10+CHA</span>
-            </div>
-            <span class="tecnica-efeito">Toque / Pessoal • Cessa Sangrando</span>
-            <span class="tecnica-desc">Regenera PV e cessa a condição Sangrando via multiplicação de energia negativa.</span>
-          </div>
+          <div class="tecnica-item"><div class="tecnica-top"><span class="tecnica-nome">Técnica Inata (Principal)</span><span class="tecnica-custo" style="color:var(--red);background:rgba(255,74,74,0.1);border-color:rgba(255,74,74,0.3)">8d10</span></div><span class="tecnica-efeito">Alcance: 30m • Salvaguarda: FOR (CD 20)</span><span class="tecnica-desc">Cria um vácuo magnético que atrai alvos falhos e esmaga a matéria ao redor.</span></div>
+          <div class="tecnica-item"><div class="tecnica-top"><span class="tecnica-nome">Reversão de Técnica</span><span class="tecnica-custo" style="color:var(--red);background:rgba(255,74,74,0.1);border-color:rgba(255,74,74,0.3)">12d10</span></div><span class="tecnica-efeito">Linha 24m • Salvaguarda: DEX (CD 20)</span><span class="tecnica-desc">Onda repulsiva de energia positiva reversa — joga alvos a 15m de distância.</span></div>
+          <div class="tecnica-item"><div class="tecnica-top"><span class="tecnica-nome">Fusão Completa</span><span class="tecnica-custo" style="color:var(--red);background:rgba(255,74,74,0.1);border-color:rgba(255,74,74,0.3)">20d12</span></div><span class="tecnica-efeito">Área 18m • Ignora coberturas</span><span class="tecnica-desc">Fusão e colisão instantânea — apaga completamente toda a matéria tocada.</span></div>
+          <div class="tecnica-item"><div class="tecnica-top"><span class="tecnica-nome">Técnica Inversa: Cura</span><span class="tecnica-custo" style="color:var(--online);background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.3)">4d10+CHA</span></div><span class="tecnica-efeito">Toque / Pessoal • Cessa Sangrando</span><span class="tecnica-desc">Regenera PV e cessa a condição Sangrando via multiplicação de energia negativa.</span></div>
         </div>
       </div>
- 
-      <!-- BARREIRAS / DOMÍNIOS -->
+
       <div>
         <div class="section-label">Barreiras &amp; Domínios</div>
-        <div style="display:flex;flex-direction:column;gap:10px">
- 
+        <div style="display:flex;flex-direction:column;gap:8px">
           <div class="dominio-box simples">
             <div class="dominio-title">🛡️ Domínio Simples</div>
             <div class="dominio-desc">Técnica defensiva ancestral — projeta uma barreira mística ao redor dos pés do usuário.</div>
-            <div class="dominio-efeito">
-              • Neutraliza <strong>Acerto Infalível</strong> de Expansões inimigas (raio 3m)<br>
-              • <strong>+2 CA</strong> e vantagem em salvaguardas de DEX enquanto ativo
-            </div>
+            <div class="dominio-efeito">• Neutraliza <strong>Acerto Infalível</strong> de Expansões inimigas (raio 3m)<br>• <strong>+2 CA</strong> e vantagem em salvaguardas de DEX enquanto ativo</div>
           </div>
- 
           <div class="dominio-box expansao">
             <div class="dominio-title">💀 Expansão de Domínio</div>
             <div class="dominio-desc">O ápice da manipulação de energia — manifesta o mundo inato do feiticeiro na realidade física.</div>
-            <div class="dominio-efeito">
-              • Custo fixo: <strong>100 EA</strong><br>
-              • Redoma impenetrável de <strong>18 metros</strong><br>
-              • Todos os feitiços ganham <strong>Acerto Infalível</strong><br>
-              • Ao desativar: técnica queimada por <strong>1d4 turnos</strong>
-            </div>
+            <div class="dominio-efeito">• Custo fixo: <strong>100 EA</strong><br>• Redoma impenetrável de <strong>18 metros</strong><br>• Todos os feitiços ganham <strong>Acerto Infalível</strong><br>• Ao desativar: técnica queimada por <strong>1d4 turnos</strong></div>
           </div>
- 
         </div>
       </div>
 
     </div>`;
- 
+
   if (ismine) {
     card.querySelectorAll('input.num-input').forEach(inp => {
-      inp.addEventListener('change', () => salvarCampo(slot, inp.dataset.field, Number(inp.value)));
+      inp.addEventListener('change', () => salvar(slot, inp.dataset.field, Number(inp.value)));
     });
- 
     card.querySelectorAll('[contenteditable="true"]').forEach(el => {
       el.addEventListener('blur', () => {
-        let val = el.textContent.trim();
-        const numFields = ['deslocamento','ca','for','dex','con','int','wis','cha'];
-        if (numFields.includes(el.dataset.field)) val = parseInt(val) || 0;
-        salvarCampo(slot, el.dataset.field, val);
+        let v = el.textContent.trim();
+        if (['deslocamento','ca','for','dex','con','int','wis','cha'].includes(el.dataset.field)) v = parseInt(v)||0;
+        salvar(slot, el.dataset.field, v);
       });
-      el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
+      el.addEventListener('keydown', e => { if (e.key==='Enter'){e.preventDefault();el.blur();} });
     });
   }
- 
+
   return card;
 }
- 
-// ── SALVAR CAMPO NO FIREBASE ──
-function salvarCampo(slot, field, value) {
-  const fieldRef = ref(db, `sessoes/${sessaoId}/fichas/${slot}/${field}`);
-  set(fieldRef, value).catch(() => showToast('Erro ao salvar', 'error'));
+
+function salvar(slot, field, value) {
+  set(ref(db, `sessoes/${sessaoId}/fichas/${slot}/${field}`), value)
+    .catch(() => showToast('Erro ao salvar','error'));
 }
-
-// ════════════════════════════════════════════
-// SISTEMA DE CHAT E DADOS
-// ════════════════════════════════════════════
-
-// ── Rolar Iniciativa ──
-window.rolarIniciativa = function(slot) {
-  if (slot !== meuSlot) return; 
-  
-  const ficha = fichasData[slot];
-  const dex = ficha.dex || 10;
-  const mod = Math.floor((dex - 10) / 2);
-  const d20 = Math.floor(Math.random() * 20) + 1;
-  const total = d20 + mod;
-  
-  const expressao = `1d20 (${d20}) ${mod >= 0 ? '+' : '-'} DEX (${Math.abs(mod)})`;
-  enviarParaFirebase(ficha.nome || slot, 'Iniciativa', expressao, total);
-};
-
-// ── Rolar Dados Customizados ──
-window.rolarDadoPersonalizado = function() {
-  const qtd = parseInt(document.getElementById('diceQty').value) || 1;
-  const lados = parseInt(document.getElementById('diceSides').value) || 20;
-  
-  if (qtd <= 0 || lados <= 1) {
-    showToast('Valores inválidos para os dados!', 'error');
-    return;
-  }
-
-  let total = 0;
-  let rolagens = [];
-  for(let i = 0; i < qtd; i++) {
-    const res = Math.floor(Math.random() * lados) + 1;
-    rolagens.push(res);
-    total += res;
-  }
-
-  const autor = fichasData[meuSlot].nome || meuSlot;
-  const titulo = `Rolagem: ${qtd}d${lados}`;
-  const expressao = `[ ${rolagens.join(', ')} ]`;
-  
-  enviarParaFirebase(autor, titulo, expressao, total);
-};
-
-// ── Enviar Mensagem de Texto Normal ──
-window.enviarMensagemChat = function() {
-  const input = document.getElementById('chatInput');
-  const texto = input.value.trim();
-  if (!texto) return;
-
-  const autor = fichasData[meuSlot].nome || meuSlot;
-  
-  push(ref(db, `sessoes/${sessaoId}/chat`), {
-    tipo: 'texto',
-    autor: autor,
-    texto: texto,
-    slot: meuSlot,
-    timestamp: serverTimestamp()
-  });
-
-  input.value = '';
-};
-
-// ── Enviar Rolagem Genérica pro Firebase ──
-function enviarParaFirebase(autor, titulo, expressao, resultadoTotal) {
-  push(ref(db, `sessoes/${sessaoId}/chat`), {
-    tipo: 'rolagem',
-    autor: autor,
-    titulo: titulo,
-    expressao: expressao,
-    resultado: resultadoTotal,
-    slot: meuSlot,
-    timestamp: serverTimestamp()
-  });
-}
-
-// ── Renderizar no DOM ──
-function renderizarMensagemChat(msg) {
-  const chatHistory = document.getElementById('chatHistory');
-  const isMine = msg.slot === meuSlot;
-  const div = document.createElement('div');
-  
-  if (msg.tipo === 'texto') {
-    div.className = `chat-msg ${isMine ? 'mine' : ''}`;
-    div.innerHTML = `
-      <div class="msg-header">
-        <span class="msg-author">${msg.autor}</span>
-      </div>
-      <div class="msg-content">${msg.texto}</div>
-    `;
-  } else if (msg.tipo === 'rolagem') {
-    div.className = `chat-msg roll ${isMine ? 'mine' : ''}`;
-    div.innerHTML = `
-      <div class="msg-header">
-        <span class="msg-author">${msg.autor}</span>
-        <span>${msg.titulo}</span>
-      </div>
-      <div class="msg-content" style="font-size:11px; color:var(--text2)">
-        ${msg.expressao}
-      </div>
-      <div class="msg-result">
-        Total: ${msg.resultado}
-      </div>
-    `;
-  }
-  
-  chatHistory.appendChild(div);
-  chatHistory.scrollTop = chatHistory.scrollHeight; 
-}
- 
-// ── Expor funções globais ──
-window.entrarSessao = window.entrarSessao;
 </script>
 </body>
 </html>
