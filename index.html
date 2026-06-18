@@ -141,6 +141,22 @@
     transition: all 0.2s;
   }
   .player-card:hover { border-color: var(--purple); box-shadow: 0 0 18px var(--purple-glow); transform: translateY(-2px); }
+  .player-card.new-card { border-style: dashed; border-color: var(--border2); }
+  .player-card.new-card:hover { border-color: var(--gold); box-shadow: 0 0 18px rgba(240,192,64,0.15); }
+  .player-card.new-card .slot-name { color: var(--gold); }
+  .btn-delete-ficha {
+    margin-top: 10px;
+    background: transparent;
+    border: 1px solid rgba(255,74,74,0.4);
+    color: var(--red);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-delete-ficha:hover { background: var(--red); color: white; }
   .player-card .slot-name { font-family: 'Cinzel', serif; font-size: 14px; color: var(--text); margin-bottom: 5px; }
   .player-card .slot-status { font-size: 11px; color: var(--text2); }
   .player-card.occupied .slot-status { color: var(--online); }
@@ -794,8 +810,8 @@ const db  = getDatabase(app);
 
 let sessaoId   = null;
 let meuSlot    = null;
+let meuNome    = null;
 let fichasData = {};
-const SLOTS = ['Jogador 1','Jogador 2','Jogador 3','Jogador 4','Mestre'];
 
 // Expor referência ao db para funções globais
 window.__db = db;
@@ -822,8 +838,8 @@ function dominioSimplesDefault() {
 function dominioExpansaoDefault() {
   return { desc:'Descreva a expansão de domínio do seu personagem...', efeito:'Descreva os efeitos da expansão de domínio...' };
 }
-function fichaDefault(slot) {
-  return { nome:slot, linhagem:'Linhagem Técnica', grau:'Grau 3', nivel:'Nível 01', afiliacao:'Instituto',
+function fichaDefault(nome) {
+  return { nome:nome, linhagem:'Linhagem Técnica', grau:'Grau 3', nivel:'Nível 01', afiliacao:'Instituto',
     pv:0,pvMax:0, pvt:0,pvtMax:0, ea:0,eaMax:0,
     deslocamento:0, ca:0, for:0,dex:0,con:0,int:0,wis:0,cha:0,
     tecnicasInatas: tecnicasInatasDefault(),
@@ -846,32 +862,87 @@ window.entrarSessao = function() {
   const val = document.getElementById('sessionInput').value.trim().toUpperCase();
   if (!val) { showToast('Digite um código de sessão','error'); return; }
   sessaoId = val;
-  mostrarSlots();
+  carregarSelecaoPersonagens();
 };
 
-function mostrarSlots() {
+function carregarSelecaoPersonagens() {
   const grid = document.getElementById('playerGrid');
   grid.style.display = 'grid';
-  grid.innerHTML = '<p style="color:var(--text2);font-size:12px;text-align:center;grid-column:1/-1;">Escolha seu personagem:</p>';
+  grid.innerHTML = '<p style="color:var(--text2);font-size:12px;text-align:center;grid-column:1/-1;">Carregando personagens...</p>';
   get(ref(db, `sessoes/${sessaoId}/fichas`)).then(snap => {
-    const dados = snap.val() || {};
-    SLOTS.forEach(slot => {
-      const ficha = dados[slot];
-      const c = document.createElement('div');
-      c.className = 'player-card' + (ficha ? ' occupied' : '');
-      c.innerHTML = `<div class="slot-name">${slot}</div>
-        <div class="slot-status">${ficha ? '● '+(ficha.nome||slot) : '○ Disponível'}</div>`;
-      c.onclick = () => escolherSlot(slot, dados[slot]);
-      grid.appendChild(c);
-    });
+    renderSelecaoPersonagens(snap.val() || {});
   });
 }
 
-async function escolherSlot(slot, existente) {
-  meuSlot = slot;
-  if (!existente) await set(ref(db, `sessoes/${sessaoId}/fichas/${slot}`), fichaDefault(slot));
+function renderSelecaoPersonagens(dados) {
+  const grid = document.getElementById('playerGrid');
+  grid.innerHTML = '';
+  const ids = Object.keys(dados);
+
+  const titulo = document.createElement('p');
+  titulo.style.cssText = 'color:var(--text2);font-size:12px;text-align:center;grid-column:1/-1;';
+  titulo.textContent = ids.length ? 'Selecione um personagem existente ou crie um novo:' : 'Nenhum personagem nesta sessão ainda — crie o primeiro:';
+  grid.appendChild(titulo);
+
+  ids.forEach(id => {
+    const ficha = dados[id] || {};
+    const c = document.createElement('div');
+    c.className = 'player-card occupied';
+    c.innerHTML = `
+      <div class="slot-name">${ficha.nome || 'Personagem'}</div>
+      <div class="slot-status">● ${ficha.linhagem||'—'} · ${ficha.grau||'—'}</div>
+      <button class="btn-delete-ficha" type="button">🗑 Excluir</button>
+    `;
+    c.querySelector('.btn-delete-ficha').addEventListener('click', e => { e.stopPropagation(); excluirFicha(id, ficha.nome); });
+    c.addEventListener('click', () => escolherPersonagem(id, ficha));
+    grid.appendChild(c);
+  });
+
+  const novo = document.createElement('div');
+  novo.className = 'player-card new-card';
+  novo.innerHTML = `<div class="slot-name">＋ Novo Personagem</div><div class="slot-status">Criar ficha</div>`;
+  novo.onclick = () => abrirCriarPersonagem();
+  grid.appendChild(novo);
+}
+
+function abrirCriarPersonagem() {
+  const grid = document.getElementById('playerGrid');
+  grid.innerHTML = `
+    <div class="session-id-box" style="grid-column:1/-1;">
+      <label>NOME DO PERSONAGEM</label>
+      <input type="text" id="novoNomeInput" placeholder="Ex: Yuji Itadori" maxlength="30">
+      <button class="btn-enter" id="btnCriarPersonagem">CRIAR FICHA</button>
+      <button class="btn-enter" id="btnVoltarSelecao" style="background:transparent;border:1px solid var(--border2);color:var(--text2);margin-top:8px;">← Voltar</button>
+    </div>
+  `;
+  document.getElementById('btnCriarPersonagem').onclick = criarPersonagem;
+  document.getElementById('btnVoltarSelecao').onclick = carregarSelecaoPersonagens;
+  const nomeInput = document.getElementById('novoNomeInput');
+  nomeInput.addEventListener('keydown', e => { if (e.key==='Enter') { e.preventDefault(); criarPersonagem(); } });
+  nomeInput.focus();
+}
+
+async function criarPersonagem() {
+  const nome = document.getElementById('novoNomeInput').value.trim();
+  if (!nome) { showToast('Digite um nome para o personagem','error'); return; }
+  const novaRef = push(ref(db, `sessoes/${sessaoId}/fichas`));
+  const ficha = fichaDefault(nome);
+  await set(novaRef, ficha);
+  escolherPersonagem(novaRef.key, ficha);
+}
+
+function escolherPersonagem(id, ficha) {
+  meuSlot = id;
+  meuNome = (ficha && ficha.nome) || 'Personagem';
   iniciarApp();
 }
+
+window.excluirFicha = function(id, nome) {
+  if (!confirm(`Excluir a ficha de "${nome||'Personagem'}"? Esta ação não pode ser desfeita.`)) return;
+  remove(ref(db, `sessoes/${sessaoId}/fichas/${id}`))
+    .then(() => { showToast('Ficha excluída.','success'); carregarSelecaoPersonagens(); })
+    .catch(() => showToast('Erro ao excluir ficha','error'));
+};
 
 /* ══════════════════════════════════════
    APP PRINCIPAL
@@ -881,12 +952,14 @@ function iniciarApp() {
   document.getElementById('appHeader').style.display = 'flex';
   document.getElementById('mainLayout').classList.add('visible');
   document.getElementById('sessionLabel').textContent = 'Sessão: '+sessaoId;
-  document.getElementById('mySlotLabel').textContent = '[ '+meuSlot+' ]';
+  document.getElementById('mySlotLabel').textContent = '[ '+meuNome+' ]';
 
   // Fichas em tempo real
   onValue(ref(db, `sessoes/${sessaoId}/fichas`), snap => {
     fichasData = snap.val() || {};
     renderFichas();
+    const nomeAtual = fichasData[meuSlot]?.nome || meuNome;
+    document.getElementById('mySlotLabel').textContent = '[ '+nomeAtual+' ]';
   });
 
   // Chat em tempo real
@@ -900,7 +973,7 @@ function iniciarApp() {
   });
 
   // Mensagem de entrada
-  enviarSistema(meuSlot + ' entrou na sessão.');
+  enviarSistema(meuNome + ' entrou na sessão.');
 }
 
 /* ══════════════════════════════════════
@@ -1154,10 +1227,11 @@ window.rolarIniciativa = function(slot, dexVal) {
 ══════════════════════════════════════ */
 function renderFichas() {
   const container = document.getElementById('fichasContainer');
-  document.getElementById('onlineCount').textContent = Object.keys(fichasData).length;
-  const ordem = [meuSlot, ...SLOTS.filter(s => s!==meuSlot && fichasData[s])];
+  const ids = Object.keys(fichasData);
+  document.getElementById('onlineCount').textContent = ids.length;
+  const ordem = [meuSlot, ...ids.filter(id => id !== meuSlot)];
   container.innerHTML = '';
-  ordem.forEach(slot => { if (fichasData[slot]) container.appendChild(criarCard(slot, fichasData[slot])); });
+  ordem.forEach(id => { if (fichasData[id]) container.appendChild(criarCard(id, fichasData[id])); });
 }
 
 function criarCard(slot, d) {
@@ -1188,7 +1262,7 @@ function criarCard(slot, d) {
           <span>🏛 <span ${ea} data-field="afiliacao">${d.afiliacao||'—'}</span></span>
         </div>
       </div>
-      <span class="player-badge ${ismine?'':'other'}">${ismine?'✦ Você':slot}</span>
+      <span class="player-badge ${ismine?'':'other'}">${ismine?'✦ Você':(d.nome||'Jogador')}</span>
     </div>
 
     <div class="card-body">
