@@ -226,122 +226,6 @@
     margin: 0 auto;
   }
 
-  /* ══════════════════════════════════════
-     MAPA / GRID DE BATALHA
-  ══════════════════════════════════════ */
-  .mapa-area {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    transition: all 0.3s;
-  }
-  .mapa-area.collapsed {
-    flex: 0 0 0;
-    overflow: hidden;
-    opacity: 0;
-    pointer-events: none;
-    width: 0;
-    padding: 0;
-  }
-  .mapa-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-    padding: 12px 16px;
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-  }
-  .mapa-toolbar-group { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
-  .mapa-toolbar input[type="text"],
-  .mapa-toolbar input[type="number"] {
-    background: var(--bg3);
-    border: 1px solid var(--border2);
-    border-radius: 6px;
-    padding: 6px 10px;
-    color: var(--text);
-    font-size: 12px;
-    outline: none;
-  }
-  .mapa-toolbar input[type="text"] { width: 220px; }
-  .mapa-toolbar input[type="number"] { width: 52px; text-align: center; }
-  .mapa-toolbar label { font-size: 10px; color: var(--text2); letter-spacing: 0.5px; }
-  .btn-mapa {
-    background: transparent; border: 1px solid var(--border2); color: var(--text2);
-    border-radius: 6px; padding: 6px 12px; font-size: 11px; font-weight: 600;
-    cursor: pointer; transition: all 0.15s; white-space: nowrap;
-  }
-  .btn-mapa:hover { border-color: var(--blue); color: var(--blue); }
-  .btn-mapa.primary { border-color: var(--purple); color: var(--purple); }
-  .btn-mapa.primary:hover { background: var(--purple); color: white; }
-  .btn-mapa.danger { border-color: rgba(255,74,74,0.4); color: var(--red); }
-  .btn-mapa.danger:hover { background: var(--red); color: white; }
-  .btn-mapa.gold { border-color: var(--gold); color: var(--gold); }
-  .btn-mapa.gold:hover { background: var(--gold); color: #0a0a0f; }
-
-  .mapa-viewport {
-    flex: 1;
-    overflow: auto;
-    padding: 20px;
-    background: repeating-conic-gradient(var(--bg3) 0% 25%, var(--bg) 0% 50%) 0 0/22px 22px;
-  }
-  .mapa-canvas {
-    position: relative;
-    background-color: var(--bg3);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 100% 100%;
-    box-shadow: 0 0 0 1px var(--border2), 0 10px 30px rgba(0,0,0,0.4);
-  }
-  .mapa-grid-overlay {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-  .mapa-empty-state {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 6px;
-    color: var(--text2); font-size: 12px; text-align: center; padding: 20px;
-  }
-  .mapa-token {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    user-select: none;
-    touch-action: none;
-    transition: left 0.15s ease, top 0.15s ease;
-    z-index: 5;
-  }
-  .mapa-token.dragging { transition: none; z-index: 20; }
-  .mapa-token-circle {
-    border-radius: 50%;
-    border: 2px solid var(--border2);
-    background: var(--bg2);
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; color: var(--text);
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-  }
-  .mapa-token-circle img { width: 100%; height: 100%; object-fit: cover; }
-  .mapa-token.is-mine .mapa-token-circle { border-color: var(--purple); box-shadow: 0 0 10px var(--purple-glow); }
-  .mapa-token.is-npc .mapa-token-circle { border-color: var(--gold); }
-  .mapa-token-label {
-    font-size: 9px; font-weight: 600; color: var(--text);
-    background: rgba(10,10,15,0.75); border-radius: 4px; padding: 1px 5px;
-    white-space: nowrap; max-width: 72px; overflow: hidden; text-overflow: ellipsis;
-  }
-  .mapa-token-remove {
-    position: absolute; top: -5px; right: -5px;
-    width: 15px; height: 15px; border-radius: 50%;
-    background: var(--red); color: white; font-size: 9px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; border: 1px solid var(--bg);
-  }
-
   /* ── FICHA CARD ── */
   .ficha-card {
     background: var(--bg2);
@@ -508,6 +392,7 @@
     display: flex;
     flex-direction: column;
     height: calc(100vh - 53px);
+    height: calc(100dvh - 53px);
     position: sticky;
     top: 53px;
     border-left: 1px solid var(--border);
@@ -520,6 +405,8 @@
     border-bottom: 1px solid var(--border);
     padding: 10px 12px;
     flex-shrink: 0;
+    max-height: 35vh;
+    overflow-y: auto;
   }
   .initiative-header {
     display: flex;
@@ -1063,26 +950,11 @@
   }
   @media (max-width: 640px) {
     .main-layout.visible { flex-direction: column; }
-    .right-panel {
-      position: fixed;
-      top: 53px;
-      left: 0;
-      right: 0;
-      width: 100%;
-      height: 42vh;
-      z-index: 150;
-      border-left: none;
-      border-top: none;
-      border-bottom: 1px solid var(--border);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.45);
-    }
-    .fichas-area, .mapa-area { margin-top: 42vh; }
-    .fichas-area.collapsed, .mapa-area.collapsed { display: none; }
+    .right-panel { width: 100%; height: auto; min-height: 340px; max-height: 50vh; position: static; border-left: none; border-top: 1px solid var(--border); }
+    .fichas-area.collapsed { display: none; }
     .chat-hint { display: none; }
     .attrs-grid { grid-template-columns: repeat(3,1fr); }
-    .initiative-panel { max-height: 110px; overflow-y: auto; }
-    .mapa-toolbar { padding: 8px 10px; }
-    .mapa-toolbar input[type="text"] { width: 140px; }
+    .initiative-panel { max-height: 160px; overflow-y: auto; }
   }
 </style>
 </head>
@@ -1113,8 +985,7 @@
     </div>
     <button class="btn-header dice" onclick="abrirModalDados()">🎲 Dados</button>
     <button class="btn-header mestre" id="btnMestre" onclick="toggleMestre()">👁 Mestre</button>
-    <button class="btn-header toggle active" id="btnTabFichas" onclick="mudarAba('fichas')">📋 Fichas</button>
-    <button class="btn-header toggle" id="btnTabMapa" onclick="mudarAba('mapa')">🗺️ Mapa</button>
+    <button class="btn-header toggle" id="btnToggleFichas" onclick="toggleFichas()">📋 Fichas</button>
   </div>
 </header>
 
@@ -1124,35 +995,6 @@
   <!-- Fichas -->
   <div class="fichas-area" id="fichasArea">
     <div class="fichas-container" id="fichasContainer"></div>
-  </div>
-
-  <!-- Mapa de Batalha -->
-  <div class="mapa-area collapsed" id="mapaArea">
-    <div class="mapa-toolbar" id="mapaToolbarMestre" style="display:none">
-      <div class="mapa-toolbar-group">
-        <input type="text" id="mapaUrlInput" placeholder="URL da imagem do mapa...">
-        <button class="btn-mapa primary" onclick="definirMapaUrl()">🖼️ Definir</button>
-        <input type="file" id="mapaFileInput" accept="image/*" style="display:none" onchange="definirMapaArquivo(event)">
-        <button class="btn-mapa" onclick="document.getElementById('mapaFileInput').click()">📁 Upload</button>
-      </div>
-      <div class="mapa-toolbar-group">
-        <label>Colunas</label><input type="number" id="mapaCols" value="20" min="4" max="60">
-        <label>Linhas</label><input type="number" id="mapaRows" value="14" min="4" max="60">
-        <button class="btn-mapa" onclick="aplicarGradeMapa()">📐 Aplicar Grade</button>
-      </div>
-      <button class="btn-mapa" id="btnGradeToggle" onclick="toggleGradeVisivel()">▦ Grade: ON</button>
-      <button class="btn-mapa danger" onclick="limparMapa()">🗑️ Limpar Mapa</button>
-    </div>
-    <div class="mapa-toolbar">
-      <button class="btn-mapa primary" onclick="adicionarMeuToken()">➕ Meu Token</button>
-      <button class="btn-mapa gold" id="btnAddNpcToken" style="display:none" onclick="adicionarTokenNpc()">👹 Token NPC</button>
-    </div>
-    <div class="mapa-viewport" id="mapaViewport">
-      <div class="mapa-canvas" id="mapaCanvas">
-        <div class="mapa-grid-overlay" id="mapaGridOverlay"></div>
-        <div class="mapa-empty-state" id="mapaEmptyState">🗺️ Nenhum mapa definido ainda.<br>Peça ao Mestre para definir um mapa.</div>
-      </div>
-    </div>
   </div>
 
   <!-- Painel Direito: Iniciativa + Chat -->
@@ -1273,8 +1115,6 @@ let fichasData = {};
 let modoMestre = false;
 let turnoAtual = 0;
 let turnoNumero = 1;
-let mapaData = {};
-const SENHA_MESTRE = '02082002irado';
 
 // Expor referência ao db para funções globais
 window.__db = db;
@@ -1523,12 +1363,6 @@ function abrirEditarPersonagem(id, ficha) {
 }
 
 function entrarComoMestre() {
-  const senha = prompt('🔒 Senha do Mestre:');
-  if (senha === null) return; // cancelou
-  if (senha !== SENHA_MESTRE) {
-    showToast('Senha incorreta.', 'error');
-    return;
-  }
   modoMestre = true;
   meuSlot = '__mestre__';
   meuNome = '👁 Mestre';
@@ -1596,12 +1430,6 @@ function iniciarApp() {
     renderIniciativa(window.__iniciativaCache || {});
   });
 
-  // Mapa de batalha em tempo real
-  onValue(ref(db, `sessoes/${sessaoId}/mapa`), snap => {
-    mapaData = snap.val() || {};
-    renderMapa();
-  });
-
   // Mensagem de entrada
   enviarSistema(meuNome + ' entrou na sessão.');
 
@@ -1610,24 +1438,21 @@ function iniciarApp() {
 }
 
 /* ══════════════════════════════════════
-   ABAS (FICHAS / MAPA)
+   TOGGLE FICHAS (collapsar para focar no chat)
 ══════════════════════════════════════ */
-window.mudarAba = function(aba) {
-  const fichasArea = document.getElementById('fichasArea');
-  const mapaArea = document.getElementById('mapaArea');
-  const btnFichas = document.getElementById('btnTabFichas');
-  const btnMapa = document.getElementById('btnTabMapa');
-  if (aba === 'mapa') {
-    fichasArea.classList.add('collapsed');
-    mapaArea.classList.remove('collapsed');
-    btnFichas.classList.remove('active');
-    btnMapa.classList.add('active');
-    setTimeout(renderMapa, 60);
+let fichasVisivel = true;
+window.toggleFichas = function() {
+  fichasVisivel = !fichasVisivel;
+  const area = document.getElementById('fichasArea');
+  const btn  = document.getElementById('btnToggleFichas');
+  if (fichasVisivel) {
+    area.classList.remove('collapsed');
+    btn.classList.remove('active');
+    btn.textContent = '📋 Fichas';
   } else {
-    mapaArea.classList.add('collapsed');
-    fichasArea.classList.remove('collapsed');
-    btnMapa.classList.remove('active');
-    btnFichas.classList.add('active');
+    area.classList.add('collapsed');
+    btn.classList.add('active');
+    btn.textContent = '📋 Oculto';
   }
 };
 
@@ -1636,19 +1461,14 @@ window.mudarAba = function(aba) {
 ══════════════════════════════════════ */
 window.toggleMestre = function() {
   if (!modoMestre) {
-    const senha = prompt('🔒 Senha do Mestre:');
+    const senha = prompt('Senha do Mestre (deixe em branco para continuar):');
     if (senha === null) return; // cancelou
-    if (senha !== SENHA_MESTRE) {
-      showToast('Senha incorreta.', 'error');
-      return;
-    }
     modoMestre = true;
     document.getElementById('btnMestre').classList.add('active');
     document.getElementById('btnMestre').textContent = '👁 Mestre ✓';
     document.getElementById('mySlotLabel').style.color = 'var(--gold)';
     document.getElementById('mySlotLabel').textContent = '[ 👁 Mestre ]';
     renderFichas();
-    renderMapa();
     showToast('Modo Mestre ativado!','success');
   } else {
     modoMestre = false;
@@ -1658,7 +1478,6 @@ window.toggleMestre = function() {
     const nomeAtual = fichasData[meuSlot]?.nome || meuNome;
     document.getElementById('mySlotLabel').textContent = '[ '+nomeAtual+' ]';
     renderFichas();
-    renderMapa();
     showToast('Modo Mestre desativado.','');
   }
 };
@@ -1957,213 +1776,6 @@ window.rolarIniciativa = function(slot, dexVal) {
 
   showToast(`⚔️ Iniciativa: ${roll}${bonusStr} = ${total}`, 'roll');
 };
-
-/* ══════════════════════════════════════
-   MAPA DE BATALHA
-══════════════════════════════════════ */
-window.definirMapaUrl = function() {
-  const url = document.getElementById('mapaUrlInput').value.trim();
-  if (!url) { showToast('Cole uma URL de imagem.', 'error'); return; }
-  set(ref(db, `sessoes/${sessaoId}/mapa/imageUrl`), url);
-  document.getElementById('mapaUrlInput').value = '';
-  showToast('Mapa atualizado!', 'success');
-};
-
-window.definirMapaArquivo = function(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    set(ref(db, `sessoes/${sessaoId}/mapa/imageUrl`), ev.target.result);
-    showToast('Mapa atualizado!', 'success');
-  };
-  reader.readAsDataURL(file);
-  e.target.value = '';
-};
-
-window.aplicarGradeMapa = function() {
-  const cols = Math.max(4, Math.min(60, parseInt(document.getElementById('mapaCols').value)||20));
-  const rows = Math.max(4, Math.min(60, parseInt(document.getElementById('mapaRows').value)||14));
-  set(ref(db, `sessoes/${sessaoId}/mapa/cols`), cols);
-  set(ref(db, `sessoes/${sessaoId}/mapa/rows`), rows);
-};
-
-window.toggleGradeVisivel = function() {
-  const atual = mapaData.grade !== false;
-  set(ref(db, `sessoes/${sessaoId}/mapa/grade`), !atual);
-};
-
-window.limparMapa = function() {
-  if (!confirm('Limpar o mapa e remover todos os tokens? Esta ação não pode ser desfeita.')) return;
-  remove(ref(db, `sessoes/${sessaoId}/mapa`));
-};
-
-window.adicionarMeuToken = function() {
-  if (!sessaoId) return;
-  const tokensAtuais = mapaData.tokens || {};
-  if (tokensAtuais[meuSlot]) { showToast('Você já tem um token no mapa. Arraste-o para mover.', ''); return; }
-  const ficha = fichasData[meuSlot] || {};
-  const cols = mapaData.cols || 20;
-  const rows = mapaData.rows || 14;
-  const ocupadas = new Set(Object.values(tokensAtuais).map(t => `${t.col},${t.row}`));
-  let col = 0, row = 0;
-  busca:
-  for (let r=0; r<rows; r++) {
-    for (let c=0; c<cols; c++) {
-      if (!ocupadas.has(`${c},${r}`)) { col=c; row=r; break busca; }
-    }
-  }
-  set(ref(db, `sessoes/${sessaoId}/mapa/tokens/${meuSlot}`), {
-    tipo: 'pc', slot: meuSlot, nome: ficha.nome || meuNome,
-    avatar: ficha.avatar || null, cor: null, col, row
-  });
-};
-
-window.adicionarTokenNpc = function() {
-  if (!sessaoId) return;
-  const nome = prompt('Nome do NPC/Monstro:');
-  if (!nome) return;
-  const emoji = prompt('Emoji ou letra para o token (opcional):', '👹') || '👹';
-  const cores = ['#ff4a4a','#f0c040','#4a9eff','#a855f7','#22c55e','#fb923c'];
-  const cor = cores[Math.floor(Math.random()*cores.length)];
-  const cols = mapaData.cols || 20;
-  const rows = mapaData.rows || 14;
-  const novaRef = push(ref(db, `sessoes/${sessaoId}/mapa/tokens`));
-  set(novaRef, { tipo:'npc', slot:null, nome, emoji, cor, col: Math.floor(cols/2), row: Math.floor(rows/2) });
-};
-
-function renderMapa() {
-  if (!sessaoId) return;
-  const canvas = document.getElementById('mapaCanvas');
-  const viewport = document.getElementById('mapaViewport');
-  const overlay = document.getElementById('mapaGridOverlay');
-  const emptyState = document.getElementById('mapaEmptyState');
-  if (!canvas || !viewport) return;
-
-  const cols = mapaData.cols || 20;
-  const rows = mapaData.rows || 14;
-  const mostrarGrade = mapaData.grade !== false;
-
-  const larguraDisponivel = Math.max(viewport.clientWidth - 40, 280);
-  let cellSize = Math.floor(larguraDisponivel / cols);
-  cellSize = Math.max(20, Math.min(70, cellSize));
-
-  canvas.style.width  = (cellSize*cols) + 'px';
-  canvas.style.height = (cellSize*rows) + 'px';
-  canvas.style.backgroundImage = mapaData.imageUrl ? `url("${mapaData.imageUrl}")` : 'none';
-  emptyState.style.display = mapaData.imageUrl ? 'none' : 'flex';
-
-  overlay.style.backgroundImage = mostrarGrade
-    ? 'linear-gradient(to right, rgba(255,255,255,0.18) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.18) 1px, transparent 1px)'
-    : 'none';
-  overlay.style.backgroundSize = `${cellSize}px ${cellSize}px`;
-
-  const tokensAtuais = mapaData.tokens || {};
-  canvas.querySelectorAll('.mapa-token').forEach(el => {
-    if (!tokensAtuais[el.dataset.id]) el.remove();
-  });
-
-  Object.entries(tokensAtuais).forEach(([id, tk]) => {
-    let el = canvas.querySelector(`.mapa-token[data-id="${id}"]`);
-    const podeMover = modoMestre || tk.slot === meuSlot;
-    if (!el) {
-      el = document.createElement('div');
-      el.className = 'mapa-token';
-      el.dataset.id = id;
-      el.innerHTML = `<div class="mapa-token-circle"></div><div class="mapa-token-label"></div>`;
-      canvas.appendChild(el);
-      ativarDragToken(el, id);
-    }
-    el.classList.toggle('is-mine', tk.slot === meuSlot);
-    el.classList.toggle('is-npc', tk.tipo === 'npc');
-    el.style.cursor = podeMover ? 'grab' : 'default';
-    el.dataset.cell = cellSize;
-
-    const circle = el.querySelector('.mapa-token-circle');
-    circle.style.width  = (cellSize*0.8)+'px';
-    circle.style.height = (cellSize*0.8)+'px';
-    circle.style.fontSize = Math.max(10, cellSize*0.32)+'px';
-    circle.innerHTML = tk.avatar ? `<img src="${tk.avatar}">` : esc(tk.emoji || (tk.nome||'?')[0]);
-    circle.style.borderColor = tk.cor || '';
-
-    el.querySelector('.mapa-token-label').textContent = tk.nome || '';
-
-    if (!el.classList.contains('dragging')) {
-      el.style.left = (tk.col*cellSize + cellSize*0.1) + 'px';
-      el.style.top  = (tk.row*cellSize + cellSize*0.1) + 'px';
-    }
-
-    let remBtn = el.querySelector('.mapa-token-remove');
-    if (podeMover && !remBtn) {
-      remBtn = document.createElement('div');
-      remBtn.className = 'mapa-token-remove';
-      remBtn.textContent = '✕';
-      remBtn.onclick = (e) => {
-        e.stopPropagation();
-        if (confirm(`Remover token "${tk.nome}" do mapa?`)) {
-          remove(ref(db, `sessoes/${sessaoId}/mapa/tokens/${id}`));
-        }
-      };
-      el.appendChild(remBtn);
-    } else if (!podeMover && remBtn) {
-      remBtn.remove();
-    }
-  });
-
-  const toolbarMestre = document.getElementById('mapaToolbarMestre');
-  const btnAddNpc = document.getElementById('btnAddNpcToken');
-  if (toolbarMestre) toolbarMestre.style.display = modoMestre ? 'flex' : 'none';
-  if (btnAddNpc) btnAddNpc.style.display = modoMestre ? 'inline-block' : 'none';
-  const btnGrade = document.getElementById('btnGradeToggle');
-  if (btnGrade) btnGrade.textContent = mostrarGrade ? '▦ Grade: ON' : '▦ Grade: OFF';
-
-  const colsInput = document.getElementById('mapaCols');
-  const rowsInput = document.getElementById('mapaRows');
-  if (colsInput && document.activeElement !== colsInput) colsInput.value = cols;
-  if (rowsInput && document.activeElement !== rowsInput) rowsInput.value = rows;
-}
-
-function ativarDragToken(el, id) {
-  let startX, startY, origLeft, origTop, dragging = false;
-
-  el.addEventListener('pointerdown', e => {
-    const tk = (mapaData.tokens||{})[id];
-    const podeMover = modoMestre || (tk && tk.slot === meuSlot);
-    if (!podeMover) return;
-    e.preventDefault();
-    dragging = true;
-    el.classList.add('dragging');
-    el.setPointerCapture?.(e.pointerId);
-    startX = e.clientX; startY = e.clientY;
-    origLeft = parseFloat(el.style.left)||0;
-    origTop  = parseFloat(el.style.top)||0;
-  });
-
-  el.addEventListener('pointermove', e => {
-    if (!dragging) return;
-    el.style.left = (origLeft + (e.clientX-startX)) + 'px';
-    el.style.top  = (origTop  + (e.clientY-startY)) + 'px';
-  });
-
-  function soltar() {
-    if (!dragging) return;
-    dragging = false;
-    el.classList.remove('dragging');
-    const cellSize = parseFloat(el.dataset.cell) || 40;
-    const cols = mapaData.cols || 20;
-    const rows = mapaData.rows || 14;
-    let col = Math.round(parseFloat(el.style.left)/cellSize);
-    let row = Math.round(parseFloat(el.style.top)/cellSize);
-    col = Math.max(0, Math.min(cols-1, col));
-    row = Math.max(0, Math.min(rows-1, row));
-    set(ref(db, `sessoes/${sessaoId}/mapa/tokens/${id}/col`), col);
-    set(ref(db, `sessoes/${sessaoId}/mapa/tokens/${id}/row`), row);
-  }
-  el.addEventListener('pointerup', soltar);
-  el.addEventListener('pointercancel', soltar);
-}
-
-window.addEventListener('resize', () => { if (sessaoId) renderMapa(); });
 
 /* ══════════════════════════════════════
    RENDERIZAR FICHAS
