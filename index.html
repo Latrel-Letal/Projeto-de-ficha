@@ -1274,6 +1274,7 @@ let modoMestre = false;
 let turnoAtual = 0;
 let turnoNumero = 1;
 let mapaData = {};
+const SENHA_MESTRE = '02082002irado';
 
 // Expor referência ao db para funções globais
 window.__db = db;
@@ -1522,6 +1523,12 @@ function abrirEditarPersonagem(id, ficha) {
 }
 
 function entrarComoMestre() {
+  const senha = prompt('🔒 Senha do Mestre:');
+  if (senha === null) return; // cancelou
+  if (senha !== SENHA_MESTRE) {
+    showToast('Senha incorreta.', 'error');
+    return;
+  }
   modoMestre = true;
   meuSlot = '__mestre__';
   meuNome = '👁 Mestre';
@@ -1629,8 +1636,12 @@ window.mudarAba = function(aba) {
 ══════════════════════════════════════ */
 window.toggleMestre = function() {
   if (!modoMestre) {
-    const senha = prompt('Senha do Mestre (deixe em branco para continuar):');
+    const senha = prompt('🔒 Senha do Mestre:');
     if (senha === null) return; // cancelou
+    if (senha !== SENHA_MESTRE) {
+      showToast('Senha incorreta.', 'error');
+      return;
+    }
     modoMestre = true;
     document.getElementById('btnMestre').classList.add('active');
     document.getElementById('btnMestre').textContent = '👁 Mestre ✓';
