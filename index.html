@@ -185,6 +185,54 @@
     letter-spacing: 2px;
   }
   .session-id-box input:focus { border-color: var(--purple); }
+
+  /* ── SESSÕES RECENTES (lembradas neste dispositivo) ── */
+  .recent-sessions-box {
+    max-width: 680px;
+    width: 100%;
+  }
+  .recent-sessions-label {
+    font-size: 11px;
+    color: var(--text2);
+    letter-spacing: 1px;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .recent-sessions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+  }
+  .recent-session-card {
+    position: relative;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+  .recent-session-card:hover { border-color: var(--gold); box-shadow: 0 0 16px rgba(240,192,64,0.15); transform: translateY(-2px); }
+  .recent-session-id {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    color: var(--gold);
+    letter-spacing: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 16px;
+  }
+  .recent-session-meta { font-size: 10px; color: var(--text2); margin-top: 5px; }
+  .recent-session-forget {
+    position: absolute; top: 8px; right: 8px;
+    width: 18px; height: 18px; border-radius: 50%;
+    border: none; background: transparent; color: var(--text2);
+    font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .recent-session-forget:hover { background: var(--red); color: white; }
   .btn-enter {
     background: var(--purple);
     color: white;
@@ -386,6 +434,13 @@
     flex-shrink: 0;
   }
   .player-badge.other { background: var(--blue-glow); border-color: var(--blue); color: var(--blue); }
+  .player-badge.npc { background: rgba(240,192,64,0.15); border-color: var(--gold); color: var(--gold); }
+  .btn-del-npc-card {
+    font-size: 10px; background: transparent; border: 1px solid rgba(255,74,74,0.4);
+    color: var(--red); border-radius: 20px; padding: 3px 9px; cursor: pointer;
+    white-space: nowrap; flex-shrink: 0; transition: all 0.15s; margin-left: 6px;
+  }
+  .btn-del-npc-card:hover { background: var(--red); color: white; }
 
   .card-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 14px; }
 
@@ -1096,6 +1151,10 @@
     <h1 class="player-select-title">✦ JUJUTSU KAISEN RPG ✦</h1>
     <p class="player-select-subtitle">Fichas de Personagem — Sessão Colaborativa</p>
   </div>
+  <div class="recent-sessions-box" id="recentSessionsBox" style="display:none">
+    <p class="recent-sessions-label">SESSÕES RECENTES NESTE DISPOSITIVO</p>
+    <div class="recent-sessions-grid" id="recentSessionsGrid"></div>
+  </div>
   <div class="session-id-box">
     <label>CÓDIGO DA SESSÃO</label>
     <input type="text" id="sessionInput" placeholder="Ex: SESSAO01" maxlength="20">
@@ -1115,6 +1174,7 @@
     </div>
     <button class="btn-header dice" onclick="abrirModalDados()">🎲 Dados</button>
     <button class="btn-header mestre" id="btnMestre" onclick="toggleMestre()">👁 Mestre</button>
+    <button class="btn-header mestre" id="btnAddNpcFicha" style="display:none" onclick="criarFichaNpc()">👹 Nova Ficha NPC</button>
     <button class="btn-header toggle active" id="btnTabFichas" onclick="mudarAba('fichas')">📋 Fichas</button>
     <button class="btn-header toggle" id="btnTabMapa" onclick="mudarAba('mapa')">🗺️ Mapa</button>
   </div>
@@ -1281,6 +1341,8 @@ let modoMestre = false;
 let turnoAtual = 0;
 let turnoNumero = 1;
 let mapaData = {};
+let fichasNpcData = {};
+let unsubFichasNpc = null;
 
 /* ══════════════════════════════════════
    AUTENTICAÇÃO ANÔNIMA (necessária pra Firebase Rules)
@@ -1315,6 +1377,10 @@ window.__remove = remove;
 window.__getSessaoId = () => sessaoId;
 window.__getMeuSlot  = () => meuSlot;
 window.__getFichas   = () => fichasData;
+
+function getFicha(slot) {
+  return fichasData[slot] || fichasNpcData[slot] || null;
+}
 
 /* ══════════════════════════════════════
    BARDO — MÚSICA SINCRONIZADA VIA FIREBASE
@@ -1441,6 +1507,79 @@ window.showToast = function(msg, type='') {
 };
 
 /* ══════════════════════════════════════
+   SESSÕES RECENTES (lembradas só neste navegador,
+   via localStorage — nunca expostas a outros usuários)
+══════════════════════════════════════ */
+const CHAVE_SESSOES_RECENTES = 'jk_sessoes_recentes';
+const MAX_SESSOES_RECENTES = 8;
+
+function obterSessoesRecentes() {
+  try {
+    const raw = localStorage.getItem(CHAVE_SESSOES_RECENTES);
+    const lista = raw ? JSON.parse(raw) : [];
+    return Array.isArray(lista) ? lista.sort((a,b) => (b.ultimoAcesso||0)-(a.ultimoAcesso||0)) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function salvarSessaoRecente(id) {
+  try {
+    let lista = obterSessoesRecentes().filter(s => s.id !== id);
+    lista.unshift({ id, ultimoAcesso: Date.now() });
+    lista = lista.slice(0, MAX_SESSOES_RECENTES);
+    localStorage.setItem(CHAVE_SESSOES_RECENTES, JSON.stringify(lista));
+  } catch (e) { /* localStorage indisponível — só não lembra, sem quebrar o app */ }
+}
+
+function removerSessaoRecente(id) {
+  try {
+    const lista = obterSessoesRecentes().filter(s => s.id !== id);
+    localStorage.setItem(CHAVE_SESSOES_RECENTES, JSON.stringify(lista));
+  } catch (e) {}
+  renderSessoesRecentes();
+}
+
+function tempoRelativo(ts) {
+  const diffMin = Math.floor((Date.now() - ts) / 60000);
+  if (diffMin < 1) return 'agora há pouco';
+  if (diffMin < 60) return `há ${diffMin} min`;
+  const diffH = Math.floor(diffMin / 60);
+  if (diffH < 24) return `há ${diffH}h`;
+  const diffD = Math.floor(diffH / 24);
+  return `há ${diffD}d`;
+}
+
+function renderSessoesRecentes() {
+  const box = document.getElementById('recentSessionsBox');
+  const grid = document.getElementById('recentSessionsGrid');
+  if (!box || !grid) return;
+  const lista = obterSessoesRecentes();
+  if (lista.length === 0) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  grid.innerHTML = '';
+  lista.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'recent-session-card';
+    card.innerHTML = `
+      <button class="recent-session-forget" title="Esquecer esta sessão">✕</button>
+      <div class="recent-session-id">${esc(s.id)}</div>
+      <div class="recent-session-meta">Acessada ${tempoRelativo(s.ultimoAcesso)}</div>
+    `;
+    card.querySelector('.recent-session-forget').addEventListener('click', e => {
+      e.stopPropagation();
+      removerSessaoRecente(s.id);
+    });
+    card.addEventListener('click', () => {
+      document.getElementById('sessionInput').value = s.id;
+      entrarSessao();
+    });
+    grid.appendChild(card);
+  });
+}
+renderSessoesRecentes();
+
+/* ══════════════════════════════════════
    SELECT SCREEN
 ══════════════════════════════════════ */
 window.entrarSessao = async function() {
@@ -1448,6 +1587,7 @@ window.entrarSessao = async function() {
   if (!val) { showToast('Digite um código de sessão','error'); return; }
   await aguardarAuth();
   sessaoId = val;
+  salvarSessaoRecente(val);
   carregarSelecaoPersonagens();
 };
 
@@ -1642,7 +1782,9 @@ function iniciarApp() {
   if (modoMestre) {
     document.getElementById('btnMestre').classList.add('active');
     document.getElementById('mySlotLabel').style.color = 'var(--gold)';
+    ativarListenerNpc();
   }
+  atualizarVisibilidadeMestreUI();
 
   // Fichas em tempo real
   onValue(ref(db, `sessoes/${sessaoId}/fichas`), snap => {
@@ -1713,6 +1855,39 @@ window.mudarAba = function(aba) {
 };
 
 /* ══════════════════════════════════════
+   FICHAS DE NPC (visíveis apenas ao Mestre)
+   Guardadas num nó separado (fichasNpc) que só é
+   assinado (onValue) quando o modo Mestre está ativo —
+   jogadores comuns nunca chegam a pedir esses dados.
+══════════════════════════════════════ */
+function ativarListenerNpc() {
+  if (unsubFichasNpc || !sessaoId) return;
+  unsubFichasNpc = onValue(ref(db, `sessoes/${sessaoId}/fichasNpc`), snap => {
+    fichasNpcData = snap.val() || {};
+    renderFichas();
+  });
+}
+function desativarListenerNpc() {
+  if (unsubFichasNpc) { unsubFichasNpc(); unsubFichasNpc = null; }
+  fichasNpcData = {};
+}
+function atualizarVisibilidadeMestreUI() {
+  const btn = document.getElementById('btnAddNpcFicha');
+  if (btn) btn.style.display = modoMestre ? 'inline-block' : 'none';
+}
+
+window.criarFichaNpc = async function() {
+  if (!modoMestre) { showToast('Apenas o Mestre pode criar fichas de NPC.', 'error'); return; }
+  const nome = prompt('Nome do NPC / Monstro:');
+  if (!nome) return;
+  await aguardarAuth();
+  const novaRef = push(ref(db, `sessoes/${sessaoId}/fichasNpc`));
+  const ficha = { ...fichaDefault(nome), dono: meuUid };
+  await set(novaRef, ficha);
+  showToast(`Ficha de "${nome}" criada — visível só pra você.`, 'success');
+};
+
+/* ══════════════════════════════════════
    MODO MESTRE
 ══════════════════════════════════════ */
 window.toggleMestre = async function() {
@@ -1732,6 +1907,8 @@ window.toggleMestre = async function() {
     document.getElementById('btnMestre').textContent = '👁 Mestre ✓';
     document.getElementById('mySlotLabel').style.color = 'var(--gold)';
     document.getElementById('mySlotLabel').textContent = '[ 👁 Mestre ]';
+    ativarListenerNpc();
+    atualizarVisibilidadeMestreUI();
     renderFichas();
     renderMapa();
     showToast('Modo Mestre ativado!','success');
@@ -1742,6 +1919,8 @@ window.toggleMestre = async function() {
     document.getElementById('mySlotLabel').style.color = 'var(--purple)';
     const nomeAtual = fichasData[meuSlot]?.nome || meuNome;
     document.getElementById('mySlotLabel').textContent = '[ '+nomeAtual+' ]';
+    desativarListenerNpc();
+    atualizarVisibilidadeMestreUI();
     renderFichas();
     renderMapa();
     showToast('Modo Mestre desativado.','');
@@ -1942,7 +2121,7 @@ function publicarRolagem(qty, sides, bonus, label, tipo) {
   const isCrit = qty===1 && sides===20 && rolls[0]===20;
   const isFail = qty===1 && sides===20 && rolls[0]===1;
   const slotEfetivo = window.__rolarComoSlot || meuSlot;
-  const charName = fichasData[slotEfetivo]?.nome || (modoMestre ? '👁 Mestre' : meuSlot);
+  const charName = getFicha(slotEfetivo)?.nome || (modoMestre ? '👁 Mestre' : meuSlot);
   const formula  = bonus ? `${qty}d${sides}+${bonus}` : `${qty}d${sides}`;
 
   push(ref(db, `sessoes/${sessaoId}/chat`), {
@@ -1998,7 +2177,7 @@ window.rolarModal = function() {
 
   // Publica os MESMOS dados já rolados (sem re-rolar)
   const slotEfetivo = window.__rolarComoSlot || meuSlot;
-  const charName = fichasData[slotEfetivo]?.nome || (modoMestre ? '👁 Mestre' : meuSlot);
+  const charName = getFicha(slotEfetivo)?.nome || (modoMestre ? '👁 Mestre' : meuSlot);
   const formula  = `${qty}d${sides}`;
   push(ref(db, `sessoes/${sessaoId}/chat`), {
     type: 'roll', slot: slotEfetivo, charName, formula, rolls, bonus: 0, total,
@@ -2015,7 +2194,7 @@ window.rolarModal = function() {
    INICIATIVA
 ══════════════════════════════════════ */
 window.rolarIniciativa = function(slot, dexVal) {
-  if (slot !== meuSlot) return;
+  if (slot !== meuSlot && !(modoMestre && fichasNpcData[slot])) return;
   const dex    = parseInt(dexVal)||10;
   const bonus  = Math.floor((dex-10)/2);
   const roll   = Math.floor(Math.random()*20)+1;
@@ -2023,7 +2202,7 @@ window.rolarIniciativa = function(slot, dexVal) {
   const bonusStr = (bonus>=0?'+':'')+bonus;
   const isCrit = roll===20;
   const isFail = roll===1;
-  const charName = fichasData[meuSlot]?.nome || meuSlot;
+  const charName = getFicha(slot)?.nome || slot;
 
   // Salvar na ordem de iniciativa (keyed por slot para sobrescrever re-rolls)
   set(ref(db, `sessoes/${sessaoId}/iniciativa/${slot.replace(/\s+/g,'_')}`), {
@@ -2257,20 +2436,25 @@ function renderFichas() {
   const container = document.getElementById('fichasContainer');
   const ids = Object.keys(fichasData);
   document.getElementById('onlineCount').textContent = ids.length;
-  const ordem = modoMestre ? ids : [meuSlot, ...ids.filter(id => id !== meuSlot)];
+  const ordem = modoMestre ? [...ids, ...Object.keys(fichasNpcData)] : [meuSlot, ...ids.filter(id => id !== meuSlot)];
   container.innerHTML = '';
-  ordem.forEach(id => { if (fichasData[id]) container.appendChild(criarCard(id, fichasData[id])); });
+  ordem.forEach(id => {
+    const d = fichasData[id] || fichasNpcData[id];
+    if (d) container.appendChild(criarCard(id, d, !!fichasNpcData[id]));
+  });
   // Re-aplicar destaque de turno
   if (window.__iniciativaCache) renderIniciativa(window.__iniciativaCache);
 }
 
-function criarCard(slot, d) {
+function criarCard(slot, d, isNpc) {
+  isNpc = !!isNpc;
   const ismine = (slot === meuSlot) || modoMestre;
   const isMeuCard = slot === meuSlot;
   const card = document.createElement('div');
   let cardClass = 'ficha-card';
   if (isMeuCard) cardClass += ' is-mine';
   if (modoMestre && !isMeuCard) cardClass += ' mestre-mode';
+  if (isNpc) cardClass += ' is-npc-ficha';
   card.className = cardClass;
   card.dataset.slot = slot;
 
@@ -2292,8 +2476,9 @@ function criarCard(slot, d) {
   const avatarEditable = ismine ? 'class="avatar-circle editable"' : 'class="avatar-circle"';
 
   // Badge mestre
-  const badgeLabel = modoMestre && !isMeuCard ? '👁 Mestre' : (isMeuCard ? '✦ Você' : (d.nome||'Jogador'));
-  const badgeClass = isMeuCard ? '' : (modoMestre ? '' : 'other');
+  const badgeLabel = isNpc ? '👹 NPC' : (modoMestre && !isMeuCard ? '👁 Mestre' : (isMeuCard ? '✦ Você' : (d.nome||'Jogador')));
+  const badgeClass = isNpc ? 'npc' : (isMeuCard ? '' : (modoMestre ? '' : 'other'));
+  const delNpcBtnHTML = isNpc ? `<button class="btn-del-npc-card" title="Remover este NPC da sessão">🗑️ Remover NPC</button>` : '';
 
   // Condições HTML
   const COND_INFO = {
@@ -2351,6 +2536,7 @@ function criarCard(slot, d) {
         <div class="condicoes-area">${condicoesHTML}${addCondBtn}</div>
       </div>
       <span class="player-badge ${badgeClass}">${badgeLabel}</span>
+      ${delNpcBtnHTML}
     </div>
 
     <div class="card-body">
@@ -2407,7 +2593,7 @@ function criarCard(slot, d) {
               <div class="attr-mod">${mod(d[a]??0)}</div>
             </div>`).join('')}
         </div>
-        ${isMeuCard ? `
+        ${(isMeuCard || (modoMestre && isNpc)) ? `
         <button class="btn-iniciativa" onclick="rolarIniciativa('${slot}', ${d.dex??0})">
           🎲 Iniciativa &nbsp;<small style="opacity:0.65;font-size:10px;">(1d20 ${dexStr})</small>
         </button>` : `
@@ -2487,7 +2673,7 @@ function criarCard(slot, d) {
       const btnAcordar = document.createElement('button');
       btnAcordar.textContent = '↑ Recuperar (1 PV)';
       btnAcordar.style.cssText = 'margin-top:8px;padding:6px 14px;background:var(--online);border:none;border-radius:6px;color:#0a0a0f;font-size:11px;font-weight:700;cursor:pointer;';
-      btnAcordar.onclick = () => salvar(slot, 'pv', 1);
+      btnAcordar.onclick = () => salvar(slot, 'pv', 1, isNpc);
       overlay.appendChild(btnAcordar);
     }
     card.appendChild(overlay);
@@ -2498,9 +2684,9 @@ function criarCard(slot, d) {
     // Inputs numéricos
     card.querySelectorAll('input.num-input').forEach(inp => {
       if (inp.classList.contains('inv-qty')) {
-        inp.addEventListener('change', () => salvar(slot, inp.dataset.field, Number(inp.value)));
+        inp.addEventListener('change', () => salvar(slot, inp.dataset.field, Number(inp.value), isNpc));
       } else {
-        inp.addEventListener('change', () => salvar(slot, inp.dataset.field, Number(inp.value)));
+        inp.addEventListener('change', () => salvar(slot, inp.dataset.field, Number(inp.value), isNpc));
       }
     });
 
@@ -2509,7 +2695,7 @@ function criarCard(slot, d) {
       el.addEventListener('blur', () => {
         let v = el.textContent.trim();
         if (['deslocamento','ca','for','dex','con','int','wis','cha'].includes(el.dataset.field)) v = parseInt(v)||0;
-        salvar(slot, el.dataset.field, v);
+        salvar(slot, el.dataset.field, v, isNpc);
       });
       el.addEventListener('keydown', e => { if (e.key==='Enter'){e.preventDefault();el.blur();} });
     });
@@ -2541,7 +2727,7 @@ function criarCard(slot, d) {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
-        reader.onload = ev => salvar(slot, 'avatar', ev.target.result);
+        reader.onload = ev => salvar(slot, 'avatar', ev.target.result, isNpc);
         reader.readAsDataURL(file);
       });
     }
@@ -2549,7 +2735,7 @@ function criarCard(slot, d) {
     // Adicionar condição
     const addCondBtnEl = card.querySelector('.btn-add-cond');
     if (addCondBtnEl) {
-      addCondBtnEl.addEventListener('click', () => abrirMenuCondicao(slot, d.condicoes||[]));
+      addCondBtnEl.addEventListener('click', () => abrirMenuCondicao(slot, d.condicoes||[], isNpc));
     }
 
     // Remover condição
@@ -2557,10 +2743,10 @@ function criarCard(slot, d) {
       el.addEventListener('click', e => {
         e.stopPropagation();
         const cond = el.dataset.cond;
-        const raw = fichasData[slot]?.condicoes || {};
+        const raw = getFicha(slot)?.condicoes || {};
         const atual = Array.isArray(raw) ? raw : Object.values(raw);
         const novas = atual.filter(c => c !== cond);
-        salvar(slot, 'condicoes', novas.length ? novas : null);
+        salvar(slot, 'condicoes', novas.length ? novas : null, isNpc);
       });
     });
 
@@ -2568,8 +2754,9 @@ function criarCard(slot, d) {
     const addItemBtn = card.querySelector('.btn-add-item');
     if (addItemBtn) {
       addItemBtn.addEventListener('click', () => {
-        const inv = [...(Array.isArray(fichasData[slot]?.inventario) ? fichasData[slot].inventario : Object.values(fichasData[slot]?.inventario || {})), { nome:'Novo Item', qty:1, desc:'' }];
-        salvar(slot, 'inventario', inv);
+        const fichaAtual = getFicha(slot);
+        const inv = [...(Array.isArray(fichaAtual?.inventario) ? fichaAtual.inventario : Object.values(fichaAtual?.inventario || {})), { nome:'Novo Item', qty:1, desc:'' }];
+        salvar(slot, 'inventario', inv, isNpc);
       });
     }
 
@@ -2577,11 +2764,24 @@ function criarCard(slot, d) {
     card.querySelectorAll('.btn-del-item').forEach(btn => {
       btn.addEventListener('click', () => {
         const idx = parseInt(btn.dataset.idx);
-        const inv = [...(Array.isArray(fichasData[slot]?.inventario) ? fichasData[slot].inventario : Object.values(fichasData[slot]?.inventario || {}))];
+        const fichaAtual = getFicha(slot);
+        const inv = [...(Array.isArray(fichaAtual?.inventario) ? fichaAtual.inventario : Object.values(fichaAtual?.inventario || {}))];
         inv.splice(idx, 1);
-        salvar(slot, 'inventario', inv.length ? inv : null);
+        salvar(slot, 'inventario', inv.length ? inv : null, isNpc);
       });
     });
+
+    // Remover ficha de NPC inteira (somente Mestre)
+    const delNpcBtn = card.querySelector('.btn-del-npc-card');
+    if (delNpcBtn) {
+      delNpcBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        if (confirm(`Remover permanentemente o NPC "${d.nome}"? Esta ação não pode ser desfeita.`)) {
+          remove(ref(db, `sessoes/${sessaoId}/fichasNpc/${slot}`));
+          showToast('NPC removido.', '');
+        }
+      });
+    }
   }
 
   return card;
@@ -2593,7 +2793,7 @@ function parseTecnicaFormula(efeito) {
   return m ? m[1] : '1d6';
 }
 
-function abrirMenuCondicao(slot, condicoesRaw) {
+function abrirMenuCondicao(slot, condicoesRaw, isNpc) {
   const condicoesAtuais = Array.isArray(condicoesRaw) ? condicoesRaw : Object.values(condicoesRaw || {});
   const CONDS_STATUS  = ['sangrando','atordoado','envenenado','amedrontado','paralisado','invisivel'];
   const CONDS_REFORCO = ['reforco-punhos','barreira-corporal','passo-amaldicado','fortalecimento'];
@@ -2618,14 +2818,15 @@ function abrirMenuCondicao(slot, condicoesRaw) {
   const idx = parseInt(escolha) - 1;
   if (idx >= 0 && idx < todas.length) {
     const novas = [...condicoesAtuais, todas[idx]];
-    salvar(slot, 'condicoes', novas);
+    salvar(slot, 'condicoes', novas, isNpc);
   }
 }
 
-function salvar(slot, field, value) {
+function salvar(slot, field, value, isNpc) {
   // Firebase ignora arrays vazios; gravar null para limpar o nó
   const val = (Array.isArray(value) && value.length === 0) ? null : value;
-  set(ref(db, `sessoes/${sessaoId}/fichas/${slot}/${field}`), val)
+  const base = isNpc ? 'fichasNpc' : 'fichas';
+  set(ref(db, `sessoes/${sessaoId}/${base}/${slot}/${field}`), val)
     .catch(() => showToast('Erro ao salvar','error'));
 }
 </script>
