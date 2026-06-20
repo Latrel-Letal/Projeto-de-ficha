@@ -1,9 +1,2633 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-  <head>
-    <title>Ficha Jujutso</title>
-    <meta charset="UTF-8">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha — Jujutsu Kaisen RPG</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg:          #0a0a0f;
+    --bg2:         #11111a;
+    --bg3:         #1a1a28;
+    --border:      #2a2a40;
+    --border2:     #3a3a55;
+    --blue:        #4a9eff;
+    --blue-glow:   rgba(74,158,255,0.15);
+    --red:         #ff4a4a;
+    --red-glow:    rgba(255,74,74,0.15);
+    --purple:      #a855f7;
+    --purple-glow: rgba(168,85,247,0.15);
+    --gold:        #f0c040;
+    --text:        #e0e0f0;
+    --text2:       #8888aa;
+    --online:      #22c55e;
+    --radius:      10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .app-header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .app-title {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: var(--gold);
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .session-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .online-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--online);
+    box-shadow: 0 0 6px var(--online);
+    display: inline-block;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+
+  .btn-header {
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    background: transparent;
+  }
+  .btn-header.dice {
+    border-color: var(--purple);
+    color: var(--purple);
+  }
+  .btn-header.dice:hover { background: var(--purple); color: white; }
+  .btn-header.toggle {
+    border-color: var(--border2);
+    color: var(--text2);
+  }
+  .btn-header.toggle:hover { border-color: var(--blue); color: var(--blue); }
+  .btn-header.toggle.active { border-color: var(--blue); color: var(--blue); background: var(--blue-glow); }
+
+  /* ── SELECT SCREEN ── */
+  .player-select-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 28px;
+    padding: 40px 20px;
+  }
+  .player-select-title {
+    font-family: 'Cinzel', serif;
+    font-size: 26px;
+    color: var(--gold);
+    letter-spacing: 4px;
+    text-align: center;
+  }
+  .player-select-subtitle {
+    color: var(--text2);
+    text-align: center;
+    margin-top: -18px;
+    font-size: 13px;
+  }
+  .player-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    max-width: 680px;
+    width: 100%;
+  }
+  .player-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .player-card:hover { border-color: var(--purple); box-shadow: 0 0 18px var(--purple-glow); transform: translateY(-2px); }
+  .player-card.locked { border-color: rgba(255,74,74,0.3); opacity: 0.85; }
+  .player-card.locked:hover { border-color: var(--red); box-shadow: 0 0 14px rgba(255,74,74,0.15); transform: none; }
+  .player-card.new-card { border-style: dashed; border-color: var(--border2); }
+  .player-card.new-card:hover { border-color: var(--gold); box-shadow: 0 0 18px rgba(240,192,64,0.15); }
+  .player-card.new-card .slot-name { color: var(--gold); }
+  .btn-delete-ficha {
+    margin-top: 10px;
+    background: transparent;
+    border: 1px solid rgba(255,74,74,0.4);
+    color: var(--red);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-delete-ficha:hover { background: var(--red); color: white; }
+  .player-card .slot-name { font-family: 'Cinzel', serif; font-size: 14px; color: var(--text); margin-bottom: 5px; }
+  .player-card .slot-status { font-size: 11px; color: var(--text2); }
+  .player-card.occupied .slot-status { color: var(--online); }
+  .session-id-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 22px;
+    text-align: center;
+    max-width: 380px;
+    width: 100%;
+  }
+  .session-id-box label { font-size: 11px; color: var(--text2); display: block; margin-bottom: 8px; letter-spacing: 1px; }
+  .session-id-box input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+    text-align: center;
+    letter-spacing: 2px;
+  }
+  .session-id-box input:focus { border-color: var(--purple); }
+  .btn-enter {
+    background: var(--purple);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 11px 28px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+    transition: opacity 0.2s;
+    letter-spacing: 1px;
+  }
+  .btn-enter:hover { opacity: 0.85; }
+
+  /* ── MAIN LAYOUT ── */
+  .main-layout { display: none; }
+  .main-layout.visible { display: flex; align-items: flex-start; }
+
+  /* ── FICHAS AREA ── */
+  .fichas-area {
+    flex: 1;
+    min-width: 0;
+    transition: all 0.3s;
+  }
+  .fichas-area.collapsed {
+    flex: 0 0 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    padding: 0;
+  }
+  .fichas-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 18px;
+    padding: 20px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  /* ══════════════════════════════════════
+     MAPA / GRID DE BATALHA
+  ══════════════════════════════════════ */
+  .mapa-area {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s;
+  }
+  .mapa-area.collapsed {
+    flex: 0 0 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    padding: 0;
+  }
+  .mapa-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+  }
+  .mapa-toolbar-group { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+  .mapa-toolbar input[type="text"],
+  .mapa-toolbar input[type="number"] {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--text);
+    font-size: 12px;
+    outline: none;
+  }
+  .mapa-toolbar input[type="text"] { width: 220px; }
+  .mapa-toolbar input[type="number"] { width: 52px; text-align: center; }
+  .mapa-toolbar label { font-size: 10px; color: var(--text2); letter-spacing: 0.5px; }
+  .btn-mapa {
+    background: transparent; border: 1px solid var(--border2); color: var(--text2);
+    border-radius: 6px; padding: 6px 12px; font-size: 11px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .btn-mapa:hover { border-color: var(--blue); color: var(--blue); }
+  .btn-mapa.primary { border-color: var(--purple); color: var(--purple); }
+  .btn-mapa.primary:hover { background: var(--purple); color: white; }
+  .btn-mapa.danger { border-color: rgba(255,74,74,0.4); color: var(--red); }
+  .btn-mapa.danger:hover { background: var(--red); color: white; }
+  .btn-mapa.gold { border-color: var(--gold); color: var(--gold); }
+  .btn-mapa.gold:hover { background: var(--gold); color: #0a0a0f; }
+
+  .mapa-viewport {
+    flex: 1;
+    overflow: auto;
+    padding: 20px;
+    background: repeating-conic-gradient(var(--bg3) 0% 25%, var(--bg) 0% 50%) 0 0/22px 22px;
+  }
+  .mapa-canvas {
+    position: relative;
+    background-color: var(--bg3);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+    box-shadow: 0 0 0 1px var(--border2), 0 10px 30px rgba(0,0,0,0.4);
+  }
+  .mapa-grid-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .mapa-empty-state {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 6px;
+    color: var(--text2); font-size: 12px; text-align: center; padding: 20px;
+  }
+  .mapa-token {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    user-select: none;
+    touch-action: none;
+    transition: left 0.15s ease, top 0.15s ease;
+    z-index: 5;
+  }
+  .mapa-token.dragging { transition: none; z-index: 20; }
+  .mapa-token-circle {
+    border-radius: 50%;
+    border: 2px solid var(--border2);
+    background: var(--bg2);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; color: var(--text);
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+  .mapa-token-circle img { width: 100%; height: 100%; object-fit: cover; }
+  .mapa-token.is-mine .mapa-token-circle { border-color: var(--purple); box-shadow: 0 0 10px var(--purple-glow); }
+  .mapa-token.is-npc .mapa-token-circle { border-color: var(--gold); }
+  .mapa-token-label {
+    font-size: 9px; font-weight: 600; color: var(--text);
+    background: rgba(10,10,15,0.75); border-radius: 4px; padding: 1px 5px;
+    white-space: nowrap; max-width: 72px; overflow: hidden; text-overflow: ellipsis;
+  }
+  .mapa-token-remove {
+    position: absolute; top: -5px; right: -5px;
+    width: 15px; height: 15px; border-radius: 50%;
+    background: var(--red); color: white; font-size: 9px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: 1px solid var(--bg);
+  }
+
+  /* ── FICHA CARD ── */
+  .ficha-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: box-shadow 0.3s;
+  }
+  .ficha-card.is-mine { border-color: var(--purple); box-shadow: 0 0 28px var(--purple-glow); }
+  .ficha-card.is-mine .card-header { background: linear-gradient(135deg,#1e1030,#16101e); }
+  .card-header {
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-header-left { flex: 1; min-width: 0; }
+  .char-name {
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
+    color: var(--gold);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .char-name[contenteditable="true"]:focus { outline: 1px solid var(--gold); border-radius: 3px; padding: 2px 4px; }
+  .char-meta { font-size: 10px; color: var(--text2); margin-top: 4px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .char-meta span { display: flex; align-items: center; gap: 3px; }
+  .char-meta [contenteditable="true"]:focus { outline: 1px solid var(--border2); border-radius: 3px; padding: 1px 3px; color: var(--text); }
+  .player-badge {
+    font-size: 10px;
+    background: var(--purple-glow);
+    border: 1px solid var(--purple);
+    color: var(--purple);
+    border-radius: 20px;
+    padding: 3px 9px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .player-badge.other { background: var(--blue-glow); border-color: var(--blue); color: var(--blue); }
+
+  .card-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 14px; }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--text2);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ── BARS ── */
+  .resource-bars { display: flex; flex-direction: column; gap: 8px; }
+  .resource-row { display: flex; align-items: center; gap: 8px; }
+  .resource-label { font-size: 10px; font-weight: 600; width: 26px; text-align: right; flex-shrink: 0; }
+  .resource-label.pv  { color: var(--red); }
+  .resource-label.ea  { color: var(--blue); }
+  .resource-label.pvt { color: var(--gold); }
+  .bar-track { flex: 1; height: 11px; background: var(--bg3); border-radius: 6px; border: 1px solid var(--border); overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 6px; transition: width 0.4s cubic-bezier(0.4,0,0.2,1); }
+  .bar-fill.pv  { background: linear-gradient(90deg,#7f1d1d,var(--red)); }
+  .bar-fill.ea  { background: linear-gradient(90deg,#1e3a6e,var(--blue)); }
+  .bar-fill.pvt { background: linear-gradient(90deg,#78350f,var(--gold)); }
+  .resource-inputs { display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
+  .num-input {
+    width: 42px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    padding: 3px 2px;
+    outline: none;
+  }
+  .num-input:focus { border-color: var(--border2); }
+  .num-sep { color: var(--text2); font-size: 11px; }
+
+  /* ── ATTRS ── */
+  .attrs-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 5px; }
+  .attr-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 7px; padding: 7px 3px; text-align: center; }
+  .attr-abbr { font-size: 9px; font-weight: 600; color: var(--text2); letter-spacing: 1px; }
+  .attr-val { font-size: 17px; font-weight: 700; color: var(--text); display: block; line-height: 1.2; }
+  .attr-val[contenteditable="true"]:focus { outline: 1px solid var(--border2); border-radius: 3px; }
+  .attr-mod { font-size: 10px; color: var(--text2); margin-top: 1px; }
+
+  /* ── INICIATIVA BTN ── */
+  .btn-iniciativa {
+    width: 100%;
+    margin-top: 8px;
+    background: linear-gradient(135deg,#1a1030,#12092a);
+    border: 1px solid var(--purple);
+    color: var(--purple);
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+  }
+  .btn-iniciativa:hover { background: var(--purple); color: white; box-shadow: 0 0 18px var(--purple-glow); }
+  .btn-iniciativa:active { transform: scale(0.98); }
+
+  /* ── STATUS GRID ── */
+  .status-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
+  .status-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 9px; text-align: center; }
+  .status-box .s-label { font-size: 9px; color: var(--text2); letter-spacing: 1px; text-transform: uppercase; }
+  .status-box .s-val { font-size: 19px; font-weight: 700; color: var(--text); display: block; margin-top: 2px; }
+  .status-box .s-val[contenteditable="true"]:focus { outline: 1px solid var(--border2); border-radius: 3px; }
+
+  /* ── TÉCNICAS ── */
+  .tecnicas-list { display: flex; flex-direction: column; gap: 5px; }
+  .tecnica-item { background: var(--bg3); border: 1px solid var(--border); border-radius: 7px; padding: 9px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .tecnica-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .tecnica-nome { font-size: 12px; font-weight: 600; color: var(--text); }
+  .tecnica-custo { font-size: 10px; font-weight: 700; color: var(--blue); background: rgba(74,158,255,0.1); border: 1px solid rgba(74,158,255,0.3); border-radius: 20px; padding: 2px 7px; white-space: nowrap; }
+  .tecnica-efeito { font-size: 10px; color: var(--text2); }
+  .tecnica-desc { font-size: 10px; color: var(--text2); font-style: italic; }
+  .tecnica-nome[contenteditable="true"]:focus,
+  .tecnica-custo[contenteditable="true"]:focus,
+  .tecnica-efeito[contenteditable="true"]:focus,
+  .tecnica-desc[contenteditable="true"]:focus {
+    outline: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 1px 3px;
+    color: var(--text);
+  }
+
+  /* ── DOMÍNIO ── */
+  .dominio-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 9px; padding: 12px; }
+  .dominio-box.expansao { border-color: rgba(168,85,247,0.5); background: linear-gradient(135deg,#0f0a1a,#160e22); }
+  .dominio-box.simples  { border-color: rgba(74,158,255,0.4); background: linear-gradient(135deg,#0a0f1a,#0e1622); }
+  .dominio-title { font-family: 'Cinzel', serif; font-size: 12px; font-weight: 600; margin-bottom: 5px; }
+  .dominio-box.expansao .dominio-title { color: var(--purple); }
+  .dominio-box.simples  .dominio-title { color: var(--blue); }
+  .dominio-desc { font-size: 10px; color: var(--text2); line-height: 1.5; }
+  .dominio-desc[contenteditable="true"]:focus,
+  .dominio-efeito[contenteditable="true"]:focus {
+    outline: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 2px 4px;
+  }
+  .dominio-efeito { margin-top: 7px; font-size: 10px; color: var(--text); background: rgba(255,255,255,0.04); border-radius: 5px; padding: 7px 9px; line-height: 1.5; }
+
+  /* ════════════════════════════════════
+     PAINEL DIREITO (INICIATIVA + CHAT)
+  ════════════════════════════════════ */
+  .right-panel {
+    width: 300px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 53px);
+    position: sticky;
+    top: 53px;
+    border-left: 1px solid var(--border);
+    background: var(--bg2);
+    overflow: hidden;
+  }
+
+  /* ── ORDEM DE INICIATIVA ── */
+  .initiative-panel {
+    border-bottom: 1px solid var(--border);
+    padding: 10px 12px;
+    flex-shrink: 0;
+  }
+  .initiative-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .initiative-title {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-clear-init {
+    font-size: 10px;
+    color: var(--text2);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-clear-init:hover { color: var(--red); border-color: var(--red); }
+
+  .initiative-list { display: flex; flex-direction: column; gap: 4px; }
+  .init-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn { from { opacity:0; transform:translateX(10px); } to { opacity:1; transform:translateX(0); } }
+  .init-row.first {
+    border-color: var(--gold);
+    background: linear-gradient(135deg,#1a1400,#120f00);
+  }
+  .init-row.second { border-color: rgba(168,85,247,0.5); }
+  .init-rank {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text2);
+    width: 16px;
+    text-align: center;
+  }
+  .init-row.first .init-rank { color: var(--gold); }
+  .init-score {
+    font-family: 'Cinzel', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    width: 28px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .init-row.first .init-score { color: var(--gold); }
+  .init-name { font-size: 11px; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .init-nat {
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+  .init-nat.crit { background: rgba(34,197,94,0.15); color: var(--online); border: 1px solid rgba(34,197,94,0.3); }
+  .init-nat.fail { background: var(--red-glow); color: var(--red); border: 1px solid rgba(255,74,74,0.3); }
+  .init-empty { text-align: center; font-size: 11px; color: var(--text2); font-style: italic; padding: 8px 0; }
+
+  /* ── CHAT ── */
+  .chat-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text2);
+    flex-shrink: 0;
+  }
+  .chat-messages {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    scroll-behavior: smooth;
+  }
+  .chat-messages::-webkit-scrollbar { width: 6px; }
+  .chat-messages::-webkit-scrollbar-track { background: var(--bg3); border-radius: 3px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  .chat-messages::-webkit-scrollbar-thumb:hover { background: var(--purple); }
+
+  .chat-msg {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 7px 9px;
+    font-size: 11px;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(3px)} to{opacity:1;transform:translateY(0)} }
+  .chat-msg.system { border-color: rgba(168,85,247,0.3); background: linear-gradient(135deg,#0f0a1a,#1a1030); text-align: center; color: var(--text2); font-style: italic; }
+  .chat-msg.roll { border-color: rgba(240,192,64,0.35); background: linear-gradient(135deg,#100d00,#1a1400); }
+  .chat-msg.roll-iniciativa { border-color: rgba(168,85,247,0.45); background: linear-gradient(135deg,#100a1a,#1c1030); }
+
+  .chat-msg-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; }
+  .chat-msg-author { font-weight: 700; font-size: 10px; }
+  .chat-msg-author.mine  { color: var(--purple); }
+  .chat-msg-author.other { color: var(--blue); }
+  .chat-msg-time { font-size: 9px; color: var(--text2); }
+  .chat-msg-text { color: var(--text); line-height: 1.5; }
+
+  .chat-roll-result { display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+  .chat-roll-dice { font-size: 10px; color: var(--text2); }
+  .chat-roll-total { font-family: 'Cinzel', serif; font-size: 20px; font-weight: 700; color: var(--gold); }
+  .chat-roll-total.nat20 { color: var(--online); text-shadow: 0 0 8px var(--online); }
+  .chat-roll-total.critical { color: var(--red); text-shadow: 0 0 8px var(--red); }
+  .chat-roll-breakdown { font-size: 10px; color: var(--text2); }
+  .chat-roll-label { font-size: 9px; color: var(--text2); margin-top: 2px; }
+
+  .chat-input-area {
+    padding: 8px 10px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 6px;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+  .chat-input {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 7px 10px;
+    color: var(--text);
+    font-size: 12px;
+    outline: none;
+    resize: none;
+    max-height: 70px;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.4;
+  }
+  .chat-input:focus { border-color: var(--purple); }
+  .chat-input::placeholder { color: var(--text2); }
+  .chat-send-btn {
+    background: var(--purple);
+    border: none;
+    border-radius: 7px;
+    color: white;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.2s;
+  }
+  .chat-send-btn:hover { opacity: 0.85; }
+  .chat-hint { font-size: 9px; color: var(--text2); padding: 0 10px 6px; }
+
+  /* ════════════════════════════════════
+     MODAL DADOS
+  ════════════════════════════════════ */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.72);
+    z-index: 500;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.show { opacity: 1; pointer-events: all; }
+  .modal-box {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    padding: 26px;
+    width: 330px;
+    max-width: 92vw;
+    transform: translateY(10px);
+    transition: transform 0.2s;
+  }
+  .modal-overlay.show .modal-box { transform: translateY(0); }
+  .modal-title { font-family: 'Cinzel', serif; font-size: 15px; color: var(--gold); letter-spacing: 2px; margin-bottom: 18px; text-align: center; }
+
+  .dice-presets { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; }
+  .dice-preset-btn {
+    background: var(--bg3); border: 1px solid var(--border); color: var(--text2);
+    border-radius: 5px; padding: 4px 9px; font-size: 11px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; letter-spacing: 0.5px;
+  }
+  .dice-preset-btn:hover { border-color: var(--purple); color: var(--purple); }
+  .dice-preset-btn.active { background: var(--purple-glow); border-color: var(--purple); color: var(--purple); }
+
+  .dice-config { display: flex; gap: 14px; margin-bottom: 16px; align-items: flex-end; }
+  .dice-config-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+  .dice-config-group label { font-size: 10px; color: var(--text2); letter-spacing: 1px; text-transform: uppercase; }
+  .dice-config-group input {
+    background: var(--bg3); border: 1px solid var(--border2); border-radius: 7px;
+    padding: 9px 10px; color: var(--text); font-size: 22px; font-weight: 700;
+    text-align: center; outline: none; width: 100%;
+  }
+  .dice-config-group input:focus { border-color: var(--purple); }
+  .dice-sep { font-family: 'Cinzel', serif; font-size: 20px; color: var(--text2); padding-bottom: 9px; flex-shrink: 0; }
+
+  .dice-result-preview {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px; text-align: center; margin-bottom: 14px; min-height: 76px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  }
+  .dice-result-num {
+    font-family: 'Cinzel', serif; font-size: 40px; font-weight: 700;
+    color: var(--gold); line-height: 1; transition: all 0.2s;
+  }
+  @keyframes diceRoll {
+    0%,100%{transform:scale(1)} 30%{transform:scale(1.15) rotate(-4deg)} 70%{transform:scale(1.15) rotate(4deg)}
+  }
+  .dice-result-num.rolling { animation: diceRoll 0.5s ease; }
+  .dice-result-num.crit { color: var(--online); text-shadow: 0 0 14px var(--online); }
+  .dice-result-num.fail { color: var(--red); text-shadow: 0 0 14px var(--red); }
+  .dice-result-detail { font-size: 11px; color: var(--text2); }
+  .dice-result-breakdown { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+  .modal-actions { display: flex; gap: 8px; }
+  .btn-roll {
+    flex: 1; background: linear-gradient(135deg,var(--purple),#7c3aed);
+    border: none; border-radius: 8px; color: white;
+    padding: 11px; font-size: 13px; font-weight: 700; cursor: pointer;
+    letter-spacing: 0.5px; transition: opacity 0.2s;
+  }
+  .btn-roll:hover { opacity: 0.9; }
+  .btn-roll-send {
+    flex: 1; background: linear-gradient(135deg,#1a3a5e,#0e2040);
+    border: 1px solid var(--blue); border-radius: 8px; color: var(--blue);
+    padding: 11px; font-size: 12px; font-weight: 600; cursor: pointer;
+    letter-spacing: 0.5px; transition: all 0.2s;
+  }
+  .btn-roll-send:hover { background: var(--blue); color: white; }
+  .btn-close-modal {
+    background: transparent; border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text2);
+    padding: 11px 14px; cursor: pointer; font-size: 12px; transition: all 0.2s;
+  }
+  .btn-close-modal:hover { border-color: var(--red); color: var(--red); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 20px; left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 8px; padding: 10px 16px;
+    font-size: 12px; color: var(--text);
+    opacity: 0; transition: all 0.3s; z-index: 999;
+    max-width: 300px; text-align: center; white-space: pre-line;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--online); color: var(--online); }
+  .toast.error   { border-color: var(--red); color: var(--red); }
+  .toast.roll    { border-color: var(--gold); color: var(--gold); font-family: 'Cinzel', serif; }
+
+  /* ── MODO MESTRE ── */
+  .btn-header.mestre { border-color: var(--gold); color: var(--gold); }
+  .btn-header.mestre:hover { background: var(--gold); color: #0a0a0f; }
+  .btn-header.mestre.active { background: rgba(240,192,64,0.15); border-color: var(--gold); color: var(--gold); }
+  .mestre-badge {
+    font-size: 10px; background: rgba(240,192,64,0.15);
+    border: 1px solid var(--gold); color: var(--gold);
+    border-radius: 20px; padding: 3px 9px; white-space: nowrap; flex-shrink: 0;
+  }
+  .ficha-card.mestre-mode { border-color: var(--gold); box-shadow: 0 0 28px rgba(240,192,64,0.12); }
+  .ficha-card.mestre-mode .card-header { background: linear-gradient(135deg,#1a1400,#140f00); }
+
+  /* ── AVATAR ── */
+  .avatar-area {
+    display: flex; align-items: center; gap: 12px; padding: 10px 18px 0;
+  }
+  .avatar-circle {
+    width: 52px; height: 52px; border-radius: 50%;
+    border: 2px solid var(--border2);
+    background: var(--bg3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; cursor: pointer; flex-shrink: 0;
+    overflow: hidden; position: relative; transition: border-color 0.2s;
+  }
+  .avatar-circle:hover { border-color: var(--purple); }
+  .avatar-circle img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .avatar-circle.editable::after {
+    content: '📷'; position: absolute; inset: 0;
+    background: rgba(0,0,0,0.6); display: flex; align-items: center;
+    justify-content: center; border-radius: 50%; opacity: 0; transition: opacity 0.2s;
+    font-size: 16px;
+  }
+  .avatar-circle.editable:hover::after { opacity: 1; }
+  .avatar-input { display: none; }
+
+  /* ── STATUS / CONDIÇÕES ── */
+  .status-overlay {
+    position: absolute; inset: 0; background: rgba(10,10,15,0.88);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; z-index: 10; border-radius: 13px;
+    animation: fadeIn 0.3s ease;
+  }
+  .status-overlay-text {
+    font-family: 'Cinzel', serif; font-size: 22px; font-weight: 700;
+    color: var(--red); text-shadow: 0 0 20px var(--red); letter-spacing: 2px;
+  }
+  .status-overlay-sub { font-size: 11px; color: var(--text2); }
+  .ficha-card { position: relative; }
+
+  .condicoes-area { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+  .condicao-tag {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 600; border-radius: 20px;
+    padding: 2px 8px; border: 1px solid; cursor: default;
+    animation: fadeIn 0.2s ease;
+  }
+  .condicao-tag .remove-cond { cursor: pointer; opacity: 0.6; font-size: 9px; }
+  .condicao-tag .remove-cond:hover { opacity: 1; }
+  .cond-sangrando  { color: #ff6b6b; border-color: rgba(255,107,107,0.4); background: rgba(255,107,107,0.08); }
+  .cond-atordoado  { color: #fbbf24; border-color: rgba(251,191,36,0.4);  background: rgba(251,191,36,0.08); }
+  .cond-envenenado { color: #4ade80; border-color: rgba(74,222,128,0.4);  background: rgba(74,222,128,0.08); }
+  .cond-amedrontado{ color: #a78bfa; border-color: rgba(167,139,250,0.4); background: rgba(167,139,250,0.08); }
+  .cond-paralisado { color: #60a5fa; border-color: rgba(96,165,250,0.4);  background: rgba(96,165,250,0.08); }
+  .cond-invisivel  { color: #e2e8f0; border-color: rgba(226,232,240,0.3); background: rgba(226,232,240,0.05); }
+  /* Técnicas de Reforço como condição ativas */
+  .cond-reforco-punhos      { color: #f0c040; border-color: rgba(240,192,64,0.5);  background: rgba(240,192,64,0.1); }
+  .cond-barreira-corporal   { color: #4a9eff; border-color: rgba(74,158,255,0.5);  background: rgba(74,158,255,0.1); }
+  .cond-passo-amaldicado    { color: #34d399; border-color: rgba(52,211,153,0.5);  background: rgba(52,211,153,0.1); }
+  .cond-fortalecimento      { color: #f97316; border-color: rgba(249,115,22,0.5);  background: rgba(249,115,22,0.1); }
+  .btn-add-cond {
+    font-size: 10px; color: var(--text2); background: transparent;
+    border: 1px dashed var(--border2); border-radius: 20px; padding: 2px 8px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn-add-cond:hover { border-color: var(--purple); color: var(--purple); }
+
+  /* ── TURNO ATIVO (sistema de turnos) ── */
+  .init-row.ativo {
+    border-color: var(--online) !important;
+    background: linear-gradient(135deg,#001a0a,#001208) !important;
+    box-shadow: 0 0 10px rgba(34,197,94,0.2);
+  }
+  .init-row.ativo .init-name { color: var(--online); font-weight: 700; }
+  .init-row.ativo .init-score { color: var(--online); }
+  .turno-controls {
+    display: flex; gap: 5px; margin-top: 8px; align-items: center; justify-content: space-between;
+  }
+  .btn-turno {
+    flex: 1; font-size: 10px; font-weight: 700; border-radius: 5px; padding: 5px 6px;
+    cursor: pointer; transition: all 0.15s; letter-spacing: 0.3px;
+  }
+  .btn-turno.prev { background: transparent; border: 1px solid var(--border2); color: var(--text2); }
+  .btn-turno.prev:hover { border-color: var(--blue); color: var(--blue); }
+  .btn-turno.next { background: linear-gradient(135deg,#001a08,#00120a); border: 1px solid var(--online); color: var(--online); }
+  .btn-turno.next:hover { background: var(--online); color: #0a0a0f; }
+  .turno-counter { font-size: 9px; color: var(--text2); text-align: center; padding: 2px 0; }
+  .ficha-card.turno-ativo { box-shadow: 0 0 30px rgba(34,197,94,0.25) !important; border-color: var(--online) !important; }
+  .turno-ativo-banner {
+    background: linear-gradient(90deg,rgba(34,197,94,0.15),transparent);
+    border-bottom: 1px solid rgba(34,197,94,0.3);
+    padding: 5px 18px; font-size: 10px; color: var(--online);
+    font-weight: 700; letter-spacing: 1px; display: flex; align-items: center; gap: 6px;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .turno-ativo-banner span { animation: blink 1.2s infinite; }
+
+  /* ══════════════════════════════════════
+     BARDO — BARRA DE MÚSICA NO RODAPÉ
+  ══════════════════════════════════════ */
+  #bardoBar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 500;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.5);
+  }
+  #bardoBar.visible { display: flex; }
+
+  .bardo-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    flex-wrap: wrap;
+  }
+  .bardo-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 2px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .bardo-now-playing {
+    font-size: 11px;
+    color: var(--text2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+    flex-shrink: 1;
+  }
+  .bardo-now-playing span { color: var(--text); }
+  .bardo-input-wrap {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+    min-width: 180px;
+  }
+  .bardo-input {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    padding: 6px 12px;
+    color: var(--text);
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .bardo-input:focus { border-color: var(--gold); }
+  .bardo-input::placeholder { color: var(--text2); }
+  .bardo-btn {
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    white-space: nowrap;
+  }
+  .bardo-btn.play { border-color: var(--gold); color: var(--gold); }
+  .bardo-btn.play:hover { background: var(--gold); color: #0a0a0f; }
+  .bardo-btn.stop { border-color: var(--red); color: var(--red); }
+  .bardo-btn.stop:hover { background: var(--red); color: white; }
+  .bardo-btn.toggle-player { border-color: var(--border2); color: var(--text2); font-size: 10px; padding: 5px 9px; }
+  .bardo-btn.toggle-player:hover { border-color: var(--blue); color: var(--blue); }
+
+  .bardo-player-wrap {
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+    max-height: 0;
+  }
+  .bardo-player-wrap.open { max-height: 200px; }
+  .bardo-player-wrap iframe {
+    display: block;
+    width: 100%;
+    height: 190px;
+    border: none;
+    border-top: 1px solid var(--border);
+  }
+
+  /* empurrar conteúdo para cima quando o bardo está ativo */
+  body.bardo-ativo .main-layout,
+  body.bardo-ativo .player-select-screen {
+    padding-bottom: 60px;
+  }
+
+  /* ── INVENTÁRIO ── */
+  .inventario-list { display: flex; flex-direction: column; gap: 5px; }
+  .inventario-item {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 7px;
+    padding: 8px 10px; display: flex; align-items: center; gap: 8px;
+  }
+  .inv-qty {
+    width: 36px; background: var(--bg); border: 1px solid var(--border2);
+    border-radius: 5px; color: var(--gold); font-size: 12px; font-weight: 700;
+    text-align: center; padding: 2px; outline: none;
+  }
+  .inv-qty:focus { border-color: var(--gold); }
+  .inv-nome { flex: 1; font-size: 11px; font-weight: 600; color: var(--text); }
+  .inv-nome[contenteditable="true"]:focus { outline: 1px solid var(--border2); border-radius: 3px; padding: 1px 3px; }
+  .inv-desc { font-size: 10px; color: var(--text2); }
+  .inv-desc[contenteditable="true"]:focus { outline: 1px solid var(--border2); border-radius: 3px; padding: 1px 3px; }
+  .btn-del-item {
+    background: transparent; border: none; color: var(--text2);
+    cursor: pointer; font-size: 12px; padding: 2px 4px; border-radius: 4px;
+    transition: color 0.15s;
+  }
+  .btn-del-item:hover { color: var(--red); }
+  .btn-add-item {
+    width: 100%; padding: 7px; background: transparent;
+    border: 1px dashed var(--border2); border-radius: 7px;
+    color: var(--text2); font-size: 11px; cursor: pointer;
+    transition: all 0.15s; margin-top: 2px;
+  }
+  .btn-add-item:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ── BOTÃO ROLAR TÉCNICA ── */
+  .btn-rolar-tecnica {
+    background: transparent; border: 1px solid rgba(168,85,247,0.4);
+    color: var(--purple); border-radius: 5px; padding: 2px 7px;
+    font-size: 10px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
+  }
+  .btn-rolar-tecnica:hover { background: var(--purple); color: white; }
+
+  /* ── CHAT HEADER com botão limpar ── */
+  .chat-header {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .btn-limpar-chat {
+    font-size: 10px; color: var(--text2); background: none;
+    border: 1px solid var(--border); border-radius: 5px;
+    padding: 2px 8px; cursor: pointer; transition: all 0.15s;
+  }
+  .btn-limpar-chat:hover { color: var(--red); border-color: var(--red); }
+
+  /* ── EDITAR PERSONAGEM NA SELEÇÃO ── */
+  .btn-edit-ficha {
+    margin-top: 6px; background: transparent;
+    border: 1px solid rgba(74,158,255,0.4); color: var(--blue);
+    border-radius: 6px; padding: 5px 10px; font-size: 10px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-edit-ficha:hover { background: var(--blue); color: white; }
+
+  /* ── Responsive ── */
+  @media (max-width: 860px) {
+    .right-panel { width: 260px; }
+    .fichas-container { grid-template-columns: 1fr; padding: 12px; }
+  }
+  @media (max-width: 640px) {
+    .main-layout.visible { flex-direction: column; }
+    .right-panel {
+      position: fixed;
+      top: 53px;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: 42vh;
+      z-index: 150;
+      border-left: none;
+      border-top: none;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+    }
+    .fichas-area, .mapa-area { margin-top: 42vh; }
+    .fichas-area.collapsed, .mapa-area.collapsed { display: none; }
+    .chat-hint { display: none; }
+    .attrs-grid { grid-template-columns: repeat(3,1fr); }
+    .initiative-panel { max-height: 110px; overflow-y: auto; }
+    .mapa-toolbar { padding: 8px 10px; }
+    .mapa-toolbar input[type="text"] { width: 140px; }
+  }
+</style>
 </head>
 <body>
-  <h1>Estamos em manutenção!!!!</h1>
+
+<!-- SELECT SCREEN -->
+<div class="player-select-screen" id="selectScreen">
+  <div>
+    <h1 class="player-select-title">✦ JUJUTSU KAISEN RPG ✦</h1>
+    <p class="player-select-subtitle">Fichas de Personagem — Sessão Colaborativa</p>
+  </div>
+  <div class="session-id-box">
+    <label>CÓDIGO DA SESSÃO</label>
+    <input type="text" id="sessionInput" placeholder="Ex: SESSAO01" maxlength="20">
+    <button class="btn-enter" onclick="entrarSessao()">ENTRAR NA SESSÃO</button>
+  </div>
+  <div id="playerGrid" class="player-grid" style="display:none"></div>
+</div>
+
+<!-- HEADER -->
+<header class="app-header" id="appHeader" style="display:none">
+  <span class="app-title">✦ Jujutsu Kaisen RPG</span>
+  <div class="header-right">
+    <div class="session-info">
+      <span><span class="online-dot"></span> <span id="onlineCount">0</span> online</span>
+      <span id="sessionLabel" style="color:var(--gold)"></span>
+      <span id="mySlotLabel" style="color:var(--purple)"></span>
+    </div>
+    <button class="btn-header dice" onclick="abrirModalDados()">🎲 Dados</button>
+    <button class="btn-header mestre" id="btnMestre" onclick="toggleMestre()">👁 Mestre</button>
+    <button class="btn-header toggle active" id="btnTabFichas" onclick="mudarAba('fichas')">📋 Fichas</button>
+    <button class="btn-header toggle" id="btnTabMapa" onclick="mudarAba('mapa')">🗺️ Mapa</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="main-layout" id="mainLayout">
+
+  <!-- Fichas -->
+  <div class="fichas-area" id="fichasArea">
+    <div class="fichas-container" id="fichasContainer"></div>
+  </div>
+
+  <!-- Mapa de Batalha -->
+  <div class="mapa-area collapsed" id="mapaArea">
+    <div class="mapa-toolbar" id="mapaToolbarMestre" style="display:none">
+      <div class="mapa-toolbar-group">
+        <input type="text" id="mapaUrlInput" placeholder="URL da imagem do mapa...">
+        <button class="btn-mapa primary" onclick="definirMapaUrl()">🖼️ Definir</button>
+        <input type="file" id="mapaFileInput" accept="image/*" style="display:none" onchange="definirMapaArquivo(event)">
+        <button class="btn-mapa" onclick="document.getElementById('mapaFileInput').click()">📁 Upload</button>
+      </div>
+      <div class="mapa-toolbar-group">
+        <label>Colunas</label><input type="number" id="mapaCols" value="20" min="4" max="60">
+        <label>Linhas</label><input type="number" id="mapaRows" value="14" min="4" max="60">
+        <button class="btn-mapa" onclick="aplicarGradeMapa()">📐 Aplicar Grade</button>
+      </div>
+      <button class="btn-mapa" id="btnGradeToggle" onclick="toggleGradeVisivel()">▦ Grade: ON</button>
+      <button class="btn-mapa danger" onclick="limparMapa()">🗑️ Limpar Mapa</button>
+    </div>
+    <div class="mapa-toolbar">
+      <button class="btn-mapa primary" onclick="adicionarMeuToken()">➕ Meu Token</button>
+      <button class="btn-mapa gold" id="btnAddNpcToken" style="display:none" onclick="adicionarTokenNpc()">👹 Token NPC</button>
+    </div>
+    <div class="mapa-viewport" id="mapaViewport">
+      <div class="mapa-canvas" id="mapaCanvas">
+        <div class="mapa-grid-overlay" id="mapaGridOverlay"></div>
+        <div class="mapa-empty-state" id="mapaEmptyState">🗺️ Nenhum mapa definido ainda.<br>Peça ao Mestre para definir um mapa.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Painel Direito: Iniciativa + Chat -->
+  <div class="right-panel" id="rightPanel">
+
+    <!-- ORDEM DE INICIATIVA -->
+    <div class="initiative-panel">
+      <div class="initiative-header">
+        <div class="initiative-title">⚔️ ORDEM DE INICIATIVA</div>
+        <button class="btn-clear-init" onclick="limparIniciativa()">Limpar</button>
+      </div>
+      <div class="initiative-list" id="initiativeList">
+        <div class="init-empty">Nenhuma iniciativa rolada ainda.</div>
+      </div>
+      <div class="turno-controls" id="turnoControls" style="display:none">
+        <button class="btn-turno prev" onclick="avancarTurno(-1)">◀ Anterior</button>
+        <span class="turno-counter" id="turnoCounter">Turno 1</span>
+        <button class="btn-turno next" onclick="avancarTurno(1)">Próximo ▶</button>
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="chat-header">
+      <span>💬 LOG DE SESSÃO</span>
+      <button class="btn-limpar-chat" onclick="limparChat()">🗑 Limpar</button>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-hint">Use /r NdX para rolar — ex: /r 2d6</div>
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chatInput" placeholder="Mensagem..." rows="1"
+        onkeydown="chatKeydown(event)"></textarea>
+      <button class="chat-send-btn" onclick="enviarMensagem()">↑</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DADOS -->
+<div class="modal-overlay" id="diceModal" onclick="fecharModalSeFora(event)">
+  <div class="modal-box">
+    <div class="modal-title">🎲 ROLAR DADOS</div>
+    <div class="dice-presets" id="dicePresets">
+      <button class="dice-preset-btn" onclick="setPreset(1,4,this)">1d4</button>
+      <button class="dice-preset-btn" onclick="setPreset(1,6,this)">1d6</button>
+      <button class="dice-preset-btn" onclick="setPreset(1,8,this)">1d8</button>
+      <button class="dice-preset-btn" onclick="setPreset(1,10,this)">1d10</button>
+      <button class="dice-preset-btn" onclick="setPreset(1,12,this)">1d12</button>
+      <button class="dice-preset-btn" onclick="setPreset(1,20,this)">1d20</button>
+      <button class="dice-preset-btn" onclick="setPreset(2,6,this)">2d6</button>
+      <button class="dice-preset-btn" onclick="setPreset(3,6,this)">3d6</button>
+      <button class="dice-preset-btn" onclick="setPreset(4,6,this)">4d6</button>
+      <button class="dice-preset-btn" onclick="setPreset(2,12,this)">2d12</button>
+    </div>
+    <div class="dice-config">
+      <div class="dice-config-group">
+        <label>Quantidade</label>
+        <input type="number" id="diceQty" value="1" min="1" max="20" oninput="clearPresets()">
+      </div>
+      <div class="dice-sep">d</div>
+      <div class="dice-config-group">
+        <label>Lados</label>
+        <input type="number" id="diceSides" value="6" min="2" max="100" oninput="clearPresets()">
+      </div>
+    </div>
+    <div class="dice-result-preview">
+      <div class="dice-result-num" id="diceResultNum">—</div>
+      <div class="dice-result-detail" id="diceResultDetail"></div>
+      <div class="dice-result-breakdown" id="diceResultBreakdown"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-roll" onclick="rolarModal()">🎲 Rolar & Enviar</button>
+      <button class="btn-close-modal" onclick="fecharModal()">✕ Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- BARDO — PLAYER DE MÚSICA -->
+<div id="bardoBar">
+  <div class="bardo-top">
+    <div class="bardo-logo">🎵 BARDO</div>
+    <div class="bardo-now-playing" id="bardoNowPlaying">Nenhuma música tocando</div>
+    <div class="bardo-input-wrap">
+      <input class="bardo-input" id="bardoInput" type="text" placeholder="Cole um link do YouTube..." onkeydown="if(event.key==='Enter') bardoTocar()" />
+      <button class="bardo-btn play" onclick="bardoTocar()">▶ Tocar</button>
+      <button class="bardo-btn stop" onclick="bardoParar()">■ Parar</button>
+      <button class="bardo-btn toggle-player" onclick="bardoTogglePlayer()">▼ Player</button>
+    </div>
+  </div>
+  <div class="bardo-player-wrap" id="bardoPlayerWrap">
+    <iframe id="bardoIframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getDatabase, ref, set, get, push, onValue, remove }
+  from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+import { getAuth, signInAnonymously, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyCssTD1j4VUVsbOYRDq6t0NQ-L_oeQ5O8U",
+  authDomain:        "ficha-online-c3048.firebaseapp.com",
+  databaseURL:       "https://ficha-online-c3048-default-rtdb.firebaseio.com",
+  projectId:         "ficha-online-c3048",
+  storageBucket:     "ficha-online-c3048.firebasestorage.app",
+  messagingSenderId: "449356287217",
+  appId:             "1:449356287217:web:e0b3969bb9e97e44ee2d50"
+};
+
+const app  = initializeApp(firebaseConfig);
+const db   = getDatabase(app);
+const auth = getAuth(app);
+
+let sessaoId   = null;
+let meuSlot    = null;
+let meuNome    = null;
+let meuUid     = null;
+let authPronto = false;
+let fichasData = {};
+let modoMestre = false;
+let turnoAtual = 0;
+let turnoNumero = 1;
+let mapaData = {};
+
+/* ══════════════════════════════════════
+   AUTENTICAÇÃO ANÔNIMA (necessária pra Firebase Rules)
+   Cada navegador recebe um ID único e persistente, usado
+   pelas regras do banco pra saber quem é "dono" de cada ficha.
+══════════════════════════════════════ */
+onAuthStateChanged(auth, user => {
+  if (user) {
+    meuUid = user.uid;
+    authPronto = true;
+  }
+});
+signInAnonymously(auth).catch(() => {
+  showToast('Não foi possível conectar com segurança. Recarregue a página.', 'error');
+});
+
+function aguardarAuth() {
+  return new Promise(resolve => {
+    if (authPronto) { resolve(); return; }
+    const check = setInterval(() => {
+      if (authPronto) { clearInterval(check); resolve(); }
+    }, 80);
+  });
+}
+
+// Expor referência ao db para funções globais
+window.__db = db;
+window.__ref = ref;
+window.__push = push;
+window.__set = set;
+window.__remove = remove;
+window.__getSessaoId = () => sessaoId;
+window.__getMeuSlot  = () => meuSlot;
+window.__getFichas   = () => fichasData;
+
+/* ══════════════════════════════════════
+   BARDO — MÚSICA SINCRONIZADA VIA FIREBASE
+══════════════════════════════════════ */
+let bardoPlayerAberto = false;
+
+function bardoExtrairVideoId(url) {
+  // Suporta: youtube.com/watch?v=ID, youtu.be/ID, youtube.com/live/ID
+  const patterns = [
+    /[?&]v=([a-zA-Z0-9_-]{11})/,
+    /youtu\.be\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/(?:live|embed|shorts)\/([a-zA-Z0-9_-]{11})/,
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+function bardoAtualizarUI(data) {
+  const bar = document.getElementById('bardoBar');
+  const nowPlaying = document.getElementById('bardoNowPlaying');
+  const iframe = document.getElementById('bardoIframe');
+
+  // Bardo sempre visível após entrar na sessão
+  bar.classList.add('visible');
+  document.body.classList.add('bardo-ativo');
+
+  if (!data || !data.videoId) {
+    iframe.src = '';
+    nowPlaying.innerHTML = 'Nenhuma música tocando';
+    return;
+  }
+  document.body.classList.add('bardo-ativo');
+  nowPlaying.innerHTML = `♪ <span>${data.titulo || 'YouTube'}</span> — por ${data.quem || '?'}`;
+
+  const embedUrl = `https://www.youtube.com/embed/${data.videoId}?autoplay=1&rel=0`;
+  if (iframe.src !== embedUrl) {
+    iframe.src = embedUrl;
+  }
+}
+
+window.bardoTocar = function() {
+  const input = document.getElementById('bardoInput').value.trim();
+  if (!input) { showToast('Cole um link do YouTube!', 'error'); return; }
+  const videoId = bardoExtrairVideoId(input);
+  if (!videoId) { showToast('Link do YouTube inválido.', 'error'); return; }
+
+  const sid = window.__getSessaoId();
+  if (!sid) { showToast('Entre em uma sessão primeiro.', 'error'); return; }
+
+  const quem = window.__getMeuSlot() || 'Mestre';
+  const fichas = window.__getFichas();
+  const nomeQuem = fichas[quem]?.nome || quem;
+
+  // Buscar título via oEmbed (sem API key)
+  fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`)
+    .then(r => r.json())
+    .then(d => {
+      const titulo = d.title || 'Música';
+      window.__set(window.__ref(window.__db, `sessoes/${sid}/bardo`), { videoId, titulo, quem: nomeQuem, ts: Date.now() });
+      document.getElementById('bardoInput').value = '';
+    })
+    .catch(() => {
+      // Se falhar oEmbed, toca mesmo assim sem título
+      window.__set(window.__ref(window.__db, `sessoes/${sid}/bardo`), { videoId, titulo: 'YouTube', quem: nomeQuem, ts: Date.now() });
+      document.getElementById('bardoInput').value = '';
+    });
+};
+
+window.bardoParar = function() {
+  const sid = window.__getSessaoId();
+  if (!sid) return;
+  window.__set(window.__ref(window.__db, `sessoes/${sid}/bardo`), null);
+};
+
+window.bardoTogglePlayer = function() {
+  bardoPlayerAberto = !bardoPlayerAberto;
+  const wrap = document.getElementById('bardoPlayerWrap');
+  const btn = document.querySelector('.bardo-btn.toggle-player');
+  wrap.classList.toggle('open', bardoPlayerAberto);
+  btn.textContent = bardoPlayerAberto ? '▲ Player' : '▼ Player';
+};
+
+// Escutar mudanças do Bardo no Firebase (chamado após entrar na sessão)
+window.__iniciarBardoListener = function(sid) {
+  onValue(window.__ref(window.__db, `sessoes/${sid}/bardo`), snap => {
+    bardoAtualizarUI(snap.val());
+  });
+};
+
+/* ── DEFAULT ── */
+function tecnicasInatasDefault() {
+  return [
+    { nome:'Técnica Inata 1', custo:'— EA', efeito:'Alcance / Dano / Salvaguarda', desc:'Descreva o efeito da técnica...' },
+    { nome:'Técnica Inata 2', custo:'— EA', efeito:'Alcance / Dano / Salvaguarda', desc:'Descreva o efeito da técnica...' },
+    { nome:'Técnica Inata 3', custo:'— EA', efeito:'Alcance / Dano / Salvaguarda', desc:'Descreva o efeito da técnica...' },
+    { nome:'Técnica Inata 4', custo:'— EA', efeito:'Alcance / Dano / Salvaguarda', desc:'Descreva o efeito da técnica...' }
+  ];
+}
+function dominioSimplesDefault() {
+  return { desc:'Descreva a barreira de domínio simples do seu personagem...', efeito:'Descreva os efeitos do domínio simples...' };
+}
+function dominioExpansaoDefault() {
+  return { desc:'Descreva a expansão de domínio do seu personagem...', efeito:'Descreva os efeitos da expansão de domínio...' };
+}
+function fichaDefault(nome) {
+  return { nome:nome, linhagem:'Linhagem Técnica', grau:'Grau 3', nivel:'Nível 01', afiliacao:'Instituto',
+    pv:0,pvMax:0, pvt:0,pvtMax:0, ea:0,eaMax:0,
+    deslocamento:0, ca:0, for:0,dex:0,con:0,int:0,wis:0,cha:0,
+    tecnicasInatas: tecnicasInatasDefault(),
+    dominioSimples: dominioSimplesDefault(),
+    dominioExpansao: dominioExpansaoDefault(),
+    inventario: [], condicoes: [], avatar: null
+  };
+}
+
+/* ── TOAST ── */
+window.showToast = function(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast '+type+' show';
+  setTimeout(() => t.className = 'toast', 2800);
+};
+
+/* ══════════════════════════════════════
+   SELECT SCREEN
+══════════════════════════════════════ */
+window.entrarSessao = async function() {
+  const val = document.getElementById('sessionInput').value.trim().toUpperCase();
+  if (!val) { showToast('Digite um código de sessão','error'); return; }
+  await aguardarAuth();
+  sessaoId = val;
+  carregarSelecaoPersonagens();
+};
+
+function carregarSelecaoPersonagens() {
+  const grid = document.getElementById('playerGrid');
+  grid.style.display = 'grid';
+  grid.innerHTML = '<p style="color:var(--text2);font-size:12px;text-align:center;grid-column:1/-1;">Carregando personagens...</p>';
+  get(ref(db, `sessoes/${sessaoId}/fichas`)).then(snap => {
+    renderSelecaoPersonagens(snap.val() || {});
+  });
+}
+
+function renderSelecaoPersonagens(dados) {
+  const grid = document.getElementById('playerGrid');
+  grid.innerHTML = '';
+  const ids = Object.keys(dados);
+
+  const titulo = document.createElement('p');
+  titulo.style.cssText = 'color:var(--text2);font-size:12px;text-align:center;grid-column:1/-1;';
+  titulo.textContent = ids.length ? 'Selecione um personagem existente ou crie um novo:' : 'Nenhum personagem nesta sessão ainda — crie o primeiro:';
+  grid.appendChild(titulo);
+
+  ids.forEach(id => {
+    const ficha = dados[id] || {};
+    const souDono = ficha.dono && ficha.dono === meuUid;
+    const temDono = !!ficha.dono;
+    const c = document.createElement('div');
+    c.className = 'player-card occupied' + (temDono && !souDono ? ' locked' : '');
+    c.innerHTML = `
+      <div class="slot-name">${souDono ? '✦ ' : (temDono ? '🔒 ' : '')}${ficha.nome || 'Personagem'}</div>
+      <div class="slot-status">● ${ficha.linhagem||'—'} · ${ficha.grau||'—'}</div>
+      <div style="display:flex;gap:5px;justify-content:center;margin-top:10px;flex-wrap:wrap">
+        ${souDono ? `
+        <button class="btn-edit-ficha" type="button" data-acao="editar">✏️ Editar</button>
+        <button class="btn-delete-ficha" type="button" data-acao="excluir">🗑 Excluir</button>` : ''}
+        ${temDono && !souDono ? `<button class="btn-edit-ficha" type="button" data-acao="pin">🔑 Recuperar com PIN</button>` : ''}
+      </div>
+    `;
+    if (souDono) {
+      c.querySelector('[data-acao="excluir"]').addEventListener('click', e => { e.stopPropagation(); excluirFicha(id, ficha.nome); });
+      c.querySelector('[data-acao="editar"]').addEventListener('click', e => { e.stopPropagation(); abrirEditarPersonagem(id, ficha); });
+      c.addEventListener('click', () => escolherPersonagem(id, ficha));
+    } else if (temDono) {
+      c.querySelector('[data-acao="pin"]').addEventListener('click', e => { e.stopPropagation(); reivindicarComPin(id, ficha); });
+      c.addEventListener('click', () => showToast('🔒 Esse personagem pertence a outro jogador. Toque em "Recuperar com PIN" se for seu.', ''));
+    } else {
+      c.addEventListener('click', () => escolherPersonagem(id, ficha));
+    }
+    grid.appendChild(c);
+  });
+
+  const novo = document.createElement('div');
+  novo.className = 'player-card new-card';
+  novo.innerHTML = `<div class="slot-name">＋ Novo Personagem</div><div class="slot-status">Criar ficha</div>`;
+  novo.onclick = () => abrirCriarPersonagem();
+  grid.appendChild(novo);
+
+  const mestre = document.createElement('div');
+  mestre.className = 'player-card new-card';
+  mestre.style.cssText = 'border-color:rgba(240,192,64,0.5);';
+  mestre.innerHTML = `<div class="slot-name" style="color:var(--gold)">👁 Entrar como Mestre</div><div class="slot-status">Controle total da sessão</div>`;
+  mestre.onclick = () => entrarComoMestre();
+  grid.appendChild(mestre);
+}
+
+function abrirCriarPersonagem() {
+  const grid = document.getElementById('playerGrid');
+  grid.innerHTML = `
+    <div class="session-id-box" style="grid-column:1/-1;">
+      <label>NOME DO PERSONAGEM</label>
+      <input type="text" id="novoNomeInput" placeholder="Ex: Yuji Itadori" maxlength="30">
+      <label style="margin-top:10px;display:block;">PIN DE RECUPERAÇÃO (4 a 8 dígitos)</label>
+      <input type="text" id="novoPinInput" placeholder="Ex: 1234" maxlength="8" inputmode="numeric">
+      <p style="font-size:10px;color:var(--text2);margin-top:6px;">Guarde esse PIN — é com ele que você recupera essa ficha caso entre de outro aparelho ou navegador.</p>
+      <button class="btn-enter" id="btnCriarPersonagem">CRIAR FICHA</button>
+      <button class="btn-enter" id="btnVoltarSelecao" style="background:transparent;border:1px solid var(--border2);color:var(--text2);margin-top:8px;">← Voltar</button>
+    </div>
+  `;
+  document.getElementById('btnCriarPersonagem').onclick = criarPersonagem;
+  document.getElementById('btnVoltarSelecao').onclick = carregarSelecaoPersonagens;
+  const nomeInput = document.getElementById('novoNomeInput');
+  nomeInput.addEventListener('keydown', e => { if (e.key==='Enter') { e.preventDefault(); document.getElementById('novoPinInput').focus(); } });
+  nomeInput.focus();
+}
+
+async function criarPersonagem() {
+  const nome = document.getElementById('novoNomeInput').value.trim();
+  const pin  = document.getElementById('novoPinInput').value.trim();
+  if (!nome) { showToast('Digite um nome para o personagem','error'); return; }
+  if (pin.length < 4) { showToast('Crie um PIN de pelo menos 4 dígitos','error'); return; }
+  await aguardarAuth();
+  const novaRef = push(ref(db, `sessoes/${sessaoId}/fichas`));
+  const ficha = { ...fichaDefault(nome), dono: meuUid };
+  await set(novaRef, ficha);
+  await set(ref(db, `sessoes/${sessaoId}/_seguranca/pins/${novaRef.key}`), pin);
+  escolherPersonagem(novaRef.key, ficha);
+}
+
+function abrirEditarPersonagem(id, ficha) {
+  const grid = document.getElementById('playerGrid');
+  grid.innerHTML = `
+    <div class="session-id-box" style="grid-column:1/-1;">
+      <label>EDITAR PERSONAGEM</label>
+      <input type="text" id="editNomeInput" placeholder="Nome" maxlength="30" value="${ficha.nome||''}">
+      <input type="text" id="editLinhagemInput" placeholder="Linhagem" maxlength="40" value="${ficha.linhagem||''}" style="margin-top:6px;">
+      <input type="text" id="editGrauInput" placeholder="Grau" maxlength="20" value="${ficha.grau||''}" style="margin-top:6px;">
+      <button class="btn-enter" id="btnSalvarEdicao">💾 Salvar</button>
+      <button class="btn-enter" id="btnVoltarDeEdicao" style="background:transparent;border:1px solid var(--border2);color:var(--text2);margin-top:8px;">← Voltar</button>
+    </div>
+  `;
+  document.getElementById('btnSalvarEdicao').onclick = async () => {
+    const nome = document.getElementById('editNomeInput').value.trim() || ficha.nome;
+    const linhagem = document.getElementById('editLinhagemInput').value.trim() || ficha.linhagem;
+    const grau = document.getElementById('editGrauInput').value.trim() || ficha.grau;
+    await set(ref(db, `sessoes/${sessaoId}/fichas/${id}/nome`), nome);
+    await set(ref(db, `sessoes/${sessaoId}/fichas/${id}/linhagem`), linhagem);
+    await set(ref(db, `sessoes/${sessaoId}/fichas/${id}/grau`), grau);
+    showToast('Personagem atualizado!','success');
+    carregarSelecaoPersonagens();
+  };
+  document.getElementById('btnVoltarDeEdicao').onclick = carregarSelecaoPersonagens;
+}
+
+async function entrarComoMestre() {
+  const senha = prompt('🔒 Senha do Mestre:');
+  if (senha === null) return; // cancelou
+  await aguardarAuth();
+  try {
+    await set(ref(db, `sessoes/${sessaoId}/_seguranca/mestrePinTentativa`), senha);
+    await set(ref(db, `sessoes/${sessaoId}/_seguranca/mestres/${meuUid}`), true);
+  } catch (e) {
+    showToast('Senha incorreta.', 'error');
+    return;
+  }
+  modoMestre = true;
+  meuSlot = '__mestre__';
+  meuNome = '👁 Mestre';
+  iniciarApp();
+}
+
+async function escolherPersonagem(id, ficha) {
+  await aguardarAuth();
+  if (!ficha.dono) {
+    // Ficha antiga (criada antes do sistema de dono) — reivindica para este navegador
+    const pin = prompt(`"${ficha.nome||'Personagem'}" ainda não tem um PIN de recuperação. Crie um agora (4 a 8 dígitos) pra garantir que só você edite essa ficha:`);
+    if (!pin || pin.trim().length < 4) { showToast('É necessário definir um PIN de pelo menos 4 dígitos.', 'error'); return; }
+    try {
+      await set(ref(db, `sessoes/${sessaoId}/fichas/${id}/dono`), meuUid);
+      await set(ref(db, `sessoes/${sessaoId}/_seguranca/pins/${id}`), pin.trim());
+    } catch (e) {
+      showToast('Não foi possível assumir esse personagem agora. Tente novamente.', 'error');
+      carregarSelecaoPersonagens();
+      return;
+    }
+  }
+  meuSlot = id;
+  meuNome = (ficha && ficha.nome) || 'Personagem';
+  iniciarApp();
+}
+
+async function reivindicarComPin(id, ficha) {
+  const pin = prompt(`Digite o PIN de recuperação de "${ficha.nome||'Personagem'}":`);
+  if (pin === null) return;
+  await aguardarAuth();
+  try {
+    await set(ref(db, `sessoes/${sessaoId}/_seguranca/claimTentativa/${id}`), pin.trim());
+    await set(ref(db, `sessoes/${sessaoId}/fichas/${id}/dono`), meuUid);
+    showToast('Personagem recuperado com sucesso!', 'success');
+    carregarSelecaoPersonagens();
+  } catch (e) {
+    showToast('PIN incorreto.', 'error');
+  }
+}
+
+window.excluirFicha = function(id, nome) {
+  if (!confirm(`Excluir a ficha de "${nome||'Personagem'}"? Esta ação não pode ser desfeita.`)) return;
+  remove(ref(db, `sessoes/${sessaoId}/fichas/${id}`))
+    .then(() => { showToast('Ficha excluída.','success'); carregarSelecaoPersonagens(); })
+    .catch(() => showToast('Erro ao excluir ficha','error'));
+};
+
+/* ══════════════════════════════════════
+   APP PRINCIPAL
+══════════════════════════════════════ */
+function iniciarApp() {
+  document.getElementById('selectScreen').style.display = 'none';
+  document.getElementById('appHeader').style.display = 'flex';
+  document.getElementById('mainLayout').classList.add('visible');
+  document.getElementById('sessionLabel').textContent = 'Sessão: '+sessaoId;
+  document.getElementById('mySlotLabel').textContent = '[ '+meuNome+' ]';
+
+  if (modoMestre) {
+    document.getElementById('btnMestre').classList.add('active');
+    document.getElementById('mySlotLabel').style.color = 'var(--gold)';
+  }
+
+  // Fichas em tempo real
+  onValue(ref(db, `sessoes/${sessaoId}/fichas`), snap => {
+    fichasData = snap.val() || {};
+    renderFichas();
+    if (!modoMestre) {
+      const nomeAtual = fichasData[meuSlot]?.nome || meuNome;
+      document.getElementById('mySlotLabel').textContent = '[ '+nomeAtual+' ]';
+    }
+  });
+
+  // Chat em tempo real
+  onValue(ref(db, `sessoes/${sessaoId}/chat`), snap => {
+    renderChat(snap.val() || {});
+  });
+
+  // Iniciativa em tempo real
+  onValue(ref(db, `sessoes/${sessaoId}/iniciativa`), snap => {
+    renderIniciativa(snap.val() || {});
+  });
+
+  // Turno em tempo real
+  onValue(ref(db, `sessoes/${sessaoId}/turno`), snap => {
+    const t = snap.val();
+    if (t !== null && t !== undefined) {
+      turnoAtual = t.indice || 0;
+      turnoNumero = t.numero || 1;
+    } else {
+      turnoAtual = 0;
+      turnoNumero = 1;
+    }
+    renderIniciativa(window.__iniciativaCache || {});
+  });
+
+  // Mapa de batalha em tempo real
+  onValue(ref(db, `sessoes/${sessaoId}/mapa`), snap => {
+    mapaData = snap.val() || {};
+    renderMapa();
+  });
+
+  // Mensagem de entrada
+  enviarSistema(meuNome + ' entrou na sessão.');
+
+  // Bardo — música sincronizada
+  window.__iniciarBardoListener(sessaoId);
+}
+
+/* ══════════════════════════════════════
+   ABAS (FICHAS / MAPA)
+══════════════════════════════════════ */
+window.mudarAba = function(aba) {
+  const fichasArea = document.getElementById('fichasArea');
+  const mapaArea = document.getElementById('mapaArea');
+  const btnFichas = document.getElementById('btnTabFichas');
+  const btnMapa = document.getElementById('btnTabMapa');
+  if (aba === 'mapa') {
+    fichasArea.classList.add('collapsed');
+    mapaArea.classList.remove('collapsed');
+    btnFichas.classList.remove('active');
+    btnMapa.classList.add('active');
+    setTimeout(renderMapa, 60);
+  } else {
+    mapaArea.classList.add('collapsed');
+    fichasArea.classList.remove('collapsed');
+    btnMapa.classList.remove('active');
+    btnFichas.classList.add('active');
+  }
+};
+
+/* ══════════════════════════════════════
+   MODO MESTRE
+══════════════════════════════════════ */
+window.toggleMestre = async function() {
+  if (!modoMestre) {
+    const senha = prompt('🔒 Senha do Mestre:');
+    if (senha === null) return; // cancelou
+    await aguardarAuth();
+    try {
+      await set(ref(db, `sessoes/${sessaoId}/_seguranca/mestrePinTentativa`), senha);
+      await set(ref(db, `sessoes/${sessaoId}/_seguranca/mestres/${meuUid}`), true);
+    } catch (e) {
+      showToast('Senha incorreta.', 'error');
+      return;
+    }
+    modoMestre = true;
+    document.getElementById('btnMestre').classList.add('active');
+    document.getElementById('btnMestre').textContent = '👁 Mestre ✓';
+    document.getElementById('mySlotLabel').style.color = 'var(--gold)';
+    document.getElementById('mySlotLabel').textContent = '[ 👁 Mestre ]';
+    renderFichas();
+    renderMapa();
+    showToast('Modo Mestre ativado!','success');
+  } else {
+    modoMestre = false;
+    document.getElementById('btnMestre').classList.remove('active');
+    document.getElementById('btnMestre').textContent = '👁 Mestre';
+    document.getElementById('mySlotLabel').style.color = 'var(--purple)';
+    const nomeAtual = fichasData[meuSlot]?.nome || meuNome;
+    document.getElementById('mySlotLabel').textContent = '[ '+nomeAtual+' ]';
+    renderFichas();
+    renderMapa();
+    showToast('Modo Mestre desativado.','');
+  }
+};
+
+/* ══════════════════════════════════════
+   ORDEM DE INICIATIVA
+══════════════════════════════════════ */
+function renderIniciativa(data) {
+  window.__iniciativaCache = data;
+  const list = document.getElementById('initiativeList');
+  const entries = Object.values(data);
+
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="init-empty">Nenhuma iniciativa rolada ainda.</div>';
+    document.getElementById('turnoControls').style.display = 'none';
+    // Remover destaque de turno de todos os cards
+    document.querySelectorAll('.ficha-card.turno-ativo').forEach(c => c.classList.remove('turno-ativo'));
+    document.querySelectorAll('.turno-ativo-banner').forEach(b => b.remove());
+    return;
+  }
+
+  entries.sort((a, b) => b.total - a.total);
+
+  // Garantir que turnoAtual seja válido
+  if (turnoAtual >= entries.length) turnoAtual = 0;
+  const ativoEntry = entries[turnoAtual];
+
+  list.innerHTML = '';
+  entries.forEach((e, i) => {
+    const row = document.createElement('div');
+    const isAtivo = i === turnoAtual;
+    const rankClass = isAtivo ? 'ativo' : (i === 0 && turnoAtual !== 0 ? 'first' : i === 1 ? 'second' : '');
+    row.className = 'init-row ' + rankClass;
+
+    const rankIcon = isAtivo ? '▶' : i === 0 ? '👑' : i === 1 ? '②' : i === 2 ? '③' : (i + 1);
+    const natTag = e.roll === 20
+      ? '<span class="init-nat crit">NAT 20</span>'
+      : e.roll === 1
+      ? '<span class="init-nat fail">FALHA</span>'
+      : '';
+
+    row.innerHTML = `
+      <span class="init-rank">${rankIcon}</span>
+      <span class="init-score">${e.total}</span>
+      <span class="init-name">${e.charName || e.slot}</span>
+      ${natTag}
+    `;
+    list.appendChild(row);
+  });
+
+  // Mostrar/esconder controles de turno (só mestre ou se já há iniciativa)
+  const turnoCtrl = document.getElementById('turnoControls');
+  turnoCtrl.style.display = 'flex';
+  document.getElementById('turnoCounter').textContent = `Turno ${turnoNumero} · ${ativoEntry?.charName||''}`;
+
+  // Destacar card da ficha ativa
+  document.querySelectorAll('.ficha-card').forEach(card => {
+    const isTurnoAtivo = ativoEntry && card.dataset.slot === ativoEntry.slot;
+    card.classList.toggle('turno-ativo', isTurnoAtivo);
+
+    // Banner de turno ativo
+    const bannerExistente = card.querySelector('.turno-ativo-banner');
+    if (isTurnoAtivo && !bannerExistente) {
+      const banner = document.createElement('div');
+      banner.className = 'turno-ativo-banner';
+      banner.innerHTML = '<span>●</span> VEZ DESTE PERSONAGEM';
+      card.insertBefore(banner, card.querySelector('.card-header'));
+    } else if (!isTurnoAtivo && bannerExistente) {
+      bannerExistente.remove();
+    }
+  });
+}
+
+window.avancarTurno = function(dir) {
+  const entries = Object.values(window.__iniciativaCache || {});
+  if (entries.length === 0) return;
+  entries.sort((a, b) => b.total - a.total);
+
+  const novoIndice = (turnoAtual + dir + entries.length) % entries.length;
+  let novoNumero = turnoNumero;
+  if (dir > 0 && novoIndice === 0) novoNumero++;
+  if (dir < 0 && turnoAtual === 0) novoNumero = Math.max(1, novoNumero - 1);
+
+  set(ref(db, `sessoes/${sessaoId}/turno`), { indice: novoIndice, numero: novoNumero });
+  const nome = entries[novoIndice]?.charName || '';
+  enviarSistema(`⚔️ Turno ${novoNumero} — vez de ${nome}.`);
+};
+
+window.limparIniciativa = function() {
+  if (!sessaoId) return;
+  remove(ref(db, `sessoes/${sessaoId}/iniciativa`));
+  remove(ref(db, `sessoes/${sessaoId}/turno`));
+  enviarSistema('Ordem de iniciativa reiniciada.');
+};
+
+window.limparChat = function() {
+  if (!sessaoId) return;
+  if (!confirm('Limpar todo o log de sessão? Esta ação não pode ser desfeita.')) return;
+  remove(ref(db, `sessoes/${sessaoId}/chat`));
+};
+
+/* ══════════════════════════════════════
+   CHAT
+══════════════════════════════════════ */
+function renderChat(msgs) {
+  const container = document.getElementById('chatMessages');
+  const atBottom = container.scrollHeight - container.clientHeight <= container.scrollTop + 50;
+
+  const lista = Object.values(msgs).sort((a,b) => (a.ts||0)-(b.ts||0));
+  container.innerHTML = '';
+
+  lista.forEach(msg => {
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + (msg.type||'');
+    const hora = msg.ts ? new Date(msg.ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '';
+
+    if (msg.type === 'system') {
+      div.innerHTML = `<span style="font-size:10px;">⚙ ${msg.text}</span>`;
+    } else if (msg.type === 'roll' || msg.type === 'roll-iniciativa') {
+      const ac = msg.slot === meuSlot ? 'mine' : 'other';
+      const breakdown = msg.rolls.length > 1
+        ? `[${msg.rolls.join(' + ')}]` + (msg.bonus ? ` +${msg.bonus}` : '')
+        : (msg.bonus ? `+${msg.bonus}` : '');
+      div.innerHTML = `
+        <div class="chat-msg-header">
+          <span class="chat-msg-author ${ac}">${msg.charName||msg.slot}</span>
+          <span class="chat-msg-time">${hora}</span>
+        </div>
+        <div class="chat-roll-result">
+          <span class="chat-roll-dice">${msg.formula}</span>
+          <span class="chat-roll-total ${msg.special||''}">${msg.total}</span>
+          <span class="chat-roll-breakdown">${breakdown}</span>
+        </div>
+        ${msg.label ? `<div class="chat-roll-label">${msg.label}</div>` : ''}
+      `;
+    } else {
+      const ac = msg.slot === meuSlot ? 'mine' : 'other';
+      div.innerHTML = `
+        <div class="chat-msg-header">
+          <span class="chat-msg-author ${ac}">${msg.charName||msg.slot}</span>
+          <span class="chat-msg-time">${hora}</span>
+        </div>
+        <div class="chat-msg-text">${esc(msg.text)}</div>
+      `;
+    }
+    container.appendChild(div);
+  });
+
+  if (atBottom) container.scrollTop = container.scrollHeight;
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function enviarSistema(texto) {
+  push(ref(db, `sessoes/${sessaoId}/chat`), { type:'system', text:texto, ts:Date.now() });
+}
+
+window.chatKeydown = function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviarMensagem(); }
+};
+
+window.enviarMensagem = function() {
+  const inp = document.getElementById('chatInput');
+  const texto = inp.value.trim();
+  if (!texto) return;
+  inp.value = '';
+
+  // /r NdX ou /r NdX+B
+  const m = texto.match(/^\/r(?:oll)?\s+(\d+)d(\d+)(?:\s*[+]\s*(\d+))?$/i);
+  if (m) {
+    publicarRolagem(parseInt(m[1]), parseInt(m[2]), m[3] ? parseInt(m[3]) : 0, null, 'roll');
+    return;
+  }
+
+  const charName = fichasData[meuSlot]?.nome || meuSlot;
+  push(ref(db, `sessoes/${sessaoId}/chat`), {
+    type:'msg', slot:meuSlot, charName, text:texto, ts:Date.now()
+  });
+};
+
+/* ══════════════════════════════════════
+   ROLAGEM GENÉRICA
+══════════════════════════════════════ */
+function rolarDice(qty, sides) {
+  const r = [];
+  for (let i = 0; i < qty; i++) r.push(Math.floor(Math.random()*sides)+1);
+  return r;
+}
+
+function publicarRolagem(qty, sides, bonus, label, tipo) {
+  const rolls  = rolarDice(qty, sides);
+  const soma   = rolls.reduce((a,b)=>a+b,0);
+  const total  = soma + (bonus||0);
+  const isCrit = qty===1 && sides===20 && rolls[0]===20;
+  const isFail = qty===1 && sides===20 && rolls[0]===1;
+  const slotEfetivo = window.__rolarComoSlot || meuSlot;
+  const charName = fichasData[slotEfetivo]?.nome || (modoMestre ? '👁 Mestre' : meuSlot);
+  const formula  = bonus ? `${qty}d${sides}+${bonus}` : `${qty}d${sides}`;
+
+  push(ref(db, `sessoes/${sessaoId}/chat`), {
+    type: tipo||'roll', slot:slotEfetivo, charName, formula, rolls, bonus:bonus||0, total,
+    label: label || (isCrit?'⚡ Crítico Natural!': isFail?'💀 Falha Crítica!':''),
+    special: isCrit?'nat20': isFail?'critical':'',
+    ts: Date.now()
+  });
+  return { rolls, total, isCrit, isFail };
+}
+
+/* ══════════════════════════════════════
+   MODAL DADOS
+══════════════════════════════════════ */
+window.abrirModalDados = function() {
+  document.getElementById('diceModal').classList.add('show');
+  document.getElementById('diceResultNum').textContent = '—';
+  document.getElementById('diceResultDetail').textContent = '';
+  document.getElementById('diceResultBreakdown').textContent = '';
+};
+window.fecharModal = function() { document.getElementById('diceModal').classList.remove('show'); };
+window.fecharModalSeFora = function(e) { if (e.target===document.getElementById('diceModal')) fecharModal(); };
+
+window.setPreset = function(qty, sides, btn) {
+  document.getElementById('diceQty').value = qty;
+  document.getElementById('diceSides').value = sides;
+  document.querySelectorAll('.dice-preset-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+};
+window.clearPresets = function() {
+  document.querySelectorAll('.dice-preset-btn').forEach(b => b.classList.remove('active'));
+};
+
+window.rolarModal = function() {
+  if (!sessaoId) { showToast('Entre em uma sessão primeiro.', 'error'); return; }
+
+  const qty   = Math.max(1, Math.min(20, parseInt(document.getElementById('diceQty').value)||1));
+  const sides = Math.max(2, Math.min(100, parseInt(document.getElementById('diceSides').value)||6));
+
+  // Rola UMA vez e já envia — sem chance de re-rolar antes de publicar
+  const rolls  = rolarDice(qty, sides);
+  const total  = rolls.reduce((a,b)=>a+b,0);
+  const isCrit = qty===1 && sides===20 && rolls[0]===20;
+  const isFail = qty===1 && sides===20 && rolls[0]===1;
+
+  // Mostra animação brevemente e fecha
+  const numEl = document.getElementById('diceResultNum');
+  numEl.className = 'dice-result-num rolling' + (isCrit?' crit':isFail?' fail':'');
+  setTimeout(()=>numEl.classList.remove('rolling'), 400);
+  numEl.textContent = total;
+  document.getElementById('diceResultDetail').textContent = isCrit?'⚡ CRÍTICO!':isFail?'💀 FALHA!':`${qty}d${sides}`;
+  document.getElementById('diceResultBreakdown').textContent = rolls.length>1 ? `[${rolls.join(' + ')}]` : '';
+
+  // Publica os MESMOS dados já rolados (sem re-rolar)
+  const slotEfetivo = window.__rolarComoSlot || meuSlot;
+  const charName = fichasData[slotEfetivo]?.nome || (modoMestre ? '👁 Mestre' : meuSlot);
+  const formula  = `${qty}d${sides}`;
+  push(ref(db, `sessoes/${sessaoId}/chat`), {
+    type: 'roll', slot: slotEfetivo, charName, formula, rolls, bonus: 0, total,
+    label: isCrit ? '⚡ Crítico Natural!' : isFail ? '💀 Falha Crítica!' : '',
+    special: isCrit ? 'nat20' : isFail ? 'critical' : '',
+    ts: Date.now()
+  });
+
+  // Fecha o modal após breve delay para o jogador ver o resultado
+  setTimeout(() => fecharModal(), 900);
+};
+
+/* ══════════════════════════════════════
+   INICIATIVA
+══════════════════════════════════════ */
+window.rolarIniciativa = function(slot, dexVal) {
+  if (slot !== meuSlot) return;
+  const dex    = parseInt(dexVal)||10;
+  const bonus  = Math.floor((dex-10)/2);
+  const roll   = Math.floor(Math.random()*20)+1;
+  const total  = roll + bonus;
+  const bonusStr = (bonus>=0?'+':'')+bonus;
+  const isCrit = roll===20;
+  const isFail = roll===1;
+  const charName = fichasData[meuSlot]?.nome || meuSlot;
+
+  // Salvar na ordem de iniciativa (keyed por slot para sobrescrever re-rolls)
+  set(ref(db, `sessoes/${sessaoId}/iniciativa/${slot.replace(/\s+/g,'_')}`), {
+    slot, charName, roll, bonus, total, ts: Date.now()
+  });
+
+  // Postar no chat
+  push(ref(db, `sessoes/${sessaoId}/chat`), {
+    type:'roll-iniciativa', slot, charName,
+    formula: `1d20${bonusStr} (Iniciativa)`,
+    rolls:[roll], bonus, total,
+    label: '⚔️ Iniciativa' + (isCrit?' — Crítico!': isFail?' — Falha!':''),
+    special: isCrit?'nat20': isFail?'critical':'',
+    ts: Date.now()
+  });
+
+  showToast(`⚔️ Iniciativa: ${roll}${bonusStr} = ${total}`, 'roll');
+};
+
+/* ══════════════════════════════════════
+   MAPA DE BATALHA
+══════════════════════════════════════ */
+window.definirMapaUrl = function() {
+  const url = document.getElementById('mapaUrlInput').value.trim();
+  if (!url) { showToast('Cole uma URL de imagem.', 'error'); return; }
+  set(ref(db, `sessoes/${sessaoId}/mapa/imageUrl`), url);
+  document.getElementById('mapaUrlInput').value = '';
+  showToast('Mapa atualizado!', 'success');
+};
+
+window.definirMapaArquivo = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    set(ref(db, `sessoes/${sessaoId}/mapa/imageUrl`), ev.target.result);
+    showToast('Mapa atualizado!', 'success');
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+};
+
+window.aplicarGradeMapa = function() {
+  const cols = Math.max(4, Math.min(60, parseInt(document.getElementById('mapaCols').value)||20));
+  const rows = Math.max(4, Math.min(60, parseInt(document.getElementById('mapaRows').value)||14));
+  set(ref(db, `sessoes/${sessaoId}/mapa/cols`), cols);
+  set(ref(db, `sessoes/${sessaoId}/mapa/rows`), rows);
+};
+
+window.toggleGradeVisivel = function() {
+  const atual = mapaData.grade !== false;
+  set(ref(db, `sessoes/${sessaoId}/mapa/grade`), !atual);
+};
+
+window.limparMapa = function() {
+  if (!confirm('Limpar o mapa e remover todos os tokens? Esta ação não pode ser desfeita.')) return;
+  remove(ref(db, `sessoes/${sessaoId}/mapa`));
+};
+
+window.adicionarMeuToken = function() {
+  if (!sessaoId) return;
+  const tokensAtuais = mapaData.tokens || {};
+  if (tokensAtuais[meuSlot]) { showToast('Você já tem um token no mapa. Arraste-o para mover.', ''); return; }
+  const ficha = fichasData[meuSlot] || {};
+  const cols = mapaData.cols || 20;
+  const rows = mapaData.rows || 14;
+  const ocupadas = new Set(Object.values(tokensAtuais).map(t => `${t.col},${t.row}`));
+  let col = 0, row = 0;
+  busca:
+  for (let r=0; r<rows; r++) {
+    for (let c=0; c<cols; c++) {
+      if (!ocupadas.has(`${c},${r}`)) { col=c; row=r; break busca; }
+    }
+  }
+  set(ref(db, `sessoes/${sessaoId}/mapa/tokens/${meuSlot}`), {
+    tipo: 'pc', slot: meuSlot, nome: ficha.nome || meuNome,
+    avatar: ficha.avatar || null, cor: null, col, row
+  });
+};
+
+window.adicionarTokenNpc = function() {
+  if (!sessaoId) return;
+  const nome = prompt('Nome do NPC/Monstro:');
+  if (!nome) return;
+  const emoji = prompt('Emoji ou letra para o token (opcional):', '👹') || '👹';
+  const cores = ['#ff4a4a','#f0c040','#4a9eff','#a855f7','#22c55e','#fb923c'];
+  const cor = cores[Math.floor(Math.random()*cores.length)];
+  const cols = mapaData.cols || 20;
+  const rows = mapaData.rows || 14;
+  const novaRef = push(ref(db, `sessoes/${sessaoId}/mapa/tokens`));
+  set(novaRef, { tipo:'npc', slot:null, nome, emoji, cor, col: Math.floor(cols/2), row: Math.floor(rows/2) });
+};
+
+function renderMapa() {
+  if (!sessaoId) return;
+  const canvas = document.getElementById('mapaCanvas');
+  const viewport = document.getElementById('mapaViewport');
+  const overlay = document.getElementById('mapaGridOverlay');
+  const emptyState = document.getElementById('mapaEmptyState');
+  if (!canvas || !viewport) return;
+
+  const cols = mapaData.cols || 20;
+  const rows = mapaData.rows || 14;
+  const mostrarGrade = mapaData.grade !== false;
+
+  const larguraDisponivel = Math.max(viewport.clientWidth - 40, 280);
+  let cellSize = Math.floor(larguraDisponivel / cols);
+  cellSize = Math.max(20, Math.min(70, cellSize));
+
+  canvas.style.width  = (cellSize*cols) + 'px';
+  canvas.style.height = (cellSize*rows) + 'px';
+  canvas.style.backgroundImage = mapaData.imageUrl ? `url("${mapaData.imageUrl}")` : 'none';
+  emptyState.style.display = mapaData.imageUrl ? 'none' : 'flex';
+
+  overlay.style.backgroundImage = mostrarGrade
+    ? 'linear-gradient(to right, rgba(255,255,255,0.18) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.18) 1px, transparent 1px)'
+    : 'none';
+  overlay.style.backgroundSize = `${cellSize}px ${cellSize}px`;
+
+  const tokensAtuais = mapaData.tokens || {};
+  canvas.querySelectorAll('.mapa-token').forEach(el => {
+    if (!tokensAtuais[el.dataset.id]) el.remove();
+  });
+
+  Object.entries(tokensAtuais).forEach(([id, tk]) => {
+    let el = canvas.querySelector(`.mapa-token[data-id="${id}"]`);
+    const podeMover = modoMestre || tk.slot === meuSlot;
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'mapa-token';
+      el.dataset.id = id;
+      el.innerHTML = `<div class="mapa-token-circle"></div><div class="mapa-token-label"></div>`;
+      canvas.appendChild(el);
+      ativarDragToken(el, id);
+    }
+    el.classList.toggle('is-mine', tk.slot === meuSlot);
+    el.classList.toggle('is-npc', tk.tipo === 'npc');
+    el.style.cursor = podeMover ? 'grab' : 'default';
+    el.dataset.cell = cellSize;
+
+    const circle = el.querySelector('.mapa-token-circle');
+    circle.style.width  = (cellSize*0.8)+'px';
+    circle.style.height = (cellSize*0.8)+'px';
+    circle.style.fontSize = Math.max(10, cellSize*0.32)+'px';
+    circle.innerHTML = tk.avatar ? `<img src="${tk.avatar}">` : esc(tk.emoji || (tk.nome||'?')[0]);
+    circle.style.borderColor = tk.cor || '';
+
+    el.querySelector('.mapa-token-label').textContent = tk.nome || '';
+
+    if (!el.classList.contains('dragging')) {
+      el.style.left = (tk.col*cellSize + cellSize*0.1) + 'px';
+      el.style.top  = (tk.row*cellSize + cellSize*0.1) + 'px';
+    }
+
+    let remBtn = el.querySelector('.mapa-token-remove');
+    if (podeMover && !remBtn) {
+      remBtn = document.createElement('div');
+      remBtn.className = 'mapa-token-remove';
+      remBtn.textContent = '✕';
+      remBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (confirm(`Remover token "${tk.nome}" do mapa?`)) {
+          remove(ref(db, `sessoes/${sessaoId}/mapa/tokens/${id}`));
+        }
+      };
+      el.appendChild(remBtn);
+    } else if (!podeMover && remBtn) {
+      remBtn.remove();
+    }
+  });
+
+  const toolbarMestre = document.getElementById('mapaToolbarMestre');
+  const btnAddNpc = document.getElementById('btnAddNpcToken');
+  if (toolbarMestre) toolbarMestre.style.display = modoMestre ? 'flex' : 'none';
+  if (btnAddNpc) btnAddNpc.style.display = modoMestre ? 'inline-block' : 'none';
+  const btnGrade = document.getElementById('btnGradeToggle');
+  if (btnGrade) btnGrade.textContent = mostrarGrade ? '▦ Grade: ON' : '▦ Grade: OFF';
+
+  const colsInput = document.getElementById('mapaCols');
+  const rowsInput = document.getElementById('mapaRows');
+  if (colsInput && document.activeElement !== colsInput) colsInput.value = cols;
+  if (rowsInput && document.activeElement !== rowsInput) rowsInput.value = rows;
+}
+
+function ativarDragToken(el, id) {
+  let startX, startY, origLeft, origTop, dragging = false;
+
+  el.addEventListener('pointerdown', e => {
+    const tk = (mapaData.tokens||{})[id];
+    const podeMover = modoMestre || (tk && tk.slot === meuSlot);
+    if (!podeMover) return;
+    e.preventDefault();
+    dragging = true;
+    el.classList.add('dragging');
+    el.setPointerCapture?.(e.pointerId);
+    startX = e.clientX; startY = e.clientY;
+    origLeft = parseFloat(el.style.left)||0;
+    origTop  = parseFloat(el.style.top)||0;
+  });
+
+  el.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    el.style.left = (origLeft + (e.clientX-startX)) + 'px';
+    el.style.top  = (origTop  + (e.clientY-startY)) + 'px';
+  });
+
+  function soltar() {
+    if (!dragging) return;
+    dragging = false;
+    el.classList.remove('dragging');
+    const cellSize = parseFloat(el.dataset.cell) || 40;
+    const cols = mapaData.cols || 20;
+    const rows = mapaData.rows || 14;
+    let col = Math.round(parseFloat(el.style.left)/cellSize);
+    let row = Math.round(parseFloat(el.style.top)/cellSize);
+    col = Math.max(0, Math.min(cols-1, col));
+    row = Math.max(0, Math.min(rows-1, row));
+    set(ref(db, `sessoes/${sessaoId}/mapa/tokens/${id}/col`), col);
+    set(ref(db, `sessoes/${sessaoId}/mapa/tokens/${id}/row`), row);
+  }
+  el.addEventListener('pointerup', soltar);
+  el.addEventListener('pointercancel', soltar);
+}
+
+window.addEventListener('resize', () => { if (sessaoId) renderMapa(); });
+
+/* ══════════════════════════════════════
+   RENDERIZAR FICHAS
+══════════════════════════════════════ */
+function renderFichas() {
+  const container = document.getElementById('fichasContainer');
+  const ids = Object.keys(fichasData);
+  document.getElementById('onlineCount').textContent = ids.length;
+  const ordem = modoMestre ? ids : [meuSlot, ...ids.filter(id => id !== meuSlot)];
+  container.innerHTML = '';
+  ordem.forEach(id => { if (fichasData[id]) container.appendChild(criarCard(id, fichasData[id])); });
+  // Re-aplicar destaque de turno
+  if (window.__iniciativaCache) renderIniciativa(window.__iniciativaCache);
+}
+
+function criarCard(slot, d) {
+  const ismine = (slot === meuSlot) || modoMestre;
+  const isMeuCard = slot === meuSlot;
+  const card = document.createElement('div');
+  let cardClass = 'ficha-card';
+  if (isMeuCard) cardClass += ' is-mine';
+  if (modoMestre && !isMeuCard) cardClass += ' mestre-mode';
+  card.className = cardClass;
+  card.dataset.slot = slot;
+
+  const ea = ismine ? 'contenteditable="true"' : 'contenteditable="false"';
+  const pvPct  = Math.max(0,Math.min(100, d.pvMax>0?(d.pv/d.pvMax)*100:0));
+  const eaPct  = Math.max(0,Math.min(100, d.eaMax>0?(d.ea/d.eaMax)*100:0));
+  const pvtPct = Math.max(0,Math.min(100, d.pvtMax>0?(d.pvt/d.pvtMax)*100:0));
+  const mod = v => { const m=Math.floor((v-10)/2); return (m>=0?'+':'')+m; };
+  const dexMod = Math.floor(((d.dex??0)-10)/2);
+  const dexStr = (dexMod>=0?'+':'')+dexMod;
+  const tecnicasInatas = d.tecnicasInatas || tecnicasInatasDefault();
+  const dominioSimples = d.dominioSimples || dominioSimplesDefault();
+  const dominioExpansao = d.dominioExpansao || dominioExpansaoDefault();
+  const inventario = Array.isArray(d.inventario) ? d.inventario : Object.values(d.inventario || {});
+  const condicoes  = Array.isArray(d.condicoes)  ? d.condicoes  : Object.values(d.condicoes  || {});
+
+  // Avatar
+  const avatarSrc = d.avatar ? `<img src="${d.avatar}" alt="avatar">` : `<span style="font-size:22px">${(d.nome||'?')[0]}</span>`;
+  const avatarEditable = ismine ? 'class="avatar-circle editable"' : 'class="avatar-circle"';
+
+  // Badge mestre
+  const badgeLabel = modoMestre && !isMeuCard ? '👁 Mestre' : (isMeuCard ? '✦ Você' : (d.nome||'Jogador'));
+  const badgeClass = isMeuCard ? '' : (modoMestre ? '' : 'other');
+
+  // Condições HTML
+  const COND_INFO = {
+    sangrando:           { icon:'🩸', label:'Sangrando' },
+    atordoado:           { icon:'💫', label:'Atordoado' },
+    envenenado:          { icon:'☠️', label:'Envenenado' },
+    amedrontado:         { icon:'😨', label:'Amedrontado' },
+    paralisado:          { icon:'🧊', label:'Paralisado' },
+    invisivel:           { icon:'👻', label:'Invisível' },
+    'reforco-punhos':    { icon:'👊', label:'Reforço dos Punhos' },
+    'barreira-corporal': { icon:'🛡️', label:'Barreira Corporal' },
+    'passo-amaldicado':  { icon:'💨', label:'Passo Amaldiçoado' },
+    'fortalecimento':    { icon:'⚡', label:'Fortalecimento' },
+  };
+  const condicoesHTML = condicoes.map(c => {
+    const info = COND_INFO[c] || { icon:'⚠️', label: c };
+    const rem = ismine ? `<span class="remove-cond" data-cond="${c}" title="Remover">✕</span>` : '';
+    return `<span class="condicao-tag cond-${c}">${info.icon} ${info.label} ${rem}</span>`;
+  }).join('');
+  const addCondBtn = ismine ? `<button class="btn-add-cond" data-slot="${slot}">+ Condição</button>` : '';
+
+  // Inventário HTML
+  const inventarioHTML = inventario.map((item, idx) => `
+    <div class="inventario-item" data-idx="${idx}">
+      <input class="inv-qty num-input" type="number" value="${item.qty||1}" min="0" data-field="inventario/${idx}/qty" ${ismine?'':'disabled'}>
+      <div style="flex:1;display:flex;flex-direction:column;gap:1px">
+        <span class="inv-nome" ${ea} data-field="inventario/${idx}/nome">${item.nome||'Item'}</span>
+        <span class="inv-desc" ${ea} data-field="inventario/${idx}/desc">${item.desc||''}</span>
+      </div>
+      ${ismine ? `<button class="btn-del-item" data-idx="${idx}" title="Remover item">✕</button>` : ''}
+    </div>`).join('');
+
+  // Técnicas de reforço fixas com botão rolar
+  const tecnicasReforcoFixed = [
+    { nome:'Reforço dos Punhos',      custo:'5 EA',  formula:'1d4', label:'Reforço dos Punhos', efeito:'1d4 + Mod. FOR',            desc:'Imbui as mãos com energia amaldiçoada para causar mais dano.' },
+    { nome:'Barreira Corporal',       custo:'10 EA', formula:'1d6', label:'Barreira Corporal',   efeito:'+1d6 + Mod. CON em PVT • +CA por 1 rodada', desc:'Gera Pontos de Vida Temporários e aumenta CA.' },
+    { nome:'Passo Amaldiçoado',       custo:'15 EA', formula:'1d6', label:'Passo Amaldiçoado',   efeito:'+3m Deslocamento por 2 rodadas', desc:'Aumenta o deslocamento temporariamente.' },
+    { nome:'Fortalecimento de Habilidade', custo:'20 EA', formula:'1d8', label:'Fortalecimento', efeito:'Reforço da Técnica',       desc:'Melhora capacidade, dano e qualidade de uma técnica.' },
+  ];
+
+  card.innerHTML = `
+    <div class="card-header">
+      <div ${avatarEditable} data-slot="${slot}" title="${ismine?'Clique para alterar avatar':''}">
+        ${avatarSrc}
+      </div>
+      ${ismine ? `<input type="file" class="avatar-input" accept="image/*" data-slot="${slot}">` : ''}
+      <div class="card-header-left" style="margin-left:10px">
+        <div class="char-name" ${ea} data-field="nome">${d.nome||slot}</div>
+        <div class="char-meta">
+          <span>⚡ <span ${ea} data-field="linhagem">${d.linhagem||'—'}</span></span>
+          <span>◆ <span ${ea} data-field="grau">${d.grau||'—'}</span></span>
+          <span>▲ <span ${ea} data-field="nivel">${d.nivel||'—'}</span></span>
+          <span>🏛 <span ${ea} data-field="afiliacao">${d.afiliacao||'—'}</span></span>
+        </div>
+        <div class="condicoes-area">${condicoesHTML}${addCondBtn}</div>
+      </div>
+      <span class="player-badge ${badgeClass}">${badgeLabel}</span>
+    </div>
+
+    <div class="card-body">
+
+      <div>
+        <div class="section-label">Recursos</div>
+        <div class="resource-bars">
+          <div class="resource-row">
+            <span class="resource-label pv">PV</span>
+            <div class="bar-track"><div class="bar-fill pv" style="width:${pvPct}%"></div></div>
+            <div class="resource-inputs">
+              <input class="num-input" type="number" data-field="pv"    value="${d.pv}"    min="0" max="${d.pvMax}"  ${ismine?'':'disabled'}>
+              <span class="num-sep">/</span>
+              <input class="num-input" type="number" data-field="pvMax" value="${d.pvMax}" min="0" ${ismine?'':'disabled'}>
+            </div>
+          </div>
+          <div class="resource-row">
+            <span class="resource-label pvt">PVT</span>
+            <div class="bar-track"><div class="bar-fill pvt" style="width:${pvtPct}%"></div></div>
+            <div class="resource-inputs">
+              <input class="num-input" type="number" data-field="pvt"    value="${d.pvt}"     min="0" max="${d.pvtMax||99}" ${ismine?'':'disabled'}>
+              <span class="num-sep">/</span>
+              <input class="num-input" type="number" data-field="pvtMax" value="${d.pvtMax||0}" min="0" ${ismine?'':'disabled'}>
+            </div>
+          </div>
+          <div class="resource-row">
+            <span class="resource-label ea">EA</span>
+            <div class="bar-track"><div class="bar-fill ea" style="width:${eaPct}%"></div></div>
+            <div class="resource-inputs">
+              <input class="num-input" type="number" data-field="ea"    value="${d.ea}"    min="0" max="${d.eaMax}"  ${ismine?'':'disabled'}>
+              <span class="num-sep">/</span>
+              <input class="num-input" type="number" data-field="eaMax" value="${d.eaMax}" min="0" ${ismine?'':'disabled'}>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Status</div>
+        <div class="status-grid">
+          <div class="status-box"><span class="s-label">Deslocamento</span><span class="s-val" ${ea} data-field="deslocamento">${d.deslocamento??0}m</span></div>
+          <div class="status-box"><span class="s-label">CA</span><span class="s-val" ${ea} data-field="ca">${d.ca??0}</span></div>
+          <div class="status-box"><span class="s-label">Grau</span><span class="s-val" style="font-size:13px" ${ea} data-field="grau2">${d.grau||'3'}</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Atributos</div>
+        <div class="attrs-grid">
+          ${['for','dex','con','int','wis','cha'].map(a=>`
+            <div class="attr-box">
+              <div class="attr-abbr">${a.toUpperCase()}</div>
+              <span class="attr-val" ${ea} data-field="${a}">${d[a]??0}</span>
+              <div class="attr-mod">${mod(d[a]??0)}</div>
+            </div>`).join('')}
+        </div>
+        ${isMeuCard ? `
+        <button class="btn-iniciativa" onclick="rolarIniciativa('${slot}', ${d.dex??0})">
+          🎲 Iniciativa &nbsp;<small style="opacity:0.65;font-size:10px;">(1d20 ${dexStr})</small>
+        </button>` : `
+        <div style="margin-top:8px;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;text-align:center;font-size:10px;color:var(--text2);">
+          ⚔️ Iniciativa DEX ${dexStr}
+        </div>`}
+      </div>
+
+      <div>
+        <div class="section-label">Técnicas de Reforço</div>
+        <div class="tecnicas-list">
+          ${tecnicasReforcoFixed.map(t => `
+          <div class="tecnica-item">
+            <div class="tecnica-top">
+              <span class="tecnica-nome">${t.nome}</span>
+              <div style="display:flex;gap:4px;align-items:center">
+                <span class="tecnica-custo">${t.custo}</span>
+                ${ismine ? `<button class="btn-rolar-tecnica" data-formula="${t.formula}" data-label="${t.label}">🎲</button>` : ''}
+              </div>
+            </div>
+            <span class="tecnica-efeito">${t.efeito}</span>
+            <span class="tecnica-desc">${t.desc}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Técnicas Inatas</div>
+        <div class="tecnicas-list">
+          ${tecnicasInatas.map((t,i)=>`
+          <div class="tecnica-item">
+            <div class="tecnica-top">
+              <span class="tecnica-nome" ${ea} data-field="tecnicasInatas/${i}/nome">${t.nome||('Técnica Inata '+(i+1))}</span>
+              <div style="display:flex;gap:4px;align-items:center">
+                <span class="tecnica-custo" ${ea} data-field="tecnicasInatas/${i}/custo">${t.custo||'— EA'}</span>
+                ${ismine ? `<button class="btn-rolar-tecnica" data-formula="${parseTecnicaFormula(t.efeito)}" data-label="${t.nome||'Técnica'}">🎲</button>` : ''}
+              </div>
+            </div>
+            <span class="tecnica-efeito" ${ea} data-field="tecnicasInatas/${i}/efeito">${t.efeito||'Alcance / Dano / Salvaguarda'}</span>
+            <span class="tecnica-desc" ${ea} data-field="tecnicasInatas/${i}/desc">${t.desc||'Descreva o efeito da técnica...'}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Inventário</div>
+        <div class="inventario-list" id="inv-${slot}">
+          ${inventarioHTML}
+        </div>
+        ${ismine ? `<button class="btn-add-item" data-slot="${slot}">＋ Adicionar item</button>` : ''}
+      </div>
+
+      <div>
+        <div class="section-label">Barreiras &amp; Domínios</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="dominio-box simples">
+            <div class="dominio-title">🛡️ Domínio Simples</div>
+            <div class="dominio-desc" ${ea} data-field="dominioSimples/desc">${dominioSimples.desc||'Descreva a barreira de domínio simples do seu personagem...'}</div>
+            <div class="dominio-efeito" ${ea} data-field="dominioSimples/efeito">${dominioSimples.efeito||'Descreva os efeitos do domínio simples...'}</div>
+          </div>
+          <div class="dominio-box expansao">
+            <div class="dominio-title">💀 Expansão de Domínio</div>
+            <div class="dominio-desc" ${ea} data-field="dominioExpansao/desc">${dominioExpansao.desc||'Descreva a expansão de domínio do seu personagem...'}</div>
+            <div class="dominio-efeito" ${ea} data-field="dominioExpansao/efeito">${dominioExpansao.efeito||'Descreva os efeitos da expansão de domínio...'}</div>
+          </div>
+        </div>
+      </div>
+
+    </div>`;
+
+  // Overlay inconsciente/derrotado
+  if (d.pvMax > 0 && d.pv <= 0) {
+    const overlay = document.createElement('div');
+    overlay.className = 'status-overlay';
+    overlay.innerHTML = `<div class="status-overlay-text">💀 INCONSCIENTE</div><div class="status-overlay-sub">PV chegou a 0</div>`;
+    if (ismine) {
+      const btnAcordar = document.createElement('button');
+      btnAcordar.textContent = '↑ Recuperar (1 PV)';
+      btnAcordar.style.cssText = 'margin-top:8px;padding:6px 14px;background:var(--online);border:none;border-radius:6px;color:#0a0a0f;font-size:11px;font-weight:700;cursor:pointer;';
+      btnAcordar.onclick = () => salvar(slot, 'pv', 1);
+      overlay.appendChild(btnAcordar);
+    }
+    card.appendChild(overlay);
+  }
+
+  // Eventos
+  if (ismine) {
+    // Inputs numéricos
+    card.querySelectorAll('input.num-input').forEach(inp => {
+      if (inp.classList.contains('inv-qty')) {
+        inp.addEventListener('change', () => salvar(slot, inp.dataset.field, Number(inp.value)));
+      } else {
+        inp.addEventListener('change', () => salvar(slot, inp.dataset.field, Number(inp.value)));
+      }
+    });
+
+    // Contenteditable
+    card.querySelectorAll('[contenteditable="true"]').forEach(el => {
+      el.addEventListener('blur', () => {
+        let v = el.textContent.trim();
+        if (['deslocamento','ca','for','dex','con','int','wis','cha'].includes(el.dataset.field)) v = parseInt(v)||0;
+        salvar(slot, el.dataset.field, v);
+      });
+      el.addEventListener('keydown', e => { if (e.key==='Enter'){e.preventDefault();el.blur();} });
+    });
+
+    // Botões rolar técnica
+    card.querySelectorAll('.btn-rolar-tecnica').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const formula = btn.dataset.formula || '1d6';
+        const label = btn.dataset.label || 'Técnica';
+        const m = formula.match(/(\d+)d(\d+)(?:\+(\d+))?/i);
+        if (m) {
+          // Temporariamente mudar meuSlot para o slot correto
+          const slotOriginal = meuSlot;
+          if (modoMestre) window.__rolarComoSlot = slot;
+          publicarRolagem(parseInt(m[1]), parseInt(m[2]), m[3]?parseInt(m[3]):0, `🔥 ${label}`, 'roll');
+          if (modoMestre) window.__rolarComoSlot = null;
+        } else {
+          publicarRolagem(1, 6, 0, `🔥 ${label}`, 'roll');
+        }
+      });
+    });
+
+    // Avatar click
+    const avatarEl = card.querySelector('.avatar-circle');
+    const fileInput = card.querySelector('.avatar-input');
+    if (avatarEl && fileInput) {
+      avatarEl.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => salvar(slot, 'avatar', ev.target.result);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Adicionar condição
+    const addCondBtnEl = card.querySelector('.btn-add-cond');
+    if (addCondBtnEl) {
+      addCondBtnEl.addEventListener('click', () => abrirMenuCondicao(slot, d.condicoes||[]));
+    }
+
+    // Remover condição
+    card.querySelectorAll('.remove-cond').forEach(el => {
+      el.addEventListener('click', e => {
+        e.stopPropagation();
+        const cond = el.dataset.cond;
+        const raw = fichasData[slot]?.condicoes || {};
+        const atual = Array.isArray(raw) ? raw : Object.values(raw);
+        const novas = atual.filter(c => c !== cond);
+        salvar(slot, 'condicoes', novas.length ? novas : null);
+      });
+    });
+
+    // Adicionar item ao inventário
+    const addItemBtn = card.querySelector('.btn-add-item');
+    if (addItemBtn) {
+      addItemBtn.addEventListener('click', () => {
+        const inv = [...(Array.isArray(fichasData[slot]?.inventario) ? fichasData[slot].inventario : Object.values(fichasData[slot]?.inventario || {})), { nome:'Novo Item', qty:1, desc:'' }];
+        salvar(slot, 'inventario', inv);
+      });
+    }
+
+    // Remover item do inventário
+    card.querySelectorAll('.btn-del-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx);
+        const inv = [...(Array.isArray(fichasData[slot]?.inventario) ? fichasData[slot].inventario : Object.values(fichasData[slot]?.inventario || {}))];
+        inv.splice(idx, 1);
+        salvar(slot, 'inventario', inv.length ? inv : null);
+      });
+    });
+  }
+
+  return card;
+}
+
+// Extrai fórmula de dado de um texto de efeito ex: "1d6 + Mod. FOR" → "1d6"
+function parseTecnicaFormula(efeito) {
+  const m = (efeito||'').match(/(\d+d\d+(?:\+\d+)?)/i);
+  return m ? m[1] : '1d6';
+}
+
+function abrirMenuCondicao(slot, condicoesRaw) {
+  const condicoesAtuais = Array.isArray(condicoesRaw) ? condicoesRaw : Object.values(condicoesRaw || {});
+  const CONDS_STATUS  = ['sangrando','atordoado','envenenado','amedrontado','paralisado','invisivel'];
+  const CONDS_REFORCO = ['reforco-punhos','barreira-corporal','passo-amaldicado','fortalecimento'];
+  const LABELS = {
+    'sangrando':'🦸 Sangrando','atordoado':'💫 Atordoado','envenenado':'☠️ Envenenado',
+    'amedrontado':'😨 Amedrontado','paralisado':'🧊 Paralisado','invisivel':'👻 Invisível',
+    'reforco-punhos':'👊 Reforço dos Punhos','barreira-corporal':'🛡️ Barreira Corporal',
+    'passo-amaldicado':'💨 Passo Amaldiçoado','fortalecimento':'⚡ Fortalecimento',
+  };
+  const dispStatus  = CONDS_STATUS.filter(c => !condicoesAtuais.includes(c));
+  const dispReforco = CONDS_REFORCO.filter(c => !condicoesAtuais.includes(c));
+  const todas = [...dispStatus, ...dispReforco];
+  if (todas.length === 0) { showToast('Todas as condições já aplicadas.',''); return; }
+
+  let msg = 'Adicionar condição:';
+  if (dispStatus.length)  msg += '\n\n── Status ──\n'  + dispStatus.map((c,i)=>`${i+1}. ${LABELS[c]}`).join('\n');
+  if (dispReforco.length) msg += '\n\n── Técnicas de Reforço ──\n' + dispReforco.map((c,i)=>`${dispStatus.length+i+1}. ${LABELS[c]}`).join('\n');
+  msg += '\n\nDigite o número:';
+
+  const escolha = prompt(msg);
+  if (!escolha) return;
+  const idx = parseInt(escolha) - 1;
+  if (idx >= 0 && idx < todas.length) {
+    const novas = [...condicoesAtuais, todas[idx]];
+    salvar(slot, 'condicoes', novas);
+  }
+}
+
+function salvar(slot, field, value) {
+  // Firebase ignora arrays vazios; gravar null para limpar o nó
+  const val = (Array.isArray(value) && value.length === 0) ? null : value;
+  set(ref(db, `sessoes/${sessaoId}/fichas/${slot}/${field}`), val)
+    .catch(() => showToast('Erro ao salvar','error'));
+}
+</script>
 </body>
+</html>
