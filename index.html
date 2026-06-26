@@ -1133,6 +1133,60 @@
   }
   .btn-limpar-chat:hover { color: var(--red); border-color: var(--red); }
 
+  /* ── CLASSE SELECT ── */
+  .classe-select-wrap {
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .classe-select {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .classe-select:focus { border-color: var(--purple); }
+  .classe-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 2px 9px;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+  }
+  .classe-badge.lutador        { border-color: rgba(255,74,74,0.5);   color: #ff6b6b;  background: rgba(255,74,74,0.08); }
+  .classe-badge.restricao      { border-color: rgba(226,232,240,0.4); color: #e2e8f0;  background: rgba(226,232,240,0.06); }
+  .classe-badge.fala           { border-color: rgba(251,191,36,0.5);  color: #fbbf24;  background: rgba(251,191,36,0.08); }
+  .classe-badge.caster         { border-color: rgba(74,158,255,0.5);  color: var(--blue); background: rgba(74,158,255,0.08); }
+  .classe-badge.shikigami      { border-color: rgba(52,211,153,0.5);  color: #34d399;  background: rgba(52,211,153,0.08); }
+
+  /* ── MÚLTIPLAS PASSIVAS ── */
+  .passivas-list { display: flex; flex-direction: column; gap: 8px; }
+  .passiva-item { position: relative; }
+  .btn-del-passiva {
+    position: absolute; top: 8px; right: 8px;
+    background: transparent; border: none; color: var(--text2);
+    cursor: pointer; font-size: 11px; padding: 2px 5px; border-radius: 4px;
+    transition: color 0.15s;
+  }
+  .btn-del-passiva:hover { color: var(--red); }
+  .btn-add-passiva {
+    width: 100%; padding: 7px; background: transparent;
+    border: 1px dashed var(--border2); border-radius: 7px;
+    color: var(--text2); font-size: 11px; cursor: pointer;
+    transition: all 0.15s; margin-top: 2px;
+  }
+  .btn-add-passiva:hover { border-color: var(--gold); color: var(--gold); }
+
   /* ── EDITAR PERSONAGEM NA SELEÇÃO ── */
   .btn-edit-ficha {
     margin-top: 6px; background: transparent;
@@ -1525,11 +1579,12 @@ function dominioExpansaoDefault() {
 }
 function fichaDefault(nome) {
   return { nome:nome, linhagem:'Linhagem Técnica', grau:'Grau 3', nivel:'Nível 01', afiliacao:'Instituto',
+    classe: 'feiticeiro',
     pv:0,pvMax:0, pvt:0,pvtMax:0, ea:0,eaMax:0,
     deslocamento:0, ca:0, for:0,dex:0,con:0,int:0,wis:0,cha:0,
     tecnicasInatas: tecnicasInatasDefault(),
     feiticos: feiticosDefault(),
-    passiva: passivaDefault(),
+    passivas: [passivaDefault()],
     dominioSimples: dominioSimplesDefault(),
     dominioExpansao: dominioExpansaoDefault(),
     inventario: [], condicoes: [], avatar: null
@@ -2504,11 +2559,35 @@ function criarCard(slot, d, isNpc) {
   const dexStr = (dexMod>=0?'+':'')+dexMod;
   const tecnicasInatas = Array.isArray(d.tecnicasInatas) ? d.tecnicasInatas : (d.tecnicasInatas ? Object.values(d.tecnicasInatas) : []);
   const feiticos = Array.isArray(d.feiticos) ? d.feiticos : (d.feiticos ? Object.values(d.feiticos) : []);
-  const passiva = d.passiva || passivaDefault();
+
+  // Suporte a passivas múltiplas (retrocompatível com campo passiva antigo)
+  let passivas = [];
+  if (Array.isArray(d.passivas) && d.passivas.length > 0) {
+    passivas = d.passivas;
+  } else if (d.passivas && typeof d.passivas === 'object') {
+    passivas = Object.values(d.passivas);
+  } else if (d.passiva) {
+    passivas = [d.passiva]; // retrocompatibilidade
+  } else {
+    passivas = [passivaDefault()];
+  }
+
   const dominioSimples = d.dominioSimples || dominioSimplesDefault();
   const dominioExpansao = d.dominioExpansao || dominioExpansaoDefault();
   const inventario = Array.isArray(d.inventario) ? d.inventario : Object.values(d.inventario || {});
   const condicoes  = Array.isArray(d.condicoes)  ? d.condicoes  : Object.values(d.condicoes  || {});
+
+  // Classe do personagem
+  const classeAtual = d.classe || 'feiticeiro';
+  const isRestricao = classeAtual === 'restricao';
+  const CLASSES = [
+    { value: 'lutador',   label: '⚔️ Lutador' },
+    { value: 'restricao', label: '🤍 Restrição Celestial' },
+    { value: 'fala',      label: '🗣️ Fala Amaldiçoada' },
+    { value: 'caster',    label: '✨ Caster' },
+    { value: 'shikigami', label: '🐉 Shikigami' },
+  ];
+  const classeBadgeLabel = CLASSES.find(c => c.value === classeAtual)?.label || '✨ Caster';
 
   // Avatar
   const avatarSrc = d.avatar ? `<img src="${d.avatar}" alt="avatar">` : `<span style="font-size:22px">${(d.nome||'?')[0]}</span>`;
@@ -2572,6 +2651,13 @@ function criarCard(slot, d, isNpc) {
           <span>▲ <span ${ea} data-field="nivel">${d.nivel||'—'}</span></span>
           <span>🏛 <span ${ea} data-field="afiliacao">${d.afiliacao||'—'}</span></span>
         </div>
+        <div class="classe-select-wrap">
+          ${ismine ? `
+          <select class="classe-select" data-field="classe">
+            ${CLASSES.map(c => `<option value="${c.value}" ${c.value===classeAtual?'selected':''}>${c.label}</option>`).join('')}
+          </select>` : `
+          <span class="classe-badge ${classeAtual}">${classeBadgeLabel}</span>`}
+        </div>
         <div class="condicoes-area">${condicoesHTML}${addCondBtn}</div>
       </div>
       <span class="player-badge ${badgeClass}">${badgeLabel}</span>
@@ -2601,6 +2687,7 @@ function criarCard(slot, d, isNpc) {
               <input class="num-input" type="number" data-field="pvtMax" value="${d.pvtMax||0}" min="0" ${ismine?'':'disabled'}>
             </div>
           </div>
+          ${!isRestricao ? `
           <div class="resource-row">
             <span class="resource-label ea">EA</span>
             <div class="bar-track"><div class="bar-fill ea" style="width:${eaPct}%"></div></div>
@@ -2609,7 +2696,7 @@ function criarCard(slot, d, isNpc) {
               <span class="num-sep">/</span>
               <input class="num-input" type="number" data-field="eaMax" value="${d.eaMax}" min="0" ${ismine?'':'disabled'}>
             </div>
-          </div>
+          </div>` : ''}
         </div>
       </div>
 
@@ -2641,6 +2728,7 @@ function criarCard(slot, d, isNpc) {
         </div>`}
       </div>
 
+      ${!isRestricao ? `
       <div>
         <div class="section-label">Técnicas de Reforço</div>
         <div class="tecnicas-list">
@@ -2673,14 +2761,19 @@ function criarCard(slot, d, isNpc) {
           ${feiticos.map((t,i)=>renderTecnicaEditavel('feiticos', t, i, ismine, ea)).join('')}
         </div>
         ${ismine ? `<button class="btn-add-tecnica" data-campo="feiticos">＋ Adicionar Feitiço</button>` : ''}
-      </div>
+      </div>` : ''}
 
       <div>
-        <div class="section-label">Passiva</div>
-        <div class="passiva-box">
-          <div class="passiva-title" ${ea} data-field="passiva/nome">${passiva.nome||'Nome da Passiva'}</div>
-          <div class="passiva-efeito" ${ea} data-field="passiva/efeito">${passiva.efeito||'Descreva o efeito da passiva...'}</div>
+        <div class="section-label">Passiva${passivas.length > 1 ? 's' : ''}</div>
+        <div class="passivas-list" id="passivas-${slot}">
+          ${passivas.map((p, i) => `
+          <div class="passiva-box passiva-item" data-idx="${i}">
+            ${ismine && passivas.length > 1 ? `<button class="btn-del-passiva" data-idx="${i}" title="Remover passiva">✕</button>` : ''}
+            <div class="passiva-title" ${ea} data-field="passivas/${i}/nome">${p.nome||'Nome da Passiva'}</div>
+            <div class="passiva-efeito" ${ea} data-field="passivas/${i}/efeito">${p.efeito||'Descreva o efeito da passiva...'}</div>
+          </div>`).join('')}
         </div>
+        ${ismine ? `<button class="btn-add-passiva" data-slot="${slot}">＋ Adicionar Passiva</button>` : ''}
       </div>
 
       <div>
@@ -2691,6 +2784,7 @@ function criarCard(slot, d, isNpc) {
         ${ismine ? `<button class="btn-add-item" data-slot="${slot}">＋ Adicionar item</button>` : ''}
       </div>
 
+      ${!isRestricao ? `
       <div>
         <div class="section-label">Barreiras &amp; Domínios</div>
         <div style="display:flex;flex-direction:column;gap:8px">
@@ -2705,7 +2799,7 @@ function criarCard(slot, d, isNpc) {
             <div class="dominio-efeito" ${ea} data-field="dominioExpansao/efeito">${dominioExpansao.efeito||'Descreva os efeitos da expansão de domínio...'}</div>
           </div>
         </div>
-      </div>
+      </div>` : ''}
 
     </div>`;
 
@@ -2795,7 +2889,43 @@ function criarCard(slot, d, isNpc) {
       });
     });
 
-    // Adicionar item ao inventário
+    // Select de classe
+    const classeSelectEl = card.querySelector('.classe-select');
+    if (classeSelectEl) {
+      classeSelectEl.addEventListener('change', () => {
+        salvar(slot, 'classe', classeSelectEl.value, isNpc);
+      });
+    }
+
+    // Adicionar passiva
+    const addPassivaBtn = card.querySelector('.btn-add-passiva');
+    if (addPassivaBtn) {
+      addPassivaBtn.addEventListener('click', () => {
+        const fichaAtual = getFicha(slot);
+        let passAtual = [];
+        if (Array.isArray(fichaAtual?.passivas) && fichaAtual.passivas.length > 0) {
+          passAtual = fichaAtual.passivas;
+        } else if (fichaAtual?.passivas && typeof fichaAtual.passivas === 'object') {
+          passAtual = Object.values(fichaAtual.passivas);
+        } else if (fichaAtual?.passiva) {
+          passAtual = [fichaAtual.passiva];
+        } else {
+          passAtual = [passivaDefault()];
+        }
+        salvar(slot, 'passivas', [...passAtual, passivaDefault()], isNpc);
+      });
+    }
+
+    // Remover passiva
+    card.querySelectorAll('.btn-del-passiva').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx);
+        const fichaAtual = getFicha(slot);
+        let passAtual = Array.isArray(fichaAtual?.passivas) ? [...fichaAtual.passivas] : Object.values(fichaAtual?.passivas || {});
+        passAtual.splice(idx, 1);
+        salvar(slot, 'passivas', passAtual.length ? passAtual : [passivaDefault()], isNpc);
+      });
+    });
     const addItemBtn = card.querySelector('.btn-add-item');
     if (addItemBtn) {
       addItemBtn.addEventListener('click', () => {
