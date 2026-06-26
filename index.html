@@ -270,6 +270,7 @@
   .fichas-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    align-items: start;
     gap: 18px;
     padding: 20px;
     max-width: 1600px;
@@ -2935,7 +2936,7 @@ function criarCard(slot, d, isNpc) {
     const btnRecolher = card.querySelector('.btn-recolher');
     const detalhesDiv = card.querySelector('.card-detalhes');
     if (btnRecolher && detalhesDiv) {
-      const chaveStorage = `jk_recolhido_${sessaoId}_${slot}`;
+      const chaveStorage = `jk_recolhido_${sessaoId}_${isNpc ? 'npc' : 'pc'}_${slot}`;
 
       // Restaurar estado salvo localmente
       const estadoSalvo = localStorage.getItem(chaveStorage);
