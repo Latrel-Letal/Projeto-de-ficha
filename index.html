@@ -442,6 +442,12 @@
     white-space: nowrap; flex-shrink: 0; transition: all 0.15s; margin-left: 6px;
   }
   .btn-del-npc-card:hover { background: var(--red); color: white; }
+  .btn-dup-npc-card {
+    font-size: 10px; background: transparent; border: 1px solid rgba(240,192,64,0.4);
+    color: var(--gold); border-radius: 20px; padding: 3px 9px; cursor: pointer;
+    white-space: nowrap; flex-shrink: 0; transition: all 0.15s; margin-left: 6px;
+  }
+  .btn-dup-npc-card:hover { background: var(--gold); color: #1a1400; }
 
   .card-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 14px; }
 
@@ -2414,6 +2420,48 @@ window.adicionarMeuToken = function() {
 
 window.adicionarTokenNpc = function() {
   if (!sessaoId) return;
+  const tokensAtuais = mapaData.tokens || {};
+  const npcsComFicha = Object.entries(fichasNpcData || {})
+    .filter(([slot]) => !Object.values(tokensAtuais).some(t => t.tipo === 'npc' && t.slot === slot));
+
+  if (npcsComFicha.length > 0) {
+    let msg = 'Colocar token de qual ficha de NPC já criada?\n\n';
+    npcsComFicha.forEach(([slot, ficha], i) => { msg += `${i+1}. ${ficha.nome || 'NPC sem nome'}\n`; });
+    msg += `\n0. Criar token solto (sem ficha vinculada)\n\nDigite o número:`;
+    const escolha = prompt(msg);
+    if (escolha === null) return;
+    const idx = parseInt(escolha);
+    if (idx > 0 && idx <= npcsComFicha.length) {
+      const [slot, ficha] = npcsComFicha[idx - 1];
+      adicionarTokenDeFichaNpc(slot, ficha);
+      return;
+    }
+    if (idx !== 0) { showToast('Opção inválida.', 'error'); return; }
+  }
+  adicionarTokenNpcSolto();
+};
+
+function adicionarTokenDeFichaNpc(slot, ficha) {
+  const tokensAtuais = mapaData.tokens || {};
+  const cols = mapaData.cols || 20;
+  const rows = mapaData.rows || 14;
+  const ocupadas = new Set(Object.values(tokensAtuais).map(t => `${t.col},${t.row}`));
+  let col = 0, row = 0;
+  busca:
+  for (let r=0; r<rows; r++) {
+    for (let c=0; c<cols; c++) {
+      if (!ocupadas.has(`${c},${r}`)) { col=c; row=r; break busca; }
+    }
+  }
+  const novaRef = push(ref(db, `sessoes/${sessaoId}/mapa/tokens`));
+  set(novaRef, {
+    tipo: 'npc', slot, nome: ficha.nome || 'NPC',
+    avatar: ficha.avatar || null, emoji: ficha.avatar ? null : '👹', cor: null, col, row
+  });
+  showToast(`Token de "${ficha.nome || 'NPC'}" colocado no mapa.`, 'success');
+}
+
+function adicionarTokenNpcSolto() {
   const nome = prompt('Nome do NPC/Monstro:');
   if (!nome) return;
   const emoji = prompt('Emoji ou letra para o token (opcional):', '👹') || '👹';
@@ -2423,7 +2471,7 @@ window.adicionarTokenNpc = function() {
   const rows = mapaData.rows || 14;
   const novaRef = push(ref(db, `sessoes/${sessaoId}/mapa/tokens`));
   set(novaRef, { tipo:'npc', slot:null, nome, emoji, cor, col: Math.floor(cols/2), row: Math.floor(rows/2) });
-};
+}
 
 function renderMapa() {
   if (!sessaoId) return;
@@ -2633,6 +2681,7 @@ function criarCard(slot, d, isNpc) {
   // Badge mestre
   const badgeLabel = isNpc ? '👹 NPC' : (modoMestre && !isMeuCard ? '👁 Mestre' : (isMeuCard ? '✦ Você' : (d.nome||'Jogador')));
   const badgeClass = isNpc ? 'npc' : (isMeuCard ? '' : (modoMestre ? '' : 'other'));
+  const dupNpcBtnHTML = isNpc ? `<button class="btn-dup-npc-card" title="Duplicar esta ficha de NPC">📑 Duplicar</button>` : '';
   const delNpcBtnHTML = isNpc ? `<button class="btn-del-npc-card" title="Remover este NPC da sessão">🗑️ Remover NPC</button>` : '';
 
   // Condições HTML
@@ -2698,6 +2747,7 @@ function criarCard(slot, d, isNpc) {
         <div class="condicoes-area">${condicoesHTML}${addCondBtn}</div>
       </div>
       <span class="player-badge ${badgeClass}">${badgeLabel}</span>
+      ${dupNpcBtnHTML}
       ${delNpcBtnHTML}
     </div>
 
@@ -3023,6 +3073,22 @@ function criarCard(slot, d, isNpc) {
           remove(ref(db, `sessoes/${sessaoId}/fichasNpc/${slot}`));
           showToast('NPC removido.', '');
         }
+      });
+    }
+
+    // Duplicar ficha de NPC inteira (somente Mestre) — agiliza criar vários
+    // monstros parecidos (ex: "Goblin 1", "Goblin 2"...)
+    const dupNpcBtn = card.querySelector('.btn-dup-npc-card');
+    if (dupNpcBtn) {
+      dupNpcBtn.addEventListener('click', async e => {
+        e.stopPropagation();
+        const novoNome = prompt('Nome da cópia:', `${d.nome || 'NPC'} (Cópia)`);
+        if (!novoNome) return;
+        const copia = JSON.parse(JSON.stringify(d));
+        copia.nome = novoNome;
+        const novaRef = push(ref(db, `sessoes/${sessaoId}/fichasNpc`));
+        await set(novaRef, copia);
+        showToast(`Ficha "${novoNome}" duplicada!`, 'success');
       });
     }
   }
