@@ -369,6 +369,7 @@
   }
   .mapa-token.dragging { transition: none; z-index: 20; }
   .mapa-token-circle {
+    position: relative;
     border-radius: 50%;
     border: 2px solid var(--border2);
     background: var(--bg2);
@@ -391,6 +392,19 @@
     background: var(--red); color: white; font-size: 9px;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; border: 1px solid var(--bg);
+  }
+  .mapa-token.is-morto .mapa-token-circle {
+    filter: grayscale(1) brightness(0.55);
+    border-color: var(--red) !important;
+  }
+  .mapa-token-skull {
+    position: absolute;
+    inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: inherit;
+    background: rgba(10,10,15,0.55);
+    border-radius: 50%;
+    pointer-events: none;
   }
 
   /* ── FICHA CARD ── */
@@ -1925,6 +1939,7 @@ function iniciarApp() {
   onValue(ref(db, `sessoes/${sessaoId}/fichas`), snap => {
     fichasData = snap.val() || {};
     renderFichas();
+    renderMapa();
     if (!modoMestre) {
       const nomeAtual = fichasData[meuSlot]?.nome || meuNome;
       document.getElementById('mySlotLabel').textContent = '[ '+nomeAtual+' ]';
@@ -2000,6 +2015,7 @@ function ativarListenerNpc() {
   unsubFichasNpc = onValue(ref(db, `sessoes/${sessaoId}/fichasNpc`), snap => {
     fichasNpcData = snap.val() || {};
     renderFichas();
+    renderMapa();
   });
 }
 function desativarListenerNpc() {
@@ -2520,11 +2536,21 @@ function renderMapa() {
     el.style.cursor = podeMover ? 'grab' : 'default';
     el.dataset.cell = cellSize;
 
+    // Vida vinculada à ficha (se o token estiver ligado a uma ficha de PC ou NPC)
+    let pvAtual = null;
+    if (tk.slot) {
+      const fichaLigada = tk.tipo === 'npc' ? fichasNpcData[tk.slot] : fichasData[tk.slot];
+      if (fichaLigada && fichaLigada.pv !== undefined && fichaLigada.pv !== null) pvAtual = Number(fichaLigada.pv);
+    }
+    const morto = pvAtual !== null && pvAtual <= 0;
+    el.classList.toggle('is-morto', morto);
+
     const circle = el.querySelector('.mapa-token-circle');
     circle.style.width  = (cellSize*0.8)+'px';
     circle.style.height = (cellSize*0.8)+'px';
     circle.style.fontSize = Math.max(10, cellSize*0.32)+'px';
-    circle.innerHTML = tk.avatar ? `<img src="${tk.avatar}">` : esc(tk.emoji || (tk.nome||'?')[0]);
+    circle.innerHTML = (tk.avatar ? `<img src="${tk.avatar}">` : esc(tk.emoji || (tk.nome||'?')[0]))
+      + (morto ? `<div class="mapa-token-skull">☠️</div>` : '');
     circle.style.borderColor = tk.cor || '';
 
     el.querySelector('.mapa-token-label').textContent = tk.nome || '';
