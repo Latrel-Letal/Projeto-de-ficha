@@ -2932,30 +2932,6 @@ function criarCard(slot, d, isNpc) {
       });
     });
 
-    // Botão recolher/expandir detalhes (estado local — não sincroniza com outros jogadores)
-    const btnRecolher = card.querySelector('.btn-recolher');
-    const detalhesDiv = card.querySelector('.card-detalhes');
-    if (btnRecolher && detalhesDiv) {
-      const chaveStorage = `jk_recolhido_${sessaoId}_${isNpc ? 'npc' : 'pc'}_${slot}`;
-
-      // Restaurar estado salvo localmente
-      const estadoSalvo = localStorage.getItem(chaveStorage);
-      if (estadoSalvo === 'sim') {
-        detalhesDiv.classList.add('recolhido');
-        btnRecolher.querySelector('.recolher-icon').textContent = '▼';
-        btnRecolher.querySelector('.recolher-txt').textContent  = 'Ver Detalhes';
-      }
-
-      btnRecolher.addEventListener('click', () => {
-        const recolhido = detalhesDiv.classList.toggle('recolhido');
-        const icon = btnRecolher.querySelector('.recolher-icon');
-        const txt  = btnRecolher.querySelector('.recolher-txt');
-        icon.textContent = recolhido ? '▼' : '▲';
-        txt.textContent  = recolhido ? 'Ver Detalhes' : 'Recolher Detalhes';
-        localStorage.setItem(chaveStorage, recolhido ? 'sim' : 'nao');
-      });
-    }
-
     // Select de classe
     const classeSelectEl = card.querySelector('.classe-select');
     if (classeSelectEl) {
@@ -3049,6 +3025,32 @@ function criarCard(slot, d, isNpc) {
         }
       });
     }
+  }
+
+  // Botão recolher/expandir detalhes — funciona em QUALQUER ficha (própria,
+  // de outro jogador, ou NPC), de forma 100% local: estado salvo apenas no
+  // localStorage de quem clicou, nunca sincronizado pelo Firebase.
+  const btnRecolher = card.querySelector('.btn-recolher');
+  const detalhesDiv = card.querySelector('.card-detalhes');
+  if (btnRecolher && detalhesDiv) {
+    const chaveStorage = `jk_recolhido_${sessaoId}_${isNpc ? 'npc' : 'pc'}_${slot}`;
+
+    // Restaurar estado salvo localmente
+    const estadoSalvo = localStorage.getItem(chaveStorage);
+    if (estadoSalvo === 'sim') {
+      detalhesDiv.classList.add('recolhido');
+      btnRecolher.querySelector('.recolher-icon').textContent = '▼';
+      btnRecolher.querySelector('.recolher-txt').textContent  = 'Ver Detalhes';
+    }
+
+    btnRecolher.addEventListener('click', () => {
+      const recolhido = detalhesDiv.classList.toggle('recolhido');
+      const icon = btnRecolher.querySelector('.recolher-icon');
+      const txt  = btnRecolher.querySelector('.recolher-txt');
+      icon.textContent = recolhido ? '▼' : '▲';
+      txt.textContent  = recolhido ? 'Ver Detalhes' : 'Recolher Detalhes';
+      localStorage.setItem(chaveStorage, recolhido ? 'sim' : 'nao');
+    });
   }
 
   return card;
