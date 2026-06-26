@@ -1133,6 +1133,39 @@
   }
   .btn-limpar-chat:hover { color: var(--red); border-color: var(--red); }
 
+  /* ── RECOLHER FICHA ── */
+  .btn-recolher {
+    width: 100%;
+    margin-top: 10px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    color: var(--text2);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+    min-height: 44px;
+  }
+  .btn-recolher:hover { border-color: var(--purple); color: var(--purple); }
+  .btn-recolher:active { transform: scale(0.98); }
+  .card-detalhes {
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease;
+    max-height: 4000px;
+    opacity: 1;
+  }
+  .card-detalhes.recolhido {
+    max-height: 0;
+    opacity: 0;
+  }
+
   /* ── CLASSE SELECT ── */
   .classe-select-wrap {
     margin-top: 6px;
@@ -2726,7 +2759,12 @@ function criarCard(slot, d, isNpc) {
         <div style="margin-top:8px;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;text-align:center;font-size:10px;color:var(--text2);">
           ⚔️ Iniciativa DEX ${dexStr}
         </div>`}
+        <button class="btn-recolher" data-slot="${slot}">
+          <span class="recolher-icon">▲</span> <span class="recolher-txt">Recolher Detalhes</span>
+        </button>
       </div>
+
+      <div class="card-detalhes" id="detalhes-${slot}">
 
       ${!isRestricao ? `
       <div>
@@ -2736,10 +2774,7 @@ function criarCard(slot, d, isNpc) {
           <div class="tecnica-item">
             <div class="tecnica-top">
               <span class="tecnica-nome">${t.nome}</span>
-              <div style="display:flex;gap:4px;align-items:center">
-                <span class="tecnica-custo">${t.custo}</span>
-                ${ismine ? `<button class="btn-rolar-tecnica" data-formula="${t.formula}" data-label="${t.label}">🎲</button>` : ''}
-              </div>
+              <span class="tecnica-custo">${t.custo}</span>
             </div>
             <span class="tecnica-efeito">${t.efeito}</span>
             <span class="tecnica-desc">${t.desc}</span>
@@ -2800,6 +2835,8 @@ function criarCard(slot, d, isNpc) {
           </div>
         </div>
       </div>` : ''}
+
+      </div><!-- fim card-detalhes -->
 
     </div>`;
 
@@ -2888,6 +2925,19 @@ function criarCard(slot, d, isNpc) {
         salvar(slot, 'condicoes', novas.length ? novas : null, isNpc);
       });
     });
+
+    // Botão recolher/expandir detalhes
+    const btnRecolher = card.querySelector('.btn-recolher');
+    const detalhesDiv = card.querySelector('.card-detalhes');
+    if (btnRecolher && detalhesDiv) {
+      btnRecolher.addEventListener('click', () => {
+        const recolhido = detalhesDiv.classList.toggle('recolhido');
+        const icon = btnRecolher.querySelector('.recolher-icon');
+        const txt  = btnRecolher.querySelector('.recolher-txt');
+        icon.textContent = recolhido ? '▼' : '▲';
+        txt.textContent  = recolhido ? 'Ver Detalhes' : 'Recolher Detalhes';
+      });
+    }
 
     // Select de classe
     const classeSelectEl = card.querySelector('.classe-select');
