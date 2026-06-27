@@ -4073,7 +4073,7 @@ function criarCard(slot, d, isNpc) {
         </div>
       </div>` : ''}
 
-      ${!isRestricao ? `
+      ${(!isRestricao && !isLutador && !isFala) ? `
       <div>
         <div class="section-label">Técnicas Inatas</div>
         <div class="tecnicas-list" id="tecnicasInatas-${slot}">
