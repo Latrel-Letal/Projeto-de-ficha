@@ -2849,14 +2849,14 @@ function tocarAnimacaoGabriel(charName) {
 
   document.body.appendChild(overlay);
 
-  // Tocar áudio no momento da explosão (3.9s)
+  // Tocar áudio junto com a aparição do personagem (0.3s)
   setTimeout(() => {
     try {
       const audio = new Audio('data:audio/mp3;base64,' + GABRIEL_AUDIO_B64);
       audio.volume = 0.9;
       audio.play().catch(() => {});
     } catch(e) {}
-  }, 3900);
+  }, 300);
 
   // Remover overlay após animação completa
   setTimeout(() => overlay.remove(), 7200);
