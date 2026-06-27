@@ -4148,17 +4148,36 @@ function usarHabilidade(slot, nome, custo, custoNum, efeito, desc, isNpc) {
   if (!fichaAtual) return;
 
   let eaReduzido = false;
-  let eaAntes = Number(fichaAtual.ea)||0;
+  let eaAntes = Number(fichaAtual.ea) || 0;
   let eaDepois = eaAntes;
+  let custoEfetivo = custoNum;
+  let custoExibido = custo;
 
-  if (custoNum > 0) {
-    if (eaAntes < custoNum) {
-      if (!confirm(`⚠️ EA insuficiente! Você tem ${eaAntes} EA mas a habilidade custa ${custoNum} EA. Usar mesmo assim?`)) return;
-    } else {
-      eaDepois = eaAntes - custoNum;
-      salvar(slot, 'ea', eaDepois, isNpc);
-      eaReduzido = true;
+  const isExpansao = nome === 'Expansão de Domínio';
+
+  if (isExpansao) {
+    // Expansão de Domínio sempre consome 80% do EA atual (arredondado para baixo)
+    custoEfetivo = Math.floor(eaAntes * 0.8);
+    custoExibido = `${custoEfetivo} EA (80% do EA atual)`;
+
+    if (eaAntes <= 0) {
+      showToast('❌ EA zerado — impossível ativar a Expansão de Domínio.', 'error');
+      return;
     }
+
+    eaDepois = eaAntes - custoEfetivo;
+    salvar(slot, 'ea', eaDepois, isNpc);
+    eaReduzido = true;
+
+  } else if (custoEfetivo > 0) {
+    // Outras habilidades: bloqueia se EA insuficiente
+    if (eaAntes < custoEfetivo) {
+      showToast(`❌ EA insuficiente! Você tem ${eaAntes} EA, mas "${nome}" custa ${custoEfetivo} EA.`, 'error');
+      return;
+    }
+    eaDepois = eaAntes - custoEfetivo;
+    salvar(slot, 'ea', eaDepois, isNpc);
+    eaReduzido = true;
   }
 
   const slotEfetivo = window.__rolarComoSlot || meuSlot;
@@ -4169,7 +4188,7 @@ function usarHabilidade(slot, nome, custo, custoNum, efeito, desc, isNpc) {
     slot: slotEfetivo,
     charName,
     habilidadeNome: nome,
-    habilidadeCusto: custo,
+    habilidadeCusto: custoExibido,
     habilidadeEfeito: efeito,
     habilidadeDesc: desc,
     eaReduzido,
