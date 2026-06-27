@@ -1098,6 +1098,50 @@
   .turno-ativo-banner span { animation: blink 1.2s infinite; }
 
   /* ══════════════════════════════════════
+     DOMÍNIO ATIVO — marcadores visuais
+  ══════════════════════════════════════ */
+  .ficha-card.dominio-ativo {
+    border-color: var(--purple) !important;
+    box-shadow: 0 0 28px rgba(168,85,247,0.35), 0 0 0 1px rgba(168,85,247,0.2) !important;
+  }
+  .dominio-ativo-banner {
+    background: linear-gradient(90deg, rgba(168,85,247,0.2), transparent);
+    border-bottom: 1px solid rgba(168,85,247,0.4);
+    padding: 5px 18px; font-size: 10px; color: var(--purple);
+    font-weight: 700; letter-spacing: 1px;
+    display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  }
+  .dominio-ativo-banner .dom-blink { animation: blink 1.4s infinite; }
+  .btn-dominio-toggle {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+    border-radius: 20px; padding: 3px 10px; cursor: pointer;
+    transition: all 0.2s; border: 1px solid; white-space: nowrap;
+  }
+  .btn-dominio-toggle.ligar {
+    border-color: rgba(168,85,247,0.5); color: var(--purple); background: transparent;
+  }
+  .btn-dominio-toggle.ligar:hover { background: var(--purple); color: white; }
+  .btn-dominio-toggle.desligar {
+    border-color: var(--red); color: var(--red); background: rgba(255,74,74,0.08);
+  }
+  .btn-dominio-toggle.desligar:hover { background: var(--red); color: white; }
+
+  /* token com domínio ativo — anel pulsante roxo */
+  .mapa-token.dominio-ativo .mapa-token-circle {
+    border-color: var(--purple) !important;
+    box-shadow: 0 0 0 3px rgba(168,85,247,0.5), 0 0 18px rgba(168,85,247,0.7) !important;
+    animation: dominioTokenPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes dominioTokenPulse {
+    0%,100% { box-shadow: 0 0 0 3px rgba(168,85,247,0.5), 0 0 18px rgba(168,85,247,0.7); }
+    50%     { box-shadow: 0 0 0 6px rgba(168,85,247,0.25), 0 0 32px rgba(168,85,247,0.9); }
+  }
+  .mapa-token.dominio-ativo .mapa-token-label {
+    color: var(--purple);
+    text-shadow: 0 0 6px rgba(168,85,247,0.8);
+  }
+
+  /* ══════════════════════════════════════
      BARDO — BARRA DE MÚSICA NO RODAPÉ
   ══════════════════════════════════════ */
   #bardoBar {
@@ -2099,6 +2143,7 @@ let turnoAtual = 0;
 let turnoNumero = 1;
 let mapaData = {};
 let fichasNpcData = {};
+let dominiosAtivos = {}; // { slot: true } sincronizado pelo Firebase
 let unsubFichasNpc = null;
 let dominioAnimUltimoTs = Date.now();
 
@@ -2595,6 +2640,13 @@ function iniciarApp() {
   // Mapa de batalha em tempo real
   onValue(ref(db, `sessoes/${sessaoId}/mapa`), snap => {
     mapaData = snap.val() || {};
+    renderMapa();
+  });
+
+  // Domínios ativos em tempo real
+  onValue(ref(db, `sessoes/${sessaoId}/dominiosAtivos`), snap => {
+    dominiosAtivos = snap.val() || {};
+    renderFichas();
     renderMapa();
   });
 
@@ -3468,6 +3520,10 @@ function renderMapa() {
     const morto = pvAtual !== null && pvAtual <= 0;
     el.classList.toggle('is-morto', morto);
 
+    // Domínio ativo no token
+    const tokenDominioAtivo = tk.slot ? !!dominiosAtivos[tk.slot] : false;
+    el.classList.toggle('dominio-ativo', tokenDominioAtivo);
+
     const circle = el.querySelector('.mapa-token-circle');
     circle.style.width  = (cellSize*0.8)+'px';
     circle.style.height = (cellSize*0.8)+'px';
@@ -3587,10 +3643,12 @@ function criarCard(slot, d, isNpc) {
   const ismine = (slot === meuSlot) || modoMestre;
   const isMeuCard = slot === meuSlot;
   const card = document.createElement('div');
+  const dominioEsteSlot = !!dominiosAtivos[slot];
   let cardClass = 'ficha-card';
   if (isMeuCard) cardClass += ' is-mine';
   if (modoMestre && !isMeuCard) cardClass += ' mestre-mode';
   if (isNpc) cardClass += ' is-npc-ficha';
+  if (dominioEsteSlot) cardClass += ' dominio-ativo';
   card.className = cardClass;
   card.dataset.slot = slot;
 
@@ -3682,7 +3740,18 @@ function criarCard(slot, d, isNpc) {
     { nome:'Fortalecimento de Habilidade', custo:'20 EA', formula:'1d8', label:'Fortalecimento', efeito:'Reforço da Técnica',       desc:'Melhora capacidade, dano e qualidade de uma técnica.' },
   ];
 
+  // Banner de domínio ativo
+  const dominioBannerHTML = dominioEsteSlot ? `
+    <div class="dominio-ativo-banner">
+      <span><span class="dom-blink">◆</span> DOMÍNIO ATIVO — ${esc(d.dominioExpansao?.nome || 'Expansão de Domínio')}</span>
+      ${ismine ? `<button class="btn-dominio-toggle desligar" data-slot="${slot}">✕ Encerrar Domínio</button>` : ''}
+    </div>` : (ismine ? `
+    <div style="padding:4px 18px 0">
+      <button class="btn-dominio-toggle ligar" data-slot="${slot}" style="margin-bottom:2px">💀 Ativar Domínio</button>
+    </div>` : '');
+
   card.innerHTML = `
+    ${dominioEsteSlot ? dominioBannerHTML : ''}
     <div class="card-header">
       <div ${avatarEditable} data-slot="${slot}" title="${ismine?'Clique para alterar avatar':''}">
         ${avatarSrc}
@@ -4104,6 +4173,26 @@ function criarCard(slot, d, isNpc) {
       });
     }
   }
+
+  // Botão de domínio ativo — ligar/desligar
+  card.querySelectorAll('.btn-dominio-toggle').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const slotAlvo = btn.dataset.slot;
+      const ativo = !!dominiosAtivos[slotAlvo];
+      if (ativo) {
+        // Desligar
+        remove(ref(db, `sessoes/${sessaoId}/dominiosAtivos/${slotAlvo}`));
+        const nomeFicha = getFicha(slotAlvo)?.nome || slotAlvo;
+        enviarSistema(`💀 Domínio de ${nomeFicha} encerrado.`);
+      } else {
+        // Ligar
+        set(ref(db, `sessoes/${sessaoId}/dominiosAtivos/${slotAlvo}`), true);
+        const nomeFicha = getFicha(slotAlvo)?.nome || slotAlvo;
+        enviarSistema(`💀 Domínio de ${nomeFicha} ativado!`);
+      }
+    });
+  });
 
   // Botão recolher/expandir detalhes — funciona em QUALQUER ficha (própria,
   // de outro jogador, ou NPC), de forma 100% local: estado salvo apenas no
