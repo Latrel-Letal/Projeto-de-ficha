@@ -101,52 +101,6 @@
   .btn-header.toggle:hover { border-color: var(--blue); color: var(--blue); }
   .btn-header.toggle.active { border-color: var(--blue); color: var(--blue); background: var(--blue-glow); }
 
-  /* ── MENU LATERAL (Fichas / Mapa / Chat de Imagens) ── */
-  .menu-wrap { position: relative; }
-  .btn-header.menu {
-    border-color: var(--border2);
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .btn-header.menu:hover { border-color: var(--blue); color: var(--blue); }
-  .btn-header.menu.active { border-color: var(--blue); color: var(--blue); background: var(--blue-glow); }
-  .menu-dropdown {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    background: var(--bg2);
-    border: 1px solid var(--border2);
-    border-radius: 10px;
-    padding: 6px;
-    min-width: 190px;
-    box-shadow: 0 10px 28px rgba(0,0,0,0.5);
-    z-index: 300;
-    display: none;
-    flex-direction: column;
-    gap: 3px;
-  }
-  .menu-dropdown.show { display: flex; }
-  .menu-dropdown-item {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 9px 10px;
-    border-radius: 7px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text2);
-    cursor: pointer;
-    transition: all 0.15s;
-    background: transparent;
-    border: none;
-    text-align: left;
-    width: 100%;
-  }
-  .menu-dropdown-item:hover { background: var(--bg3); color: var(--text); }
-  .menu-dropdown-item.active { color: var(--blue); background: var(--blue-glow); }
-
   /* ── SELECT SCREEN ── */
   .player-select-screen {
     min-height: 100vh;
@@ -341,101 +295,6 @@
     width: 0;
     padding: 0;
   }
-
-  /* ══════════════════════════════════════
-     CHAT DE IMAGENS
-  ══════════════════════════════════════ */
-  .imagens-area {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    transition: all 0.3s;
-  }
-  .imagens-area.collapsed {
-    flex: 0 0 0;
-    overflow: hidden;
-    opacity: 0;
-    pointer-events: none;
-    width: 0;
-    padding: 0;
-  }
-  .imgchat-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--border);
-    flex-wrap: wrap;
-  }
-  .imgchat-toolbar-title {
-    font-family: 'Cinzel', serif;
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: var(--text2);
-  }
-  .imgchat-feed {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-  .imgchat-feed::-webkit-scrollbar { width: 6px; }
-  .imgchat-feed::-webkit-scrollbar-track { background: var(--bg3); border-radius: 3px; }
-  .imgchat-feed::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-  .imgchat-empty { text-align: center; color: var(--text2); font-size: 12px; font-style: italic; margin: auto; }
-  .imgchat-post {
-    max-width: 360px;
-    align-self: flex-start;
-  }
-  .imgchat-post.mine { align-self: flex-end; }
-  .imgchat-post-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 5px; }
-  .imgchat-post-author { font-weight: 700; font-size: 11px; }
-  .imgchat-post-author.mine { color: var(--purple); }
-  .imgchat-post-author.other { color: var(--blue); }
-  .imgchat-post-time { font-size: 9px; color: var(--text2); }
-  .imgchat-post img {
-    width: 100%;
-    max-height: 360px;
-    object-fit: contain;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--bg3);
-    cursor: zoom-in;
-    display: block;
-  }
-  .imgchat-post-caption { font-size: 11px; color: var(--text2); margin-top: 5px; }
-  .imgchat-inputbar {
-    padding: 10px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    flex-shrink: 0;
-  }
-  .imgchat-inputbar input[type="text"] {
-    flex: 1;
-    min-width: 140px;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    padding: 8px 10px;
-    color: var(--text);
-    font-size: 12px;
-    outline: none;
-  }
-  .imgchat-inputbar input[type="text"]:focus { border-color: var(--purple); }
-  .imgchat-lightbox {
-    position: fixed; inset: 0; background: rgba(5,5,10,0.92);
-    display: none; align-items: center; justify-content: center;
-    z-index: 500; padding: 30px; cursor: zoom-out;
-  }
-  .imgchat-lightbox.show { display: flex; }
-  .imgchat-lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; }
-
   .mapa-toolbar {
     display: flex;
     flex-wrap: wrap;
@@ -707,8 +566,6 @@
   .dominio-box.expansao { border-color: rgba(168,85,247,0.5); background: linear-gradient(135deg,#0f0a1a,#160e22); }
   .dominio-box.simples  { border-color: rgba(74,158,255,0.4); background: linear-gradient(135deg,#0a0f1a,#0e1622); }
   .dominio-title { font-family: 'Cinzel', serif; font-size: 12px; font-weight: 600; margin-bottom: 5px; }
-  .dominio-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-  .dominio-top .dominio-title { margin-bottom: 0; }
   .dominio-box.expansao .dominio-title { color: var(--purple); }
   .dominio-box.simples  .dominio-title { color: var(--blue); }
   .dominio-desc { font-size: 10px; color: var(--text2); line-height: 1.5; }
@@ -727,8 +584,7 @@
     border-radius: 9px;
     padding: 12px;
   }
-  .passiva-title { font-family: 'Cinzel', serif; font-size: 12px; font-weight: 600; color: var(--gold); margin-bottom: 0; }
-  .passiva-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding-right: 18px; }
+  .passiva-title { font-family: 'Cinzel', serif; font-size: 12px; font-weight: 600; color: var(--gold); margin-bottom: 5px; }
   .passiva-efeito { margin-top: 7px; font-size: 10px; color: var(--text); background: rgba(255,255,255,0.04); border-radius: 5px; padding: 7px 9px; line-height: 1.5; }
   .passiva-title[contenteditable="true"]:focus,
   .passiva-efeito[contenteditable="true"]:focus {
@@ -953,6 +809,44 @@
   }
   .modal-overlay.show .modal-box { transform: translateY(0); }
   .modal-title { font-family: 'Cinzel', serif; font-size: 15px; color: var(--gold); letter-spacing: 2px; margin-bottom: 18px; text-align: center; }
+
+  .dice-presets { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; }
+  .dice-preset-btn {
+    background: var(--bg3); border: 1px solid var(--border); color: var(--text2);
+    border-radius: 5px; padding: 4px 9px; font-size: 11px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; letter-spacing: 0.5px;
+  }
+  .dice-preset-btn:hover { border-color: var(--purple); color: var(--purple); }
+  .dice-preset-btn.active { background: var(--purple-glow); border-color: var(--purple); color: var(--purple); }
+
+  .dice-config { display: flex; gap: 14px; margin-bottom: 16px; align-items: flex-end; }
+  .dice-config-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+  .dice-config-group label { font-size: 10px; color: var(--text2); letter-spacing: 1px; text-transform: uppercase; }
+  .dice-config-group input {
+    background: var(--bg3); border: 1px solid var(--border2); border-radius: 7px;
+    padding: 9px 10px; color: var(--text); font-size: 22px; font-weight: 700;
+    text-align: center; outline: none; width: 100%;
+  }
+  .dice-config-group input:focus { border-color: var(--purple); }
+  .dice-sep { font-family: 'Cinzel', serif; font-size: 20px; color: var(--text2); padding-bottom: 9px; flex-shrink: 0; }
+
+  .dice-result-preview {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px; text-align: center; margin-bottom: 14px; min-height: 76px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  }
+  .dice-result-num {
+    font-family: 'Cinzel', serif; font-size: 40px; font-weight: 700;
+    color: var(--gold); line-height: 1; transition: all 0.2s;
+  }
+  @keyframes diceRoll {
+    0%,100%{transform:scale(1)} 30%{transform:scale(1.15) rotate(-4deg)} 70%{transform:scale(1.15) rotate(4deg)}
+  }
+  .dice-result-num.rolling { animation: diceRoll 0.5s ease; }
+  .dice-result-num.crit { color: var(--online); text-shadow: 0 0 14px var(--online); }
+  .dice-result-num.fail { color: var(--red); text-shadow: 0 0 14px var(--red); }
+  .dice-result-detail { font-size: 11px; color: var(--text2); }
+  .dice-result-breakdown { font-size: 11px; color: var(--text2); margin-top: 2px; }
 
   .modal-actions { display: flex; gap: 8px; }
   .btn-roll {
@@ -1240,6 +1134,15 @@
   }
   .btn-add-tecnica:hover { border-color: var(--purple); color: var(--purple); }
 
+  /* ── BOTÃO ROLAR TÉCNICA ── */
+  .btn-rolar-tecnica {
+    background: transparent; border: 1px solid rgba(168,85,247,0.4);
+    color: var(--purple); border-radius: 5px; padding: 2px 7px;
+    font-size: 10px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
+  }
+  .btn-rolar-tecnica:hover { background: var(--purple); color: white; }
+
   /* ── BOTÃO USAR HABILIDADE ── */
   .btn-usar-habilidade {
     background: transparent; border: 1px solid rgba(240,192,64,0.4);
@@ -1450,13 +1353,323 @@
   }
   .btn-edit-ficha:hover { background: var(--blue); color: white; }
 
+  /* ════════════════════════════════════
+     SIDEBAR DE NAVEGAÇÃO
+  ════════════════════════════════════ */
+  .sidebar {
+    width: 64px;
+    flex-shrink: 0;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 0;
+    gap: 6px;
+    height: calc(100vh - 53px);
+    position: sticky;
+    top: 53px;
+    z-index: 100;
+  }
+  .sidebar-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text2);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    transition: all 0.18s;
+    position: relative;
+  }
+  .sidebar-btn span.sb-label {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--text2);
+    transition: color 0.18s;
+    line-height: 1;
+  }
+  .sidebar-btn:hover {
+    background: var(--bg3);
+    border-color: var(--border2);
+    color: var(--text);
+  }
+  .sidebar-btn:hover .sb-label { color: var(--text); }
+  .sidebar-btn.active {
+    background: var(--purple-glow);
+    border-color: var(--purple);
+    color: var(--purple);
+  }
+  .sidebar-btn.active .sb-label { color: var(--purple); }
+  .sidebar-btn.active-gold {
+    background: rgba(240,192,64,0.12);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .sidebar-btn.active-gold .sb-label { color: var(--gold); }
+  .sidebar-divider {
+    width: 32px;
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
+    flex-shrink: 0;
+  }
+  /* Tooltip da sidebar */
+  .sidebar-btn::after {
+    content: attr(data-tip);
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 300;
+  }
+  .sidebar-btn:hover::after { opacity: 1; }
+
+  /* ════════════════════════════════════
+     ABA GALERIA DE IMAGENS
+  ════════════════════════════════════ */
+  .galeria-area {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 53px);
+  }
+  .galeria-area.collapsed {
+    flex: 0 0 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+  }
+  .galeria-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .galeria-title {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .galeria-feed {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .galeria-feed::-webkit-scrollbar { width: 6px; }
+  .galeria-feed::-webkit-scrollbar-track { background: var(--bg3); }
+  .galeria-feed::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  .galeria-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    animation: fadeIn 0.3s ease;
+  }
+  .galeria-item-header {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+  }
+  .galeria-item-author { font-size: 11px; font-weight: 700; color: var(--purple); }
+  .galeria-item-author.other { color: var(--blue); }
+  .galeria-item-time { font-size: 10px; color: var(--text2); }
+  .galeria-item-legenda {
+    padding: 8px 12px 4px;
+    font-size: 11px;
+    color: var(--text2);
+    font-style: italic;
+  }
+  .galeria-item img {
+    width: 100%;
+    max-height: 480px;
+    object-fit: contain;
+    background: #000;
+    display: block;
+    cursor: zoom-in;
+  }
+  .galeria-empty {
+    text-align: center;
+    color: var(--text2);
+    font-size: 12px;
+    margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .galeria-empty-icon { font-size: 40px; opacity: 0.4; }
+  .galeria-input-area {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .galeria-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .galeria-legenda-input {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 7px 10px;
+    color: var(--text);
+    font-size: 12px;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+  }
+  .galeria-legenda-input:focus { border-color: var(--gold); }
+  .galeria-legenda-input::placeholder { color: var(--text2); }
+  .btn-galeria-upload {
+    background: linear-gradient(135deg, #1a1400, #140f00);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    border-radius: 7px;
+    padding: 7px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-galeria-upload:hover { background: var(--gold); color: #0a0a0f; }
+  .btn-galeria-url {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    border-radius: 7px;
+    padding: 7px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-galeria-url:hover { border-color: var(--blue); color: var(--blue); }
+  .galeria-url-row {
+    display: none;
+    gap: 8px;
+    align-items: center;
+  }
+  .galeria-url-row.visible { display: flex; }
+  .galeria-url-input {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 7px 10px;
+    color: var(--text);
+    font-size: 12px;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+  }
+  .galeria-url-input:focus { border-color: var(--blue); }
+  .btn-galeria-url-send {
+    background: var(--blue);
+    border: none;
+    border-radius: 7px;
+    color: white;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .btn-galeria-url-send:hover { opacity: 0.85; }
+
+  /* Lightbox de imagem */
+  .img-lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .img-lightbox.show { opacity: 1; pointer-events: all; }
+  .img-lightbox img {
+    max-width: 94vw;
+    max-height: 94vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 0 60px rgba(0,0,0,0.8);
+  }
+  .img-lightbox-close {
+    position: absolute;
+    top: 16px; right: 20px;
+    font-size: 28px; color: var(--text2);
+    cursor: pointer; line-height: 1;
+    transition: color 0.15s;
+  }
+  .img-lightbox-close:hover { color: var(--red); }
+
   /* ── Responsive ── */
   @media (max-width: 860px) {
     .right-panel { width: 260px; }
     .fichas-container { grid-template-columns: 1fr; padding: 12px; }
+    .sidebar { width: 54px; }
+    .sidebar-btn { width: 40px; height: 40px; }
   }
   @media (max-width: 640px) {
     .main-layout.visible { flex-direction: column; }
+    .sidebar {
+      flex-direction: row;
+      width: 100%;
+      height: auto;
+      position: sticky;
+      top: 53px;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 6px 12px;
+      justify-content: center;
+      z-index: 100;
+    }
+    .sidebar-btn::after { display: none; }
+    .sidebar-divider { width: 1px; height: 28px; margin: 0 4px; }
     .right-panel {
       position: fixed;
       top: 53px;
@@ -1470,8 +1683,8 @@
       border-bottom: 1px solid var(--border);
       box-shadow: 0 6px 18px rgba(0,0,0,0.45);
     }
-    .fichas-area, .mapa-area, .imagens-area { margin-top: 42vh; }
-    .fichas-area.collapsed, .mapa-area.collapsed, .imagens-area.collapsed { display: none; }
+    .fichas-area, .mapa-area, .galeria-area { margin-top: 42vh; }
+    .fichas-area.collapsed, .mapa-area.collapsed, .galeria-area.collapsed { display: none; }
     .chat-hint { display: none; }
     .attrs-grid { grid-template-columns: repeat(3,1fr); }
     .initiative-panel { max-height: 110px; overflow-y: auto; }
@@ -1509,22 +1722,27 @@
       <span id="sessionLabel" style="color:var(--gold)"></span>
       <span id="mySlotLabel" style="color:var(--purple)"></span>
     </div>
-    <button class="btn-header dice" style="border-color:var(--gold);color:var(--gold);" onclick="abrirCompostoModal()">🎲 Multi-Dado</button>
+    <button class="btn-header dice" style="border-color:var(--gold);color:var(--gold);" onclick="abrirCompostoModal()">🎲 Dados</button>
     <button class="btn-header mestre" id="btnMestre" onclick="toggleMestre()">👁 Mestre</button>
-    <button class="btn-header mestre" id="btnAddNpcFicha" style="display:none" onclick="criarFichaNpc()">👹 Nova Ficha NPC</button>
-    <div class="menu-wrap">
-      <button class="btn-header menu active" id="btnMenuPaginas" onclick="toggleMenuPaginas()">☰ Páginas ▾</button>
-      <div class="menu-dropdown" id="menuPaginasDropdown">
-        <button class="menu-dropdown-item active" id="menuItemFichas" onclick="mudarAba('fichas')">📋 Fichas</button>
-        <button class="menu-dropdown-item" id="menuItemMapa" onclick="mudarAba('mapa')">🗺️ Mapa</button>
-        <button class="menu-dropdown-item" id="menuItemImagens" onclick="mudarAba('imagens')">🖼️ Chat de Imagens</button>
-      </div>
-    </div>
+    <button class="btn-header mestre" id="btnAddNpcFicha" style="display:none" onclick="criarFichaNpc()">👹 NPC</button>
   </div>
 </header>
 
 <!-- MAIN -->
 <div class="main-layout" id="mainLayout">
+
+  <!-- SIDEBAR DE NAVEGAÇÃO -->
+  <nav class="sidebar" id="sidebar">
+    <button class="sidebar-btn active" id="sbFichas" data-tip="Fichas" onclick="mudarAba('fichas')">
+      📋<span class="sb-label">FICHAS</span>
+    </button>
+    <button class="sidebar-btn" id="sbMapa" data-tip="Mapa de Batalha" onclick="mudarAba('mapa')">
+      🗺️<span class="sb-label">MAPA</span>
+    </button>
+    <button class="sidebar-btn" id="sbGaleria" data-tip="Galeria de Imagens" onclick="mudarAba('galeria')">
+      🖼️<span class="sb-label">GALERIA</span>
+    </button>
+  </nav>
 
   <!-- Fichas -->
   <div class="fichas-area" id="fichasArea">
@@ -1560,20 +1778,32 @@
     </div>
   </div>
 
-  <!-- Chat de Imagens -->
-  <div class="imagens-area collapsed" id="imagensArea">
-    <div class="imgchat-toolbar">
-      <span class="imgchat-toolbar-title">🖼️ CHAT DE IMAGENS</span>
-      <button class="btn-limpar-chat" onclick="limparImagens()">🗑 Limpar</button>
+  <!-- Galeria de Imagens -->
+  <div class="galeria-area collapsed" id="galeriaArea">
+    <div class="galeria-header">
+      <div class="galeria-title">🖼️ GALERIA DA SESSÃO</div>
+      <button class="btn-limpar-chat" onclick="limparGaleria()">🗑 Limpar</button>
     </div>
-    <div class="imgchat-feed" id="imagensFeed">
-      <div class="imgchat-empty">Nenhuma imagem enviada ainda. Cole uma URL ou envie um arquivo abaixo.</div>
+    <div class="galeria-feed" id="galeriaFeed">
+      <div class="galeria-empty" id="galeriaEmpty">
+        <span class="galeria-empty-icon">🖼️</span>
+        <span>Nenhuma imagem enviada ainda.</span>
+        <span style="font-size:10px">Envie ilustrações, referências ou cenas da sessão!</span>
+      </div>
     </div>
-    <div class="imgchat-inputbar">
-      <input type="text" id="imagemUrlInput" placeholder="Cole uma URL de imagem..." onkeydown="if(event.key==='Enter') enviarImagemUrl()">
-      <button class="btn-mapa primary" onclick="enviarImagemUrl()">➤ Enviar</button>
-      <input type="file" id="imagemFileInput" accept="image/*" style="display:none" onchange="enviarImagemArquivo(event)">
-      <button class="btn-mapa" onclick="document.getElementById('imagemFileInput').click()">📁 Upload</button>
+    <div class="galeria-input-area">
+      <div class="galeria-input-row">
+        <input class="galeria-legenda-input" id="galeriaLegenda" placeholder="Legenda opcional..." maxlength="120">
+        <button class="btn-galeria-url" onclick="toggleGaleriaUrlRow()">🔗 URL</button>
+        <label class="btn-galeria-upload" style="cursor:pointer">
+          📎 Enviar
+          <input type="file" id="galeriaFileInput" accept="image/*" style="display:none" onchange="galeriaEnviarArquivo(event)">
+        </label>
+      </div>
+      <div class="galeria-url-row" id="galeriaUrlRow">
+        <input class="galeria-url-input" id="galeriaUrlInput" placeholder="Cole a URL da imagem..." onkeydown="if(event.key==='Enter') galeriaEnviarUrl()">
+        <button class="btn-galeria-url-send" onclick="galeriaEnviarUrl()">Enviar</button>
+      </div>
     </div>
   </div>
 
@@ -1611,6 +1841,12 @@
   </div>
 </div>
 
+<!-- LIGHTBOX -->
+<div class="img-lightbox" id="imgLightbox" onclick="fecharLightbox()">
+  <span class="img-lightbox-close" onclick="fecharLightbox()">✕</span>
+  <img id="imgLightboxImg" src="" alt="">
+</div>
+
 <!-- MODAL DADOS COMPOSTOS -->
 <div class="modal-overlay composto" id="diceCompostoModal" onclick="fecharCompostoSeFora(event)">
   <div class="modal-box">
@@ -1632,9 +1868,43 @@
   </div>
 </div>
 
-<!-- LIGHTBOX DO CHAT DE IMAGENS -->
-<div class="imgchat-lightbox" id="imagemLightbox" onclick="fecharImagemLightbox()">
-  <img id="imagemLightboxImg" src="" alt="">
+<!-- MODAL DADOS -->
+<div class="modal-overlay" id="diceModal" onclick="fecharModalSeFora(event)">
+  <div class="modal-box">
+    <div class="modal-title">🎲 ROLAR DADOS</div>
+    <div class="dice-presets" id="dicePresets">
+      <button class="dice-preset-btn" onclick="setPreset(1,4,this)">1d4</button>
+      <button class="dice-preset-btn" onclick="setPreset(1,6,this)">1d6</button>
+      <button class="dice-preset-btn" onclick="setPreset(1,8,this)">1d8</button>
+      <button class="dice-preset-btn" onclick="setPreset(1,10,this)">1d10</button>
+      <button class="dice-preset-btn" onclick="setPreset(1,12,this)">1d12</button>
+      <button class="dice-preset-btn" onclick="setPreset(1,20,this)">1d20</button>
+      <button class="dice-preset-btn" onclick="setPreset(2,6,this)">2d6</button>
+      <button class="dice-preset-btn" onclick="setPreset(3,6,this)">3d6</button>
+      <button class="dice-preset-btn" onclick="setPreset(4,6,this)">4d6</button>
+      <button class="dice-preset-btn" onclick="setPreset(2,12,this)">2d12</button>
+    </div>
+    <div class="dice-config">
+      <div class="dice-config-group">
+        <label>Quantidade</label>
+        <input type="number" id="diceQty" value="1" min="1" max="20" oninput="clearPresets()">
+      </div>
+      <div class="dice-sep">d</div>
+      <div class="dice-config-group">
+        <label>Lados</label>
+        <input type="number" id="diceSides" value="6" min="2" max="100" oninput="clearPresets()">
+      </div>
+    </div>
+    <div class="dice-result-preview">
+      <div class="dice-result-num" id="diceResultNum">—</div>
+      <div class="dice-result-detail" id="diceResultDetail"></div>
+      <div class="dice-result-breakdown" id="diceResultBreakdown"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-roll" onclick="rolarModal()">🎲 Rolar & Enviar</button>
+      <button class="btn-close-modal" onclick="fecharModal()">✕ Cancelar</button>
+    </div>
+  </div>
 </div>
 
 <!-- BARDO — PLAYER DE MÚSICA -->
@@ -1833,13 +2103,13 @@ function feiticosDefault() {
   return [];
 }
 function passivaDefault() {
-  return { nome:'Nome da Passiva', custo:'— EA', efeito:'Descreva o efeito da passiva...' };
+  return { nome:'Nome da Passiva', efeito:'Descreva o efeito da passiva...' };
 }
 function dominioSimplesDefault() {
-  return { custo:'— EA', desc:'Descreva a barreira de domínio simples do seu personagem...', efeito:'Descreva os efeitos do domínio simples...' };
+  return { desc:'Descreva a barreira de domínio simples do seu personagem...', efeito:'Descreva os efeitos do domínio simples...' };
 }
 function dominioExpansaoDefault() {
-  return { custo:'— EA', desc:'Descreva a expansão de domínio do seu personagem...', efeito:'Descreva os efeitos da expansão de domínio...' };
+  return { desc:'Descreva a expansão de domínio do seu personagem...', efeito:'Descreva os efeitos da expansão de domínio...' };
 }
 function fichaDefault(nome) {
   return { nome:nome, linhagem:'Linhagem Técnica', grau:'Grau 3', nivel:'Nível 01', afiliacao:'Instituto',
@@ -2158,11 +2428,6 @@ function iniciarApp() {
     renderChat(snap.val() || {});
   });
 
-  // Chat de imagens em tempo real
-  onValue(ref(db, `sessoes/${sessaoId}/chatImagens`), snap => {
-    renderImagens(snap.val() || {});
-  });
-
   // Iniciativa em tempo real
   onValue(ref(db, `sessoes/${sessaoId}/iniciativa`), snap => {
     renderIniciativa(snap.val() || {});
@@ -2192,49 +2457,43 @@ function iniciarApp() {
 
   // Bardo — música sincronizada
   window.__iniciarBardoListener(sessaoId);
+
+  // Galeria de imagens
+  onValue(ref(db, `sessoes/${sessaoId}/galeria`), snap => {
+    renderGaleria(snap.val() || {});
+  });
 }
 
 /* ══════════════════════════════════════
-   MENU LATERAL — ABAS (FICHAS / MAPA / CHAT DE IMAGENS)
+   ABAS (FICHAS / MAPA)
 ══════════════════════════════════════ */
-const ABA_LABELS = { fichas: '📋 Fichas', mapa: '🗺️ Mapa', imagens: '🖼️ Imagens' };
-
-window.toggleMenuPaginas = function() {
-  document.getElementById('menuPaginasDropdown').classList.toggle('show');
-};
-
-document.addEventListener('click', e => {
-  const wrap = document.querySelector('.menu-wrap');
-  const dropdown = document.getElementById('menuPaginasDropdown');
-  if (wrap && dropdown && !wrap.contains(e.target)) dropdown.classList.remove('show');
-});
-
 window.mudarAba = function(aba) {
-  const areas = {
-    fichas:  document.getElementById('fichasArea'),
-    mapa:    document.getElementById('mapaArea'),
-    imagens: document.getElementById('imagensArea'),
-  };
-  const itens = {
-    fichas:  document.getElementById('menuItemFichas'),
-    mapa:    document.getElementById('menuItemMapa'),
-    imagens: document.getElementById('menuItemImagens'),
-  };
+  const fichasArea   = document.getElementById('fichasArea');
+  const mapaArea     = document.getElementById('mapaArea');
+  const galeriaArea  = document.getElementById('galeriaArea');
+  const sbFichas     = document.getElementById('sbFichas');
+  const sbMapa       = document.getElementById('sbMapa');
+  const sbGaleria    = document.getElementById('sbGaleria');
 
-  Object.keys(areas).forEach(key => {
-    if (key === aba) {
-      areas[key].classList.remove('collapsed');
-      itens[key].classList.add('active');
-    } else {
-      areas[key].classList.add('collapsed');
-      itens[key].classList.remove('active');
-    }
+  // Colapsar tudo
+  fichasArea.classList.add('collapsed');
+  mapaArea.classList.add('collapsed');
+  galeriaArea.classList.add('collapsed');
+  [sbFichas, sbMapa, sbGaleria].forEach(b => {
+    b.classList.remove('active','active-gold');
   });
 
-  document.getElementById('btnMenuPaginas').innerHTML = `☰ ${ABA_LABELS[aba] || 'Páginas'} ▾`;
-  document.getElementById('menuPaginasDropdown').classList.remove('show');
-
-  if (aba === 'mapa') setTimeout(renderMapa, 60);
+  if (aba === 'mapa') {
+    mapaArea.classList.remove('collapsed');
+    sbMapa.classList.add('active');
+    setTimeout(renderMapa, 60);
+  } else if (aba === 'galeria') {
+    galeriaArea.classList.remove('collapsed');
+    sbGaleria.classList.add('active-gold');
+  } else {
+    fichasArea.classList.remove('collapsed');
+    sbFichas.classList.add('active');
+  }
 };
 
 /* ══════════════════════════════════════
@@ -2432,12 +2691,6 @@ function renderChat(msgs) {
         : (msg.habilidadeCusto && msg.habilidadeCusto !== '— EA'
             ? `<div class="habilidade-ea-reduzido" style="color:var(--text2);">⚠️ EA não descontado (insuficiente ou sem custo)</div>`
             : '');
-      const rollPart = msg.rollInfo ? `
-        <div class="chat-roll-result" style="margin-top:6px">
-          <span class="chat-roll-dice">${msg.rollInfo.formula}</span>
-          <span class="chat-roll-total">${msg.rollInfo.total}</span>
-          <span class="chat-roll-breakdown">[${msg.rollInfo.rolls.join('+')}]${msg.rollInfo.bonus?'+'+ msg.rollInfo.bonus:''}</span>
-        </div>` : '';
       div.innerHTML = `
         <div class="chat-msg-header">
           <span class="chat-msg-author ${ac}">${msg.charName||msg.slot}</span>
@@ -2448,7 +2701,6 @@ function renderChat(msgs) {
         ${msg.habilidadeEfeito ? `<div class="habilidade-efeito">${esc(msg.habilidadeEfeito)}</div>` : ''}
         ${msg.habilidadeCusto ? `<div class="habilidade-custo">💙 Custo: ${esc(msg.habilidadeCusto)}</div>` : ''}
         ${eaInfo}
-        ${rollPart}
       `;
     } else if (msg.type === 'roll-composto') {
       const ac = msg.slot === meuSlot ? 'mine' : 'other';
@@ -2531,126 +2783,6 @@ window.enviarMensagem = function() {
 };
 
 /* ══════════════════════════════════════
-   CHAT DE IMAGENS
-══════════════════════════════════════ */
-function renderImagens(msgs) {
-  const container = document.getElementById('imagensFeed');
-  const atBottom = container.scrollHeight - container.clientHeight <= container.scrollTop + 50;
-
-  const lista = Object.values(msgs).sort((a,b) => (a.ts||0)-(b.ts||0));
-  container.innerHTML = '';
-
-  if (lista.length === 0) {
-    container.innerHTML = '<div class="imgchat-empty">Nenhuma imagem enviada ainda. Cole uma URL ou envie um arquivo abaixo.</div>';
-    return;
-  }
-
-  lista.forEach(msg => {
-    const ac = msg.slot === meuSlot ? 'mine' : 'other';
-    const hora = msg.ts ? new Date(msg.ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '';
-    const div = document.createElement('div');
-    div.className = 'imgchat-post ' + ac;
-    div.innerHTML = `
-      <div class="imgchat-post-header">
-        <span class="imgchat-post-author ${ac}">${esc(msg.charName||msg.slot||'')}</span>
-        <span class="imgchat-post-time">${hora}</span>
-      </div>
-      <img src="${msg.url}" alt="Imagem enviada por ${esc(msg.charName||msg.slot||'')}" loading="lazy">
-      ${msg.legenda ? `<div class="imgchat-post-caption">${esc(msg.legenda)}</div>` : ''}
-    `;
-    div.querySelector('img').addEventListener('click', () => abrirImagemLightbox(msg.url));
-    container.appendChild(div);
-  });
-
-  if (atBottom) container.scrollTop = container.scrollHeight;
-}
-
-function publicarImagem(url, legenda) {
-  if (!sessaoId) { showToast('Entre em uma sessão primeiro.', 'error'); return; }
-  if (!url) return;
-  const charName = fichasData[meuSlot]?.nome || meuSlot;
-  push(ref(db, `sessoes/${sessaoId}/chatImagens`), {
-    slot: meuSlot, charName, url, legenda: legenda||'', ts: Date.now()
-  }).catch(err => {
-    console.error('Erro ao enviar imagem:', err);
-    showToast('Erro ao enviar imagem. Pode estar muito grande — tente outra.', 'error');
-  });
-}
-
-// Redimensiona/comprime a imagem no navegador antes de transformar em base64,
-// porque fotos já salvas no aparelho (galeria/câmera) costumam vir enormes
-// e travam o envio silenciosamente.
-function comprimirImagemArquivo(file, maxDim, qualidade) {
-  maxDim = maxDim || 1280;
-  qualidade = qualidade || 0.72;
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error('Falha ao ler o arquivo.'));
-    reader.onload = () => {
-      const img = new Image();
-      img.onerror = () => reject(new Error('Falha ao carregar a imagem.'));
-      img.onload = () => {
-        let { width, height } = img;
-        if (width > maxDim || height > maxDim) {
-          if (width >= height) { height = Math.round(height * (maxDim / width)); width = maxDim; }
-          else { width = Math.round(width * (maxDim / height)); height = maxDim; }
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-        try {
-          resolve(canvas.toDataURL('image/jpeg', qualidade));
-        } catch (err) {
-          reject(err);
-        }
-      };
-      img.src = reader.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-window.enviarImagemUrl = function() {
-  const inp = document.getElementById('imagemUrlInput');
-  const url = inp.value.trim();
-  if (!url) { showToast('Cole uma URL de imagem.', 'error'); return; }
-  publicarImagem(url);
-  inp.value = '';
-};
-
-window.enviarImagemArquivo = function(e) {
-  const file = e.target.files[0];
-  e.target.value = '';
-  if (!file) return;
-  if (!file.type.startsWith('image/')) { showToast('Selecione um arquivo de imagem.', 'error'); return; }
-
-  showToast('Enviando imagem...', '');
-  comprimirImagemArquivo(file)
-    .then(dataUrl => publicarImagem(dataUrl))
-    .catch(err => {
-      console.error('Erro ao processar imagem:', err);
-      showToast('Não foi possível processar essa imagem.', 'error');
-    });
-};
-
-window.limparImagens = function() {
-  if (!sessaoId) return;
-  if (!confirm('Limpar todo o chat de imagens? Esta ação não pode ser desfeita.')) return;
-  remove(ref(db, `sessoes/${sessaoId}/chatImagens`));
-};
-
-window.abrirImagemLightbox = function(url) {
-  document.getElementById('imagemLightboxImg').src = url;
-  document.getElementById('imagemLightbox').classList.add('show');
-};
-
-window.fecharImagemLightbox = function() {
-  document.getElementById('imagemLightbox').classList.remove('show');
-  document.getElementById('imagemLightboxImg').src = '';
-};
-
-/* ══════════════════════════════════════
    ROLAGEM GENÉRICA
 ══════════════════════════════════════ */
 function rolarDice(qty, sides) {
@@ -2677,6 +2809,63 @@ function publicarRolagem(qty, sides, bonus, label, tipo) {
   });
   return { rolls, total, isCrit, isFail };
 }
+
+/* ══════════════════════════════════════
+   MODAL DADOS
+══════════════════════════════════════ */
+window.abrirModalDados = function() {
+  document.getElementById('diceModal').classList.add('show');
+  document.getElementById('diceResultNum').textContent = '—';
+  document.getElementById('diceResultDetail').textContent = '';
+  document.getElementById('diceResultBreakdown').textContent = '';
+};
+window.fecharModal = function() { document.getElementById('diceModal').classList.remove('show'); };
+window.fecharModalSeFora = function(e) { if (e.target===document.getElementById('diceModal')) fecharModal(); };
+
+window.setPreset = function(qty, sides, btn) {
+  document.getElementById('diceQty').value = qty;
+  document.getElementById('diceSides').value = sides;
+  document.querySelectorAll('.dice-preset-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+};
+window.clearPresets = function() {
+  document.querySelectorAll('.dice-preset-btn').forEach(b => b.classList.remove('active'));
+};
+
+window.rolarModal = function() {
+  if (!sessaoId) { showToast('Entre em uma sessão primeiro.', 'error'); return; }
+
+  const qty   = Math.max(1, Math.min(20, parseInt(document.getElementById('diceQty').value)||1));
+  const sides = Math.max(2, Math.min(100, parseInt(document.getElementById('diceSides').value)||6));
+
+  // Rola UMA vez e já envia — sem chance de re-rolar antes de publicar
+  const rolls  = rolarDice(qty, sides);
+  const total  = rolls.reduce((a,b)=>a+b,0);
+  const isCrit = qty===1 && sides===20 && rolls[0]===20;
+  const isFail = qty===1 && sides===20 && rolls[0]===1;
+
+  // Mostra animação brevemente e fecha
+  const numEl = document.getElementById('diceResultNum');
+  numEl.className = 'dice-result-num rolling' + (isCrit?' crit':isFail?' fail':'');
+  setTimeout(()=>numEl.classList.remove('rolling'), 400);
+  numEl.textContent = total;
+  document.getElementById('diceResultDetail').textContent = isCrit?'⚡ CRÍTICO!':isFail?'💀 FALHA!':`${qty}d${sides}`;
+  document.getElementById('diceResultBreakdown').textContent = rolls.length>1 ? `[${rolls.join(' + ')}]` : '';
+
+  // Publica os MESMOS dados já rolados (sem re-rolar)
+  const slotEfetivo = window.__rolarComoSlot || meuSlot;
+  const charName = getFicha(slotEfetivo)?.nome || (modoMestre ? '👁 Mestre' : meuSlot);
+  const formula  = `${qty}d${sides}`;
+  push(ref(db, `sessoes/${sessaoId}/chat`), {
+    type: 'roll', slot: slotEfetivo, charName, formula, rolls, bonus: 0, total,
+    label: isCrit ? '⚡ Crítico Natural!' : isFail ? '💀 Falha Crítica!' : '',
+    special: isCrit ? 'nat20' : isFail ? 'critical' : '',
+    ts: Date.now()
+  });
+
+  // Fecha o modal após breve delay para o jogador ver o resultado
+  setTimeout(() => fecharModal(), 900);
+};
 
 /* ══════════════════════════════════════
    INICIATIVA
@@ -3202,15 +3391,7 @@ function criarCard(slot, d, isNpc) {
           <div class="tecnica-item">
             <div class="tecnica-top">
               <span class="tecnica-nome">${t.nome}</span>
-              <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
-                <span class="tecnica-custo">${t.custo}</span>
-                ${ismine ? `<button class="btn-usar-habilidade"
-                  data-nome="${t.nome}"
-                  data-custo="${t.custo}"
-                  data-custo-num="${parseCustoEA(t.custo)}"
-                  data-efeito="${t.efeito.replace(/"/g,'&quot;')}"
-                  data-desc="${t.desc.replace(/"/g,'&quot;')}">⚡ Usar</button>` : ''}
-              </div>
+              <span class="tecnica-custo">${t.custo}</span>
             </div>
             <span class="tecnica-efeito">${t.efeito}</span>
             <span class="tecnica-desc">${t.desc}</span>
@@ -3240,18 +3421,7 @@ function criarCard(slot, d, isNpc) {
           ${passivas.map((p, i) => `
           <div class="passiva-box passiva-item" data-idx="${i}">
             ${ismine && passivas.length > 1 ? `<button class="btn-del-passiva" data-idx="${i}" title="Remover passiva">✕</button>` : ''}
-            <div class="passiva-top">
-              <div class="passiva-title" ${ea} data-field="passivas/${i}/nome">${p.nome||'Nome da Passiva'}</div>
-              <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
-                <span class="tecnica-custo" ${ea} data-field="passivas/${i}/custo">${p.custo||'— EA'}</span>
-                ${ismine ? `<button class="btn-usar-habilidade"
-                  data-nome="${(p.nome||'Passiva').replace(/"/g,'&quot;')}"
-                  data-custo="${(p.custo||'').replace(/"/g,'&quot;')}"
-                  data-custo-num="${parseCustoEA(p.custo)}"
-                  data-efeito="${(p.efeito||'').replace(/"/g,'&quot;')}"
-                  data-desc="">⚡ Usar</button>` : ''}
-              </div>
-            </div>
+            <div class="passiva-title" ${ea} data-field="passivas/${i}/nome">${p.nome||'Nome da Passiva'}</div>
             <div class="passiva-efeito" ${ea} data-field="passivas/${i}/efeito">${p.efeito||'Descreva o efeito da passiva...'}</div>
           </div>`).join('')}
         </div>
@@ -3271,34 +3441,12 @@ function criarCard(slot, d, isNpc) {
         <div class="section-label">Barreiras &amp; Domínios</div>
         <div style="display:flex;flex-direction:column;gap:8px">
           <div class="dominio-box simples">
-            <div class="dominio-top">
-              <div class="dominio-title">🛡️ Domínio Simples</div>
-              <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
-                <span class="tecnica-custo" ${ea} data-field="dominioSimples/custo">${dominioSimples.custo||'— EA'}</span>
-                ${ismine ? `<button class="btn-usar-habilidade"
-                  data-nome="Domínio Simples"
-                  data-custo="${(dominioSimples.custo||'').replace(/"/g,'&quot;')}"
-                  data-custo-num="${parseCustoEA(dominioSimples.custo)}"
-                  data-efeito="${(dominioSimples.efeito||'').replace(/"/g,'&quot;')}"
-                  data-desc="${(dominioSimples.desc||'').replace(/"/g,'&quot;')}">⚡ Usar</button>` : ''}
-              </div>
-            </div>
+            <div class="dominio-title">🛡️ Domínio Simples</div>
             <div class="dominio-desc" ${ea} data-field="dominioSimples/desc">${dominioSimples.desc||'Descreva a barreira de domínio simples do seu personagem...'}</div>
             <div class="dominio-efeito" ${ea} data-field="dominioSimples/efeito">${dominioSimples.efeito||'Descreva os efeitos do domínio simples...'}</div>
           </div>
           <div class="dominio-box expansao">
-            <div class="dominio-top">
-              <div class="dominio-title">💀 Expansão de Domínio</div>
-              <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
-                <span class="tecnica-custo" ${ea} data-field="dominioExpansao/custo">${dominioExpansao.custo||'— EA'}</span>
-                ${ismine ? `<button class="btn-usar-habilidade"
-                  data-nome="Expansão de Domínio"
-                  data-custo="${(dominioExpansao.custo||'').replace(/"/g,'&quot;')}"
-                  data-custo-num="${parseCustoEA(dominioExpansao.custo)}"
-                  data-efeito="${(dominioExpansao.efeito||'').replace(/"/g,'&quot;')}"
-                  data-desc="${(dominioExpansao.desc||'').replace(/"/g,'&quot;')}">⚡ Usar</button>` : ''}
-              </div>
-            </div>
+            <div class="dominio-title">💀 Expansão de Domínio</div>
             <div class="dominio-desc" ${ea} data-field="dominioExpansao/desc">${dominioExpansao.desc||'Descreva a expansão de domínio do seu personagem...'}</div>
             <div class="dominio-efeito" ${ea} data-field="dominioExpansao/efeito">${dominioExpansao.efeito||'Descreva os efeitos da expansão de domínio...'}</div>
           </div>
@@ -3373,6 +3521,24 @@ function criarCard(slot, d, isNpc) {
           isNpc
         );
         if (modoMestre) window.__rolarComoSlot = null;
+      });
+    });
+
+    // Botões rolar técnica
+    card.querySelectorAll('.btn-rolar-tecnica').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const formula = btn.dataset.formula || '1d6';
+        const label = btn.dataset.label || 'Técnica';
+        const m = formula.match(/(\d+)d(\d+)(?:\+(\d+))?/i);
+        if (m) {
+          // Temporariamente mudar meuSlot para o slot correto
+          const slotOriginal = meuSlot;
+          if (modoMestre) window.__rolarComoSlot = slot;
+          publicarRolagem(parseInt(m[1]), parseInt(m[2]), m[3]?parseInt(m[3]):0, `🔥 ${label}`, 'roll');
+          if (modoMestre) window.__rolarComoSlot = null;
+        } else {
+          publicarRolagem(1, 6, 0, `🔥 ${label}`, 'roll');
+        }
       });
     });
 
@@ -3546,6 +3712,172 @@ function criarCard(slot, d, isNpc) {
   }
 
   return card;
+}
+
+/* ══════════════════════════════════════
+   GALERIA DE IMAGENS
+══════════════════════════════════════ */
+function renderGaleria(dados) {
+  const feed  = document.getElementById('galeriaFeed');
+  const empty = document.getElementById('galeriaEmpty');
+  const lista = Object.values(dados).sort((a,b) => (a.ts||0)-(b.ts||0));
+
+  if (lista.length === 0) {
+    feed.innerHTML = '';
+    feed.appendChild(empty);
+    empty.style.display = 'flex';
+    return;
+  }
+
+  const atBottom = feed.scrollHeight - feed.clientHeight <= feed.scrollTop + 60;
+  feed.innerHTML = '';
+
+  lista.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'galeria-item';
+    const hora = item.ts ? new Date(item.ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '';
+    const acClass = item.slot === meuSlot ? '' : 'other';
+    div.innerHTML = `
+      <div class="galeria-item-header">
+        <span class="galeria-item-author ${acClass}">${esc(item.charName||item.slot||'?')}</span>
+        <span class="galeria-item-time">${hora}</span>
+      </div>
+      ${item.legenda ? `<div class="galeria-item-legenda">${esc(item.legenda)}</div>` : ''}
+      <img src="${item.url}" alt="${esc(item.legenda||'imagem')}" loading="lazy">
+    `;
+    div.querySelector('img').addEventListener('click', () => abrirLightbox(item.url));
+    feed.appendChild(div);
+  });
+
+  if (atBottom) feed.scrollTop = feed.scrollHeight;
+}
+
+function galeriaPublicar(url, legenda) {
+  if (!url || !sessaoId) return;
+  const charName = fichasData[meuSlot]?.nome || meuNome;
+  push(ref(db, `sessoes/${sessaoId}/galeria`), {
+    slot: meuSlot, charName, url, legenda: legenda || '', ts: Date.now()
+  })
+  .then(() => showToast('Imagem enviada!', 'success'))
+  .catch(err => {
+    console.error('Erro ao salvar imagem:', err);
+    showToast('Imagem ainda muito grande para salvar. Use uma URL externa.', 'error');
+  });
+}
+
+window.galeriaEnviarArquivo = function(e) {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    showToast('Selecione um arquivo de imagem.', 'error');
+    return;
+  }
+
+  const legenda = document.getElementById('galeriaLegenda').value.trim();
+  showToast('Processando imagem...', '');
+
+  // Comprime e redimensiona no canvas antes de salvar no Firebase
+  // — evita estouro de limite do Realtime Database
+  comprimirImagem(file, 1280, 0.75)
+    .then(dataUrl => {
+      galeriaPublicar(dataUrl, legenda);
+      document.getElementById('galeriaLegenda').value = '';
+    })
+    .catch(err => {
+      console.error('Erro ao processar imagem:', err);
+      showToast('Não foi possível processar essa imagem. Tente uma URL.', 'error');
+    });
+};
+
+// Redimensiona e comprime qualquer imagem usando canvas
+// maxDim: maior dimensão permitida em px | qualidade: 0–1 para JPEG
+function comprimirImagem(file, maxDim, qualidade) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Falha ao ler o arquivo.'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Imagem inválida.'));
+      img.onload = () => {
+        let { width, height } = img;
+
+        // Redimensionar mantendo proporção
+        if (width > maxDim || height > maxDim) {
+          if (width >= height) {
+            height = Math.round(height * (maxDim / width));
+            width = maxDim;
+          } else {
+            width = Math.round(width * (maxDim / height));
+            height = maxDim;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+
+        try {
+          const dataUrl = canvas.toDataURL('image/jpeg', qualidade);
+          // Sanity-check: se mesmo comprimida ficou grande demais (~6 MB base64 ≈ 4.5 MB real),
+          // tenta uma segunda passagem com qualidade menor
+          if (dataUrl.length > 6 * 1024 * 1024) {
+            const dataUrl2 = canvas.toDataURL('image/jpeg', 0.5);
+            resolve(dataUrl2);
+          } else {
+            resolve(dataUrl);
+          }
+        } catch (err) {
+          reject(err);
+        }
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+window.galeriaEnviarUrl = function() {
+  const url = document.getElementById('galeriaUrlInput').value.trim();
+  if (!url) { showToast('Cole uma URL de imagem.', 'error'); return; }
+  const legenda = document.getElementById('galeriaLegenda').value.trim();
+  galeriaPublicar(url, legenda);
+  document.getElementById('galeriaUrlInput').value = '';
+  document.getElementById('galeriaLegenda').value = '';
+  toggleGaleriaUrlRow(false);
+};
+
+window.toggleGaleriaUrlRow = function(forcar) {
+  const row = document.getElementById('galeriaUrlRow');
+  const visivel = forcar !== undefined ? forcar : !row.classList.contains('visible');
+  row.classList.toggle('visible', visivel);
+  if (visivel) document.getElementById('galeriaUrlInput').focus();
+};
+
+window.limparGaleria = function() {
+  if (!sessaoId) return;
+  if (!confirm('Limpar todas as imagens da galeria? Esta ação não pode ser desfeita.')) return;
+  remove(ref(db, `sessoes/${sessaoId}/galeria`));
+};
+
+/* ── LIGHTBOX ── */
+window.abrirLightbox = function(url) {
+  document.getElementById('imgLightboxImg').src = url;
+  document.getElementById('imgLightbox').classList.add('show');
+};
+window.fecharLightbox = function() {
+  document.getElementById('imgLightbox').classList.remove('show');
+  setTimeout(() => { document.getElementById('imgLightboxImg').src = ''; }, 200);
+};
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') fecharLightbox();
+});
+
+// Extrai fórmula de dado de um texto de efeito ex: "1d6 + Mod. FOR" → "1d6"
+function parseTecnicaFormula(efeito) {
+  const m = (efeito||'').match(/(\d+d\d+(?:\+\d+)?)/i);
+  return m ? m[1] : '1d6';
 }
 
 // Extrai custo numérico de EA de uma string como "10 EA" → 10
@@ -3730,6 +4062,7 @@ window.rolarComposto = function() {
 
 // Gera o HTML de um item de Técnica Inata ou Feitiço (campo = 'tecnicasInatas' | 'feiticos')
 function renderTecnicaEditavel(campo, t, idx, ismine, ea) {
+  const formula = parseTecnicaFormula(t.efeito);
   const custoNum = parseCustoEA(t.custo);
   return `
   <div class="tecnica-item" data-idx="${idx}">
@@ -3744,6 +4077,7 @@ function renderTecnicaEditavel(campo, t, idx, ismine, ea) {
           data-custo-num="${custoNum}"
           data-efeito="${(t.efeito||'').replace(/"/g,'&quot;')}"
           data-desc="${(t.desc||'').replace(/"/g,'&quot;')}">⚡ Usar</button>` : ''}
+        ${ismine ? `<button class="btn-rolar-tecnica" data-formula="${formula}" data-label="${t.nome||'Técnica'}">🎲</button>` : ''}
         ${ismine ? `<button class="btn-del-tecnica" data-campo="${campo}" data-idx="${idx}" title="Remover">✕</button>` : ''}
       </div>
     </div>
