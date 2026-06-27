@@ -2581,7 +2581,6 @@ function publicarImagem(url, legenda) {
 }
 
 // Faz upload para o Firebase Storage e retorna a URL pública de download
-// — sem limite de tamanho de base64, sem inflar o Realtime Database
 async function uploadParaStorage(file) {
   const ext  = file.type === 'image/png' ? 'png' : 'jpg';
   const nome = `chatImagens/${sessaoId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
@@ -2590,13 +2589,36 @@ async function uploadParaStorage(file) {
   return await getDownloadURL(snap.ref);
 }
 
-window.enviarImagemUrl = function() {
-  const inp = document.getElementById('imagemUrlInput');
-  const url = inp.value.trim();
-  if (!url) { showToast('Cole uma URL de imagem.', 'error'); return; }
-  publicarImagem(url);
-  inp.value = '';
-};
+// Comprime imagem no canvas como fallback (quando Storage não disponível)
+function comprimirParaBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Falha ao ler arquivo'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Imagem inválida'));
+      img.onload = () => {
+        const comprimir = (dim, qual) => {
+          let {width, height} = img;
+          if (width > dim || height > dim) {
+            if (width >= height) { height = Math.round(height*(dim/width)); width = dim; }
+            else { width = Math.round(width*(dim/height)); height = dim; }
+          }
+          const c = document.createElement('canvas');
+          c.width = width; c.height = height;
+          c.getContext('2d').drawImage(img, 0, 0, width, height);
+          return c.toDataURL('image/jpeg', qual);
+        };
+        let r = comprimir(900, 0.60);
+        if (r.length > 700*1024) r = comprimir(700, 0.50);
+        if (r.length > 700*1024) r = comprimir(500, 0.40);
+        resolve(r);
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 window.enviarImagemArquivo = async function(e) {
   const file = e.target.files[0];
@@ -2605,15 +2627,37 @@ window.enviarImagemArquivo = async function(e) {
   if (!file.type.startsWith('image/')) { showToast('Selecione um arquivo de imagem.', 'error'); return; }
 
   showToast('Enviando imagem...', '');
+
+  // Tenta Storage primeiro (sem limite de tamanho)
   try {
     const url = await uploadParaStorage(file);
     publicarImagem(url);
     showToast('Imagem enviada!', 'success');
-  } catch (err) {
-    console.error('Erro no upload:', err);
-    showToast('Falha no upload. Verifique sua conexão ou tente uma URL.', 'error');
+    return;
+  } catch (errStorage) {
+    console.warn('Storage falhou, tentando base64:', errStorage.code, errStorage.message);
+  }
+
+  // Fallback: comprime e salva base64 no Realtime DB
+  try {
+    showToast('Comprimindo imagem...', '');
+    const dataUrl = await comprimirParaBase64(file);
+    await publicarImagemAsync(dataUrl);
+    showToast('Imagem enviada!', 'success');
+  } catch (errB64) {
+    console.error('Falha total no envio:', errB64);
+    showToast('Não foi possível enviar a imagem.\nTente colar uma URL externa.', 'error');
   }
 };
+
+// Versão async de publicarImagem que lança erro se Firebase rejeitar
+function publicarImagemAsync(url, legenda) {
+  if (!sessaoId) return Promise.reject('Sem sessão');
+  const charName = fichasData[meuSlot]?.nome || meuSlot;
+  return push(ref(db, `sessoes/${sessaoId}/chatImagens`), {
+    slot: meuSlot, charName, url, legenda: legenda||'', ts: Date.now()
+  });
+}
 
 window.limparImagens = function() {
   if (!sessaoId) return;
