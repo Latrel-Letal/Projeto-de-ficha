@@ -1478,6 +1478,145 @@
     .mapa-toolbar { padding: 8px 10px; }
     .mapa-toolbar input[type="text"] { width: 140px; }
   }
+
+  /* ══════════════════════════════════════
+     ANIMAÇÃO — EXPANSÃO DE DOMÍNIO
+  ══════════════════════════════════════ */
+  .dominio-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #000;
+    opacity: 0;
+    animation: domFade 3.6s ease forwards;
+    pointer-events: none;
+  }
+  @keyframes domFade {
+    0%   { opacity: 0; }
+    8%   { opacity: 1; }
+    82%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  .dominio-overlay .dom-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(20,5,35,0.4) 0%, rgba(0,0,0,0.95) 75%);
+  }
+
+  .dominio-overlay .dom-ring {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--purple);
+    box-shadow: 0 0 40px 10px rgba(168,85,247,0.6);
+    transform: translate(-50%,-50%);
+    animation: domRingExpand 1.4s cubic-bezier(.16,.84,.44,1) 0.15s forwards;
+    opacity: 0;
+  }
+  .dominio-overlay .dom-ring.ring2 { animation-delay: 0.35s; border-color: rgba(168,85,247,0.6); }
+  @keyframes domRingExpand {
+    0%   { width: 10px; height: 10px; opacity: 0.9; }
+    70%  { opacity: 0.55; }
+    100% { width: 1600px; height: 1600px; opacity: 0; }
+  }
+
+  .dominio-overlay .dom-flash {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(168,85,247,0.9) 0%, rgba(168,85,247,0) 60%);
+    opacity: 0;
+    animation: domFlash 0.6s ease-out 0.05s forwards;
+  }
+  @keyframes domFlash {
+    0%   { opacity: 0; }
+    25%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  .dominio-overlay .dom-content {
+    position: relative;
+    text-align: center;
+    z-index: 2;
+    animation: domShake 0.5s ease-in-out 0.55s;
+  }
+  @keyframes domShake {
+    0%, 100% { transform: translate(0,0); }
+    20% { transform: translate(-6px, 3px); }
+    40% { transform: translate(7px, -4px); }
+    60% { transform: translate(-5px, -3px); }
+    80% { transform: translate(4px, 4px); }
+  }
+
+  .dominio-overlay .dom-kanji {
+    font-family: 'Cinzel', serif;
+    font-size: 22px;
+    letter-spacing: 10px;
+    color: var(--purple);
+    text-shadow: 0 0 18px rgba(168,85,247,0.8);
+    opacity: 0;
+    transform: scale(0.85);
+    animation: domKanjiIn 0.5s ease-out 0.3s forwards;
+    margin-bottom: 6px;
+  }
+  @keyframes domKanjiIn {
+    0%   { opacity: 0; transform: scale(0.85); }
+    100% { opacity: 0.85; transform: scale(1); }
+  }
+
+  .dominio-overlay .dom-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(28px, 6vw, 56px);
+    color: #f5eaff;
+    text-shadow: 0 0 25px rgba(168,85,247,0.9), 0 0 60px rgba(168,85,247,0.5);
+    opacity: 0;
+    transform: scale(1.4);
+    animation: domTitleImpact 0.55s cubic-bezier(.2,1.4,.4,1) 0.45s forwards;
+  }
+  @keyframes domTitleImpact {
+    0%   { opacity: 0; transform: scale(1.6); letter-spacing: 18px; }
+    60%  { opacity: 1; }
+    100% { opacity: 1; transform: scale(1); letter-spacing: 2px; }
+  }
+
+  .dominio-overlay .dom-sub {
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--text2);
+    letter-spacing: 3px;
+    opacity: 0;
+    animation: domSubIn 0.6s ease 1s forwards;
+  }
+  .dominio-overlay .dom-sub b { color: var(--purple); }
+  @keyframes domSubIn {
+    0%   { opacity: 0; transform: translateY(6px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  .dominio-overlay .dom-particle {
+    position: absolute;
+    bottom: -10px;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--purple);
+    box-shadow: 0 0 8px 2px rgba(168,85,247,0.9);
+    opacity: 0;
+    animation-name: domParticleRise;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
+  }
+  @keyframes domParticleRise {
+    0%   { opacity: 0; transform: translateY(0) scale(0.6); }
+    10%  { opacity: 1; }
+    90%  { opacity: 0.7; }
+    100% { opacity: 0; transform: translateY(-100vh) scale(1.2); }
+  }
 </style>
 </head>
 <body>
@@ -1690,6 +1829,7 @@ let turnoNumero = 1;
 let mapaData = {};
 let fichasNpcData = {};
 let unsubFichasNpc = null;
+let dominioAnimUltimoTs = Date.now();
 
 /* ══════════════════════════════════════
    AUTENTICAÇÃO ANÔNIMA (necessária pra Firebase Rules)
@@ -2409,6 +2549,39 @@ window.limparChat = function() {
 };
 
 /* ══════════════════════════════════════
+   ANIMAÇÃO — EXPANSÃO DE DOMÍNIO
+══════════════════════════════════════ */
+function tocarAnimacaoDominio(charName) {
+  const overlay = document.createElement('div');
+  overlay.className = 'dominio-overlay';
+
+  let particles = '';
+  for (let i = 0; i < 45; i++) {
+    const left = Math.random() * 100;
+    const delay = (Math.random() * 1.2).toFixed(2);
+    const dur = (2.4 + Math.random() * 1.4).toFixed(2);
+    const size = (3 + Math.random() * 4).toFixed(1);
+    particles += `<div class="dom-particle" style="left:${left}%;width:${size}px;height:${size}px;animation-duration:${dur}s;animation-delay:${delay}s;"></div>`;
+  }
+
+  overlay.innerHTML = `
+    <div class="dom-vignette"></div>
+    <div class="dom-flash"></div>
+    <div class="dom-ring"></div>
+    <div class="dom-ring ring2"></div>
+    ${particles}
+    <div class="dom-content">
+      <div class="dom-kanji">領域展開</div>
+      <div class="dom-title">EXPANSÃO DE DOMÍNIO</div>
+      <div class="dom-sub">ativada por <b>${esc(charName||'???')}</b></div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  setTimeout(() => overlay.remove(), 3700);
+}
+
+/* ══════════════════════════════════════
    CHAT
 ══════════════════════════════════════ */
 function renderChat(msgs) {
@@ -2416,6 +2589,14 @@ function renderChat(msgs) {
   const atBottom = container.scrollHeight - container.clientHeight <= container.scrollTop + 50;
 
   const lista = Object.values(msgs).sort((a,b) => (a.ts||0)-(b.ts||0));
+
+  lista.forEach(msg => {
+    if (msg.type === 'habilidade' && msg.habilidadeNome === 'Expansão de Domínio' && (msg.ts||0) > dominioAnimUltimoTs) {
+      dominioAnimUltimoTs = msg.ts;
+      tocarAnimacaoDominio(msg.charName);
+    }
+  });
+
   container.innerHTML = '';
 
   lista.forEach(msg => {
