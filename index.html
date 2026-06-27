@@ -1485,6 +1485,172 @@
   }
   .btn-add-passiva:hover { border-color: var(--gold); color: var(--gold); }
 
+  /* ── ARSENAL DE ARMAS (Lutador + Restrição Celestial) ── */
+  .arsenal-list { display: flex; flex-direction: column; gap: 8px; }
+  .arma-card {
+    background: linear-gradient(135deg,#1a0f0f,#120808);
+    border: 1px solid rgba(255,74,74,0.35);
+    border-radius: 10px;
+    padding: 12px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .arma-header { display: flex; align-items: center; gap: 10px; }
+  .arma-img-wrap {
+    width: 52px; height: 52px; border-radius: 8px;
+    border: 1px solid rgba(255,74,74,0.4);
+    background: var(--bg3);
+    overflow: hidden; flex-shrink: 0; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; position: relative;
+    transition: border-color 0.2s;
+  }
+  .arma-img-wrap:hover { border-color: var(--red); }
+  .arma-img-wrap img { width:100%; height:100%; object-fit:cover; border-radius:7px; }
+  .arma-img-wrap.editable::after {
+    content:'📷'; position:absolute; inset:0;
+    background:rgba(0,0,0,0.6); display:flex;
+    align-items:center; justify-content:center;
+    border-radius:7px; opacity:0; transition:opacity 0.2s; font-size:14px;
+  }
+  .arma-img-wrap.editable:hover::after { opacity:1; }
+  .arma-info { flex:1; display:flex; flex-direction:column; gap:3px; }
+  .arma-nome {
+    font-family:'Cinzel',serif; font-size:13px; font-weight:700; color:#ff8080;
+  }
+  .arma-nome[contenteditable="true"]:focus { outline:1px solid rgba(255,74,74,0.5); border-radius:3px; padding:1px 3px; color:var(--text); }
+  .arma-tipo { font-size:10px; color:var(--text2); letter-spacing:1px; }
+  .arma-tipo[contenteditable="true"]:focus { outline:1px solid var(--border2); border-radius:3px; padding:1px 3px; color:var(--text); }
+  .arma-dano-row { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .arma-dano-label { font-size:10px; color:var(--text2); letter-spacing:1px; }
+  .arma-dano-input {
+    background:var(--bg); border:1px solid rgba(255,74,74,0.4);
+    border-radius:5px; color:#ff8080; font-size:13px; font-weight:700;
+    padding:3px 8px; outline:none; width:80px; text-align:center;
+    font-family:'Cinzel',serif;
+  }
+  .arma-dano-input:focus { border-color:var(--red); }
+  .btn-rolar-dano {
+    background:linear-gradient(135deg,#3a0a0a,#1a0505);
+    border:1px solid var(--red); color:var(--red);
+    border-radius:6px; padding:4px 10px; font-size:11px; font-weight:700;
+    cursor:pointer; transition:all 0.15s; white-space:nowrap;
+  }
+  .btn-rolar-dano:hover { background:var(--red); color:white; }
+  .arma-desc-area {
+    font-size:10px; color:var(--text2); line-height:1.5;
+    background:rgba(255,255,255,0.03); border-radius:5px;
+    padding:6px 8px; border:1px solid var(--border); min-height:36px;
+  }
+  .arma-desc-area[contenteditable="true"]:focus { outline:1px solid rgba(255,74,74,0.4); border-radius:4px; }
+  .btn-del-arma {
+    position:absolute; top:8px; right:8px;
+    background:transparent; border:none; color:var(--text2);
+    cursor:pointer; font-size:11px; padding:2px 5px; border-radius:4px;
+    transition:color 0.15s;
+  }
+  .btn-del-arma:hover { color:var(--red); }
+  .btn-add-arma {
+    width:100%; padding:8px; background:transparent;
+    border:1px dashed rgba(255,74,74,0.4); border-radius:8px;
+    color:#ff8080; font-size:11px; cursor:pointer; transition:all 0.15s; margin-top:2px;
+  }
+  .btn-add-arma:hover { border-color:var(--red); color:var(--red); }
+
+  /* ── SHIKIGAMI ── */
+  .shikigami-list { display:flex; flex-direction:column; gap:10px; }
+  .shikigami-card {
+    background:linear-gradient(135deg,#0a1a12,#081410);
+    border:1px solid rgba(52,211,153,0.35);
+    border-radius:10px; padding:12px; position:relative;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .shikigami-header { display:flex; align-items:center; gap:10px; }
+  .shikigami-img-wrap {
+    width:48px; height:48px; border-radius:50%;
+    border:2px solid rgba(52,211,153,0.5);
+    background:var(--bg3); overflow:hidden; flex-shrink:0;
+    cursor:pointer; display:flex; align-items:center;
+    justify-content:center; font-size:20px; position:relative;
+    transition:border-color 0.2s;
+  }
+  .shikigami-img-wrap:hover { border-color:#34d399; }
+  .shikigami-img-wrap img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+  .shikigami-img-wrap.editable::after {
+    content:'📷'; position:absolute; inset:0;
+    background:rgba(0,0,0,0.6); display:flex;
+    align-items:center; justify-content:center;
+    border-radius:50%; opacity:0; transition:opacity 0.2s; font-size:12px;
+  }
+  .shikigami-img-wrap.editable:hover::after { opacity:1; }
+  .shikigami-nome {
+    font-family:'Cinzel',serif; font-size:13px; font-weight:700; color:#34d399;
+  }
+  .shikigami-nome[contenteditable="true"]:focus { outline:1px solid rgba(52,211,153,0.5); border-radius:3px; padding:1px 3px; color:var(--text); }
+  .shikigami-desc { font-size:10px; color:var(--text2); line-height:1.5; background:rgba(255,255,255,0.03); border-radius:5px; padding:6px 8px; border:1px solid var(--border); }
+  .shikigami-desc[contenteditable="true"]:focus { outline:1px solid rgba(52,211,153,0.4); border-radius:4px; }
+  .shikigami-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; }
+  .shikigami-stat-box { background:var(--bg3); border:1px solid var(--border); border-radius:7px; padding:6px 3px; text-align:center; }
+  .shikigami-stat-box .s-label { font-size:9px; color:var(--text2); letter-spacing:1px; text-transform:uppercase; display:block; }
+  .shikigami-stat-val { font-size:16px; font-weight:700; color:#34d399; display:block; line-height:1.2; }
+  .shikigami-stat-val[contenteditable="true"]:focus { outline:1px solid rgba(52,211,153,0.5); border-radius:3px; }
+  .shikigami-resources { display:flex; flex-direction:column; gap:5px; }
+  .shikigami-res-row { display:flex; align-items:center; gap:6px; }
+  .shikigami-res-label { font-size:10px; font-weight:600; width:28px; text-align:right; flex-shrink:0; color:var(--red); }
+  .shikigami-res-label.ca { color:#34d399; }
+  .shikigami-res-label.deslo { color:var(--blue); }
+  .btn-del-shikigami {
+    position:absolute; top:8px; right:8px;
+    background:transparent; border:none; color:var(--text2);
+    cursor:pointer; font-size:11px; padding:2px 5px; border-radius:4px;
+    transition:color 0.15s;
+  }
+  .btn-del-shikigami:hover { color:var(--red); }
+  .btn-add-shikigami {
+    width:100%; padding:8px; background:transparent;
+    border:1px dashed rgba(52,211,153,0.4); border-radius:8px;
+    color:#34d399; font-size:11px; cursor:pointer; transition:all 0.15s; margin-top:2px;
+  }
+  .btn-add-shikigami:hover { border-color:#34d399; }
+
+  /* ── FALAS AMALDIÇOADAS ── */
+  .falas-list { display:flex; flex-direction:column; gap:5px; }
+  .fala-item {
+    background:linear-gradient(135deg,#1a1400,#0e0e00);
+    border:1px solid rgba(251,191,36,0.35);
+    border-radius:7px; padding:9px 12px;
+    display:flex; flex-direction:column; gap:2px;
+  }
+  .fala-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .fala-nome { font-size:12px; font-weight:600; color:#fbbf24; }
+  .fala-nome[contenteditable="true"]:focus { outline:1px solid rgba(251,191,36,0.5); border-radius:3px; padding:1px 3px; color:var(--text); }
+  .fala-efeito { font-size:10px; color:var(--text2); }
+  .fala-efeito[contenteditable="true"]:focus { outline:1px solid var(--border2); border-radius:3px; padding:1px 3px; color:var(--text); }
+  .fala-desc { font-size:10px; color:var(--text2); font-style:italic; }
+  .fala-desc[contenteditable="true"]:focus { outline:1px solid var(--border2); border-radius:3px; padding:1px 3px; color:var(--text); }
+  .btn-del-fala {
+    background:transparent; border:none; color:var(--text2);
+    cursor:pointer; font-size:11px; padding:1px 4px; border-radius:4px;
+    transition:color 0.15s; flex-shrink:0;
+  }
+  .btn-del-fala:hover { color:var(--red); }
+  .btn-usar-fala {
+    background:transparent; border:1px solid rgba(251,191,36,0.4);
+    color:#fbbf24; border-radius:5px; padding:2px 7px;
+    font-size:10px; font-weight:600; cursor:pointer;
+    transition:all 0.15s; white-space:nowrap; flex-shrink:0;
+  }
+  .btn-usar-fala:hover { background:rgba(251,191,36,0.9); color:#1a1400; }
+  .btn-add-fala {
+    width:100%; padding:7px; background:transparent;
+    border:1px dashed rgba(251,191,36,0.4); border-radius:7px;
+    color:#fbbf24; font-size:11px; cursor:pointer;
+    transition:all 0.15s; margin-top:2px;
+  }
+  .btn-add-fala:hover { border-color:#fbbf24; }
+
   /* ── EDITAR PERSONAGEM NA SELEÇÃO ── */
   .btn-edit-ficha {
     margin-top: 6px; background: transparent;
@@ -3678,10 +3844,17 @@ function criarCard(slot, d, isNpc) {
   const dominioExpansao = d.dominioExpansao || dominioExpansaoDefault();
   const inventario = Array.isArray(d.inventario) ? d.inventario : Object.values(d.inventario || {});
   const condicoes  = Array.isArray(d.condicoes)  ? d.condicoes  : Object.values(d.condicoes  || {});
+  const arsenal    = Array.isArray(d.arsenal)     ? d.arsenal    : Object.values(d.arsenal    || {});
+  const shikigamis = Array.isArray(d.shikigamis)  ? d.shikigamis : Object.values(d.shikigamis || {});
+  const falasAmal  = Array.isArray(d.falasAmal)   ? d.falasAmal  : Object.values(d.falasAmal  || {});
 
   // Classe do personagem
   const classeAtual = d.classe || 'feiticeiro';
-  const isRestricao = classeAtual === 'restricao';
+  const isRestricao  = classeAtual === 'restricao';
+  const isLutador    = classeAtual === 'lutador';
+  const isShikigami  = classeAtual === 'shikigami';
+  const isFala       = classeAtual === 'fala';
+  const temArsenal   = isLutador || isRestricao;
   const CLASSES = [
     { value: 'lutador',   label: '⚔️ Lutador' },
     { value: 'restricao', label: '🤍 Restrição Celestial' },
@@ -3849,7 +4022,34 @@ function criarCard(slot, d, isNpc) {
       <div class="card-detalhes" id="detalhes-${slot}">
       <div class="card-detalhes-inner">
 
-      ${!isRestricao ? `
+      ${temArsenal ? `
+      <div>
+        <div class="section-label">⚔️ Arsenal</div>
+        <div class="arsenal-list" id="arsenal-${slot}">
+          ${arsenal.map((a,i) => renderArmaCard(a, i, ismine, ea)).join('')}
+        </div>
+        ${ismine ? `<button class="btn-add-arma">＋ Adicionar Arma</button>` : ''}
+      </div>` : ''}
+
+      ${isShikigami ? `
+      <div>
+        <div class="section-label">🐉 Shikigami</div>
+        <div class="shikigami-list" id="shikigamis-${slot}">
+          ${shikigamis.map((sk,i) => renderShikigamiCard(sk, i, ismine, ea)).join('')}
+        </div>
+        ${ismine ? `<button class="btn-add-shikigami">＋ Adicionar Shikigami</button>` : ''}
+      </div>` : ''}
+
+      ${isFala ? `
+      <div>
+        <div class="section-label">🗣️ Falas Amaldiçoadas</div>
+        <div class="falas-list" id="falasAmal-${slot}">
+          ${falasAmal.map((f,i) => renderFalaCard(f, i, ismine, ea)).join('')}
+        </div>
+        ${ismine && falasAmal.length < 5 ? `<button class="btn-add-fala">＋ Adicionar Fala (${falasAmal.length}/5)</button>` : ''}
+      </div>` : ''}
+
+      ${!isRestricao && !isFala ? `
       <div>
         <div class="section-label">Técnicas de Reforço</div>
         <div class="tecnicas-list">
@@ -3871,8 +4071,9 @@ function criarCard(slot, d, isNpc) {
             <span class="tecnica-desc">${t.desc}</span>
           </div>`).join('')}
         </div>
-      </div>
+      </div>` : ''}
 
+      ${!isRestricao ? `
       <div>
         <div class="section-label">Técnicas Inatas</div>
         <div class="tecnicas-list" id="tecnicasInatas-${slot}">
@@ -4172,6 +4373,192 @@ function criarCard(slot, d, isNpc) {
         showToast(`Ficha "${novoNome}" duplicada!`, 'success');
       });
     }
+
+    // ── ARSENAL (Lutador + Restrição Celestial) ──
+    if (temArsenal) {
+      // Adicionar arma
+      const addArmaBtn = card.querySelector('.btn-add-arma');
+      if (addArmaBtn) {
+        addArmaBtn.addEventListener('click', () => {
+          const fichaAtual = getFicha(slot);
+          const arr = Array.isArray(fichaAtual?.arsenal) ? fichaAtual.arsenal : Object.values(fichaAtual?.arsenal || {});
+          salvar(slot, 'arsenal', [...arr, { nome:'Nova Arma', tipo:'Corpo a Corpo', dano:'1d6', desc:'Descrição da arma...', imagem:null }], isNpc);
+        });
+      }
+      // Remover arma
+      card.querySelectorAll('.btn-del-arma').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.dataset.idx);
+          const fichaAtual = getFicha(slot);
+          const arr = [...(Array.isArray(fichaAtual?.arsenal) ? fichaAtual.arsenal : Object.values(fichaAtual?.arsenal || {}))];
+          arr.splice(idx, 1);
+          salvar(slot, 'arsenal', arr.length ? arr : null, isNpc);
+        });
+      });
+      // Rolar dano da arma
+      card.querySelectorAll('.btn-rolar-dano').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const danoStr = btn.dataset.dano || '1d6';
+          const m = danoStr.match(/^(\d+)d(\d+)(?:\s*[+]\s*(\d+))?$/i);
+          if (!m) { showToast('Formato de dano inválido. Use: NdX ou NdX+B', 'error'); return; }
+          if (modoMestre) window.__rolarComoSlot = slot;
+          publicarRolagem(parseInt(m[1]), parseInt(m[2]), m[3]?parseInt(m[3]):0, `⚔️ ${btn.dataset.nome}`, 'roll');
+          if (modoMestre) window.__rolarComoSlot = null;
+        });
+      });
+      // Upload de imagem de arma
+      card.querySelectorAll('.arma-img-wrap.editable').forEach(wrap => {
+        const fileInp = wrap.nextElementSibling;
+        wrap.addEventListener('click', () => fileInp && fileInp.click());
+        if (fileInp && fileInp.classList.contains('arma-img-input')) {
+          fileInp.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const idx = parseInt(fileInp.dataset.idx);
+            const reader = new FileReader();
+            reader.onload = ev => {
+              const fichaAtual = getFicha(slot);
+              const arr = [...(Array.isArray(fichaAtual?.arsenal) ? fichaAtual.arsenal : Object.values(fichaAtual?.arsenal || {}))];
+              if (arr[idx]) { arr[idx].imagem = ev.target.result; salvar(slot, 'arsenal', arr, isNpc); }
+            };
+            reader.readAsDataURL(file);
+            e.target.value = '';
+          });
+        }
+      });
+      // Campos texto das armas (contenteditable)
+      card.querySelectorAll('[data-arma-idx]').forEach(el => {
+        el.addEventListener('blur', () => {
+          const idx = parseInt(el.dataset.armaIdx);
+          const campo = el.dataset.armaCampo;
+          const fichaAtual = getFicha(slot);
+          const arr = [...(Array.isArray(fichaAtual?.arsenal) ? fichaAtual.arsenal : Object.values(fichaAtual?.arsenal || {}))];
+          if (arr[idx]) { arr[idx][campo] = el.textContent.trim(); salvar(slot, 'arsenal', arr, isNpc); }
+        });
+        el.addEventListener('keydown', e => { if (e.key==='Enter'){e.preventDefault();el.blur();} });
+      });
+      // Input dano de arma
+      card.querySelectorAll('.arma-dano-input').forEach(inp => {
+        inp.addEventListener('change', () => {
+          const idx = parseInt(inp.dataset.idx);
+          const fichaAtual = getFicha(slot);
+          const arr = [...(Array.isArray(fichaAtual?.arsenal) ? fichaAtual.arsenal : Object.values(fichaAtual?.arsenal || {}))];
+          if (arr[idx]) {
+            arr[idx].dano = inp.value.trim() || '1d6';
+            salvar(slot, 'arsenal', arr, isNpc);
+            // Atualizar data-dano no botão de rolar
+            const btnRolar = inp.closest('.arma-dano-row')?.querySelector('.btn-rolar-dano');
+            if (btnRolar) btnRolar.dataset.dano = arr[idx].dano;
+          }
+        });
+      });
+    }
+
+    // ── SHIKIGAMI ──
+    if (isShikigami) {
+      const addSkBtn = card.querySelector('.btn-add-shikigami');
+      if (addSkBtn) {
+        addSkBtn.addEventListener('click', () => {
+          const fichaAtual = getFicha(slot);
+          const arr = Array.isArray(fichaAtual?.shikigamis) ? fichaAtual.shikigamis : Object.values(fichaAtual?.shikigamis || {});
+          salvar(slot, 'shikigamis', [...arr, { nome:'Novo Shikigami', desc:'Descrição...', imagem:null, for:10, dex:10, con:10, ca:10, pv:10, pvMax:10, deslocamento:9 }], isNpc);
+        });
+      }
+      card.querySelectorAll('.btn-del-shikigami').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.dataset.idx);
+          const fichaAtual = getFicha(slot);
+          const arr = [...(Array.isArray(fichaAtual?.shikigamis) ? fichaAtual.shikigamis : Object.values(fichaAtual?.shikigamis || {}))];
+          arr.splice(idx, 1);
+          salvar(slot, 'shikigamis', arr.length ? arr : null, isNpc);
+        });
+      });
+      // Upload imagem shikigami
+      card.querySelectorAll('.shikigami-img-wrap.editable').forEach(wrap => {
+        const fileInp = wrap.nextElementSibling;
+        wrap.addEventListener('click', () => fileInp && fileInp.click());
+        if (fileInp && fileInp.classList.contains('shiki-img-input')) {
+          fileInp.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const idx = parseInt(fileInp.dataset.idx);
+            const reader = new FileReader();
+            reader.onload = ev => {
+              const fichaAtual = getFicha(slot);
+              const arr = [...(Array.isArray(fichaAtual?.shikigamis) ? fichaAtual.shikigamis : Object.values(fichaAtual?.shikigamis || {}))];
+              if (arr[idx]) { arr[idx].imagem = ev.target.result; salvar(slot, 'shikigamis', arr, isNpc); }
+            };
+            reader.readAsDataURL(file);
+            e.target.value = '';
+          });
+        }
+      });
+      // Campos texto do shikigami
+      card.querySelectorAll('[data-sk-idx]').forEach(el => {
+        el.addEventListener('blur', () => {
+          const idx = parseInt(el.dataset.skIdx);
+          const campo = el.dataset.skCampo;
+          const fichaAtual = getFicha(slot);
+          const arr = [...(Array.isArray(fichaAtual?.shikigamis) ? fichaAtual.shikigamis : Object.values(fichaAtual?.shikigamis || {}))];
+          if (arr[idx]) {
+            const numCampos = ['for','dex','con','ca','pv','pvMax','deslocamento'];
+            arr[idx][campo] = numCampos.includes(campo) ? (parseInt(el.textContent)||0) : el.textContent.trim();
+            salvar(slot, 'shikigamis', arr, isNpc);
+          }
+        });
+        el.addEventListener('keydown', e => { if (e.key==='Enter'){e.preventDefault();el.blur();} });
+      });
+      // Inputs numéricos do shikigami
+      card.querySelectorAll('.sk-num-input').forEach(inp => {
+        inp.addEventListener('change', () => {
+          const idx = parseInt(inp.dataset.idx);
+          const campo = inp.dataset.campo;
+          const fichaAtual = getFicha(slot);
+          const arr = [...(Array.isArray(fichaAtual?.shikigamis) ? fichaAtual.shikigamis : Object.values(fichaAtual?.shikigamis || {}))];
+          if (arr[idx]) { arr[idx][campo] = Number(inp.value); salvar(slot, 'shikigamis', arr, isNpc); }
+        });
+      });
+    }
+
+    // ── FALAS AMALDIÇOADAS ──
+    if (isFala) {
+      const addFalaBtn = card.querySelector('.btn-add-fala');
+      if (addFalaBtn) {
+        addFalaBtn.addEventListener('click', () => {
+          const fichaAtual = getFicha(slot);
+          const arr = Array.isArray(fichaAtual?.falasAmal) ? fichaAtual.falasAmal : Object.values(fichaAtual?.falasAmal || {});
+          if (arr.length >= 5) { showToast('Máximo de 5 falas atingido.', ''); return; }
+          salvar(slot, 'falasAmal', [...arr, { nome:'Nova Fala', custo:'— EA', efeito:'Descreva o efeito...', desc:'' }], isNpc);
+        });
+      }
+      card.querySelectorAll('.btn-del-fala').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.dataset.idx);
+          const fichaAtual = getFicha(slot);
+          const arr = [...(Array.isArray(fichaAtual?.falasAmal) ? fichaAtual.falasAmal : Object.values(fichaAtual?.falasAmal || {}))];
+          arr.splice(idx, 1);
+          salvar(slot, 'falasAmal', arr.length ? arr : null, isNpc);
+        });
+      });
+      card.querySelectorAll('.btn-usar-fala').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (modoMestre) window.__rolarComoSlot = slot;
+          usarHabilidade(slot, btn.dataset.nome, btn.dataset.custo, parseInt(btn.dataset.custoNum)||0, btn.dataset.efeito, btn.dataset.desc, isNpc);
+          if (modoMestre) window.__rolarComoSlot = null;
+        });
+      });
+      // Campos texto das falas
+      card.querySelectorAll('[data-fala-idx]').forEach(el => {
+        el.addEventListener('blur', () => {
+          const idx = parseInt(el.dataset.falaIdx);
+          const campo = el.dataset.falaCampo;
+          const fichaAtual = getFicha(slot);
+          const arr = [...(Array.isArray(fichaAtual?.falasAmal) ? fichaAtual.falasAmal : Object.values(fichaAtual?.falasAmal || {}))];
+          if (arr[idx]) { arr[idx][campo] = el.textContent.trim(); salvar(slot, 'falasAmal', arr, isNpc); }
+        });
+        el.addEventListener('keydown', e => { if (e.key==='Enter'){e.preventDefault();el.blur();} });
+      });
+    }
   }
 
   // Botão de domínio ativo — ligar/desligar
@@ -4421,6 +4808,108 @@ window.rolarComposto = function() {
 
   setTimeout(() => fecharCompostoModal(), 900);
 };
+
+// Gera o HTML de um card de Arma do Arsenal
+function renderArmaCard(a, idx, ismine, ea) {
+  const imgSrc = a.imagem ? `<img src="${a.imagem}" alt="arma">` : '⚔️';
+  const wrapClass = ismine ? 'arma-img-wrap editable' : 'arma-img-wrap';
+  return `
+  <div class="arma-card" data-idx="${idx}">
+    ${ismine ? `<button class="btn-del-arma" data-idx="${idx}" title="Remover arma">✕</button>` : ''}
+    <div class="arma-header">
+      <div class="${wrapClass}" title="${ismine?'Clique para alterar imagem':''}">
+        ${imgSrc}
+      </div>
+      ${ismine ? `<input type="file" class="arma-img-input" accept="image/*" data-idx="${idx}" style="display:none">` : ''}
+      <div class="arma-info">
+        <div class="arma-nome" ${ea} data-arma-idx="${idx}" data-arma-campo="nome">${a.nome||'Arma'}</div>
+        <div class="arma-tipo" ${ea} data-arma-idx="${idx}" data-arma-campo="tipo">${a.tipo||'Corpo a Corpo'}</div>
+      </div>
+    </div>
+    <div class="arma-dano-row">
+      <span class="arma-dano-label">DANO</span>
+      ${ismine
+        ? `<input class="arma-dano-input" type="text" value="${a.dano||'1d6'}" placeholder="1d6" data-idx="${idx}">`
+        : `<span class="arma-dano-input" style="pointer-events:none">${a.dano||'1d6'}</span>`}
+      ${ismine ? `<button class="btn-rolar-dano" data-dano="${a.dano||'1d6'}" data-nome="${(a.nome||'Arma').replace(/"/g,'&quot;')}">🎲 Rolar Dano</button>` : ''}
+    </div>
+    <div class="arma-desc-area" ${ea} data-arma-idx="${idx}" data-arma-campo="desc">${a.desc||'Descrição da arma...'}</div>
+  </div>`;
+}
+
+// Gera o HTML de um card de Shikigami
+function renderShikigamiCard(sk, idx, ismine, ea) {
+  const imgSrc = sk.imagem ? `<img src="${sk.imagem}" alt="shikigami">` : '🐉';
+  const wrapClass = ismine ? 'shikigami-img-wrap editable' : 'shikigami-img-wrap';
+  const pvPct = Math.max(0, Math.min(100, sk.pvMax>0 ? (sk.pv/sk.pvMax)*100 : 0));
+  const modVal = v => { const m=Math.floor((v-10)/2); return (m>=0?'+':'')+m; };
+  return `
+  <div class="shikigami-card" data-idx="${idx}">
+    ${ismine ? `<button class="btn-del-shikigami" data-idx="${idx}" title="Remover shikigami">✕</button>` : ''}
+    <div class="shikigami-header">
+      <div class="${wrapClass}" title="${ismine?'Clique para alterar imagem':''}">
+        ${imgSrc}
+      </div>
+      ${ismine ? `<input type="file" class="shiki-img-input" accept="image/*" data-idx="${idx}" style="display:none">` : ''}
+      <div class="arma-info">
+        <div class="shikigami-nome" ${ea} data-sk-idx="${idx}" data-sk-campo="nome">${sk.nome||'Shikigami'}</div>
+      </div>
+    </div>
+    <div class="shikigami-desc" ${ea} data-sk-idx="${idx}" data-sk-campo="desc">${sk.desc||'Descrição...'}</div>
+    <div class="shikigami-stats">
+      ${['for','dex','con'].map(a => `
+      <div class="shikigami-stat-box">
+        <span class="s-label">${a.toUpperCase()}</span>
+        <span class="shikigami-stat-val" ${ea} data-sk-idx="${idx}" data-sk-campo="${a}">${sk[a]??10}</span>
+        <div style="font-size:9px;color:var(--text2)">${modVal(sk[a]??10)}</div>
+      </div>`).join('')}
+    </div>
+    <div class="shikigami-resources">
+      <div class="shikigami-res-row">
+        <span class="shikigami-res-label">PV</span>
+        <div class="bar-track" style="flex:1"><div class="bar-fill pv" style="width:${pvPct}%"></div></div>
+        <div class="resource-inputs">
+          <input class="num-input sk-num-input" type="number" value="${sk.pv??10}" min="0" data-idx="${idx}" data-campo="pv" ${ismine?'':'disabled'}>
+          <span class="num-sep">/</span>
+          <input class="num-input sk-num-input" type="number" value="${sk.pvMax??10}" min="0" data-idx="${idx}" data-campo="pvMax" ${ismine?'':'disabled'}>
+        </div>
+      </div>
+      <div class="shikigami-res-row">
+        <span class="shikigami-res-label ca">CA</span>
+        <span style="flex:1;font-size:10px;color:var(--text2)">Classe de Armadura</span>
+        <span class="shikigami-stat-val" ${ea} data-sk-idx="${idx}" data-sk-campo="ca" style="font-size:16px;width:36px;text-align:center">${sk.ca??10}</span>
+      </div>
+      <div class="shikigami-res-row">
+        <span class="shikigami-res-label deslo">🏃</span>
+        <span style="flex:1;font-size:10px;color:var(--text2)">Deslocamento</span>
+        <span class="shikigami-stat-val" ${ea} data-sk-idx="${idx}" data-sk-campo="deslocamento" style="font-size:14px;width:48px;text-align:center">${sk.deslocamento??9}m</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+// Gera o HTML de um card de Fala Amaldiçoada
+function renderFalaCard(f, idx, ismine, ea) {
+  const custoNum = parseCustoEA(f.custo);
+  return `
+  <div class="fala-item" data-idx="${idx}">
+    <div class="fala-top">
+      <span class="fala-nome" ${ea} data-fala-idx="${idx}" data-fala-campo="nome">${f.nome||'Fala Amaldiçoada'}</span>
+      <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+        <span class="tecnica-custo" ${ea} data-fala-idx="${idx}" data-fala-campo="custo">${f.custo||'— EA'}</span>
+        ${ismine ? `<button class="btn-usar-fala"
+          data-nome="${(f.nome||'Fala').replace(/"/g,'&quot;')}"
+          data-custo="${(f.custo||'').replace(/"/g,'&quot;')}"
+          data-custo-num="${custoNum}"
+          data-efeito="${(f.efeito||'').replace(/"/g,'&quot;')}"
+          data-desc="${(f.desc||'').replace(/"/g,'&quot;')}">🗣️ Usar</button>` : ''}
+        ${ismine ? `<button class="btn-del-fala" data-idx="${idx}" title="Remover">✕</button>` : ''}
+      </div>
+    </div>
+    <span class="fala-efeito" ${ea} data-fala-idx="${idx}" data-fala-campo="efeito">${f.efeito||'Descreva o efeito...'}</span>
+    <span class="fala-desc" ${ea} data-fala-idx="${idx}" data-fala-campo="desc">${f.desc||''}</span>
+  </div>`;
+}
 
 // Gera o HTML de um item de Técnica Inata ou Feitiço (campo = 'tecnicasInatas' | 'feiticos')
 function renderTecnicaEditavel(campo, t, idx, ismine, ea) {
