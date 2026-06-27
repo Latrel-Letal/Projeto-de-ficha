@@ -1663,8 +1663,6 @@ import { getDatabase, ref, set, get, push, onValue, remove }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
 import { getAuth, signInAnonymously, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL }
-  from "https://www.gstatic.com/firebasejs/11.0.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey:            "AIzaSyCssTD1j4VUVsbOYRDq6t0NQ-L_oeQ5O8U",
@@ -1676,10 +1674,9 @@ const firebaseConfig = {
   appId:             "1:449356287217:web:e0b3969bb9e97e44ee2d50"
 };
 
-const app     = initializeApp(firebaseConfig);
-const db      = getDatabase(app);
-const auth    = getAuth(app);
-const storage = getStorage(app);
+const app  = initializeApp(firebaseConfig);
+const db   = getDatabase(app);
+const auth = getAuth(app);
 
 let sessaoId   = null;
 let meuSlot    = null;
@@ -2575,22 +2572,13 @@ function publicarImagem(url, legenda) {
   push(ref(db, `sessoes/${sessaoId}/chatImagens`), {
     slot: meuSlot, charName, url, legenda: legenda||'', ts: Date.now()
   }).catch(err => {
-    console.error('Erro ao enviar imagem:', err);
+    console.error('Erro ao registrar imagem:', err);
     showToast('Erro ao registrar imagem.', 'error');
   });
 }
 
-// Faz upload para o Firebase Storage e retorna a URL pública de download
-async function uploadParaStorage(file) {
-  const ext  = file.type === 'image/png' ? 'png' : 'jpg';
-  const nome = `chatImagens/${sessaoId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-  const sRef = storageRef(storage, nome);
-  const snap = await uploadBytes(sRef, file);
-  return await getDownloadURL(snap.ref);
-}
-
-// Comprime imagem no canvas como fallback (quando Storage não disponível)
-function comprimirParaBase64(file) {
+// Comprime imagem no canvas antes do upload
+function comprimirArquivo(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = () => reject(new Error('Falha ao ler arquivo'));
@@ -2598,21 +2586,21 @@ function comprimirParaBase64(file) {
       const img = new Image();
       img.onerror = () => reject(new Error('Imagem inválida'));
       img.onload = () => {
-        const comprimir = (dim, qual) => {
-          let {width, height} = img;
-          if (width > dim || height > dim) {
-            if (width >= height) { height = Math.round(height*(dim/width)); width = dim; }
-            else { width = Math.round(width*(dim/height)); height = dim; }
-          }
-          const c = document.createElement('canvas');
-          c.width = width; c.height = height;
-          c.getContext('2d').drawImage(img, 0, 0, width, height);
-          return c.toDataURL('image/jpeg', qual);
-        };
-        let r = comprimir(900, 0.60);
-        if (r.length > 700*1024) r = comprimir(700, 0.50);
-        if (r.length > 700*1024) r = comprimir(500, 0.40);
-        resolve(r);
+        // Reduz pra no máximo 1200px mantendo proporção
+        let { width, height } = img;
+        const MAX = 1200;
+        if (width > MAX || height > MAX) {
+          if (width >= height) { height = Math.round(height * (MAX / width)); width = MAX; }
+          else { width = Math.round(width * (MAX / height)); height = MAX; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        canvas.toBlob(blob => {
+          if (blob) resolve(blob);
+          else reject(new Error('Falha ao converter canvas'));
+        }, 'image/jpeg', 0.82);
       };
       img.src = reader.result;
     };
@@ -2620,44 +2608,44 @@ function comprimirParaBase64(file) {
   });
 }
 
+// Upload via Imgur API (client_id público, sem login)
+async function uploadImgur(file) {
+  const blob = await comprimirArquivo(file);
+  const form = new FormData();
+  form.append('image', blob, 'imagem.jpg');
+
+  const resp = await fetch('https://api.imgur.com/3/image', {
+    method: 'POST',
+    headers: { Authorization: 'Client-ID 546c25a59c58ad7' },
+    body: form
+  });
+
+  if (!resp.ok) throw new Error(`Imgur HTTP ${resp.status}`);
+  const data = await resp.json();
+  if (!data.success) throw new Error('Imgur recusou o upload');
+  return data.data.link;
+}
+
 window.enviarImagemArquivo = async function(e) {
   const file = e.target.files[0];
   e.target.value = '';
   if (!file) return;
-  if (!file.type.startsWith('image/')) { showToast('Selecione um arquivo de imagem.', 'error'); return; }
-
-  showToast('Enviando imagem...', '');
-
-  // Tenta Storage primeiro (sem limite de tamanho)
-  try {
-    const url = await uploadParaStorage(file);
-    publicarImagem(url);
-    showToast('Imagem enviada!', 'success');
+  if (!file.type.startsWith('image/')) {
+    showToast('Selecione um arquivo de imagem.', 'error');
     return;
-  } catch (errStorage) {
-    console.warn('Storage falhou, tentando base64:', errStorage.code, errStorage.message);
   }
 
-  // Fallback: comprime e salva base64 no Realtime DB
+  showToast('Enviando imagem... ⏳', '');
+
   try {
-    showToast('Comprimindo imagem...', '');
-    const dataUrl = await comprimirParaBase64(file);
-    await publicarImagemAsync(dataUrl);
-    showToast('Imagem enviada!', 'success');
-  } catch (errB64) {
-    console.error('Falha total no envio:', errB64);
-    showToast('Não foi possível enviar a imagem.\nTente colar uma URL externa.', 'error');
+    const url = await uploadImgur(file);
+    publicarImagem(url);
+    showToast('Imagem enviada! ✅', 'success');
+  } catch (err) {
+    console.error('Erro no upload Imgur:', err);
+    showToast('Falha no upload. Tente colar uma URL direta.', 'error');
   }
 };
-
-// Versão async de publicarImagem que lança erro se Firebase rejeitar
-function publicarImagemAsync(url, legenda) {
-  if (!sessaoId) return Promise.reject('Sem sessão');
-  const charName = fichasData[meuSlot]?.nome || meuSlot;
-  return push(ref(db, `sessoes/${sessaoId}/chatImagens`), {
-    slot: meuSlot, charName, url, legenda: legenda||'', ts: Date.now()
-  });
-}
 
 window.limparImagens = function() {
   if (!sessaoId) return;
