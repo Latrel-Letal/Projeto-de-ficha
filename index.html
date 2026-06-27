@@ -1663,6 +1663,8 @@ import { getDatabase, ref, set, get, push, onValue, remove }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
 import { getAuth, signInAnonymously, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL }
+  from "https://www.gstatic.com/firebasejs/11.0.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey:            "AIzaSyCssTD1j4VUVsbOYRDq6t0NQ-L_oeQ5O8U",
@@ -1674,9 +1676,10 @@ const firebaseConfig = {
   appId:             "1:449356287217:web:e0b3969bb9e97e44ee2d50"
 };
 
-const app  = initializeApp(firebaseConfig);
-const db   = getDatabase(app);
-const auth = getAuth(app);
+const app     = initializeApp(firebaseConfig);
+const db      = getDatabase(app);
+const auth    = getAuth(app);
+const storage = getStorage(app);
 
 let sessaoId   = null;
 let meuSlot    = null;
@@ -2573,59 +2576,18 @@ function publicarImagem(url, legenda) {
     slot: meuSlot, charName, url, legenda: legenda||'', ts: Date.now()
   }).catch(err => {
     console.error('Erro ao enviar imagem:', err);
-    showToast('Erro ao enviar imagem. Pode estar muito grande — tente outra.', 'error');
+    showToast('Erro ao registrar imagem.', 'error');
   });
 }
 
-// Comprime imagem via canvas em múltiplas passagens até caber no Firebase
-// Firebase Realtime DB suporta ~9 MB por nó; base64 infla ~33%, então
-// o alvo seguro é ~600 KB de base64 (≈ 450 KB real)
-function comprimirImagemArquivo(file, maxDim, qualidade) {
-  maxDim = maxDim || 1024;
-  qualidade = qualidade || 0.65;
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error('Falha ao ler o arquivo.'));
-    reader.onload = () => {
-      const img = new Image();
-      img.onerror = () => reject(new Error('Falha ao carregar a imagem.'));
-      img.onload = () => {
-        const comprimir = (dim, qual) => {
-          let { width, height } = img;
-          if (width > dim || height > dim) {
-            if (width >= height) { height = Math.round(height * (dim / width)); width = dim; }
-            else { width = Math.round(width * (dim / height)); height = dim; }
-          }
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-          return canvas.toDataURL('image/jpeg', qual);
-        };
-
-        try {
-          // Passagem 1: 1024px / qualidade 65%
-          let result = comprimir(1024, 0.65);
-
-          // Passagem 2: ainda grande → 800px / 55%
-          if (result.length > 800 * 1024) {
-            result = comprimir(800, 0.55);
-          }
-
-          // Passagem 3: teimosa → 600px / 45%
-          if (result.length > 800 * 1024) {
-            result = comprimir(600, 0.45);
-          }
-
-          resolve(result);
-        } catch (err) {
-          reject(err);
-        }
-      };
-      img.src = reader.result;
-    };
-    reader.readAsDataURL(file);
-  });
+// Faz upload para o Firebase Storage e retorna a URL pública de download
+// — sem limite de tamanho de base64, sem inflar o Realtime Database
+async function uploadParaStorage(file) {
+  const ext  = file.type === 'image/png' ? 'png' : 'jpg';
+  const nome = `chatImagens/${sessaoId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+  const sRef = storageRef(storage, nome);
+  const snap = await uploadBytes(sRef, file);
+  return await getDownloadURL(snap.ref);
 }
 
 window.enviarImagemUrl = function() {
@@ -2636,22 +2598,21 @@ window.enviarImagemUrl = function() {
   inp.value = '';
 };
 
-window.enviarImagemArquivo = function(e) {
+window.enviarImagemArquivo = async function(e) {
   const file = e.target.files[0];
   e.target.value = '';
   if (!file) return;
   if (!file.type.startsWith('image/')) { showToast('Selecione um arquivo de imagem.', 'error'); return; }
 
-  showToast('Comprimindo imagem...', '');
-  comprimirImagemArquivo(file)
-    .then(dataUrl => {
-      publicarImagem(dataUrl);
-      showToast('Imagem enviada!', 'success');
-    })
-    .catch(err => {
-      console.error('Erro ao processar imagem:', err);
-      showToast('Não foi possível processar essa imagem.', 'error');
-    });
+  showToast('Enviando imagem...', '');
+  try {
+    const url = await uploadParaStorage(file);
+    publicarImagem(url);
+    showToast('Imagem enviada!', 'success');
+  } catch (err) {
+    console.error('Erro no upload:', err);
+    showToast('Falha no upload. Verifique sua conexão ou tente uma URL.', 'error');
+  }
 };
 
 window.limparImagens = function() {
