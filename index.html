@@ -6,7 +6,7 @@
 <title>Ficha — Jujutsu Kaisen RPG</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
-
+ 
   :root {
     --bg:          #0a0a0f;
     --bg2:         #11111a;
@@ -25,16 +25,16 @@
     --online:      #22c55e;
     --radius:      10px;
   }
-
+ 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
+ 
   body {
     font-family: 'Inter', sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
   }
-
+ 
   /* ── HEADER ── */
   .app-header {
     background: var(--bg2);
@@ -77,7 +77,7 @@
     animation: pulse 2s infinite;
   }
   @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
-
+ 
   .btn-header {
     border: 1px solid var(--border2);
     border-radius: 7px;
@@ -100,7 +100,7 @@
   }
   .btn-header.toggle:hover { border-color: var(--blue); color: var(--blue); }
   .btn-header.toggle.active { border-color: var(--blue); color: var(--blue); background: var(--blue-glow); }
-
+ 
   /* ── MENU LATERAL (Fichas / Mapa / Chat de Imagens) ── */
   .menu-wrap { position: relative; }
   .btn-header.menu {
@@ -146,7 +146,7 @@
   }
   .menu-dropdown-item:hover { background: var(--bg3); color: var(--text); }
   .menu-dropdown-item.active { color: var(--blue); background: var(--blue-glow); }
-
+ 
   /* ── SELECT SCREEN ── */
   .player-select-screen {
     min-height: 100vh;
@@ -231,7 +231,7 @@
     letter-spacing: 2px;
   }
   .session-id-box input:focus { border-color: var(--purple); }
-
+ 
   /* ── SESSÕES RECENTES (lembradas neste dispositivo) ── */
   .recent-sessions-box {
     max-width: 680px;
@@ -294,11 +294,11 @@
     letter-spacing: 1px;
   }
   .btn-enter:hover { opacity: 0.85; }
-
+ 
   /* ── MAIN LAYOUT ── */
   .main-layout { display: none; }
   .main-layout.visible { display: flex; align-items: flex-start; }
-
+ 
   /* ── FICHAS AREA ── */
   .fichas-area {
     flex: 1;
@@ -322,7 +322,7 @@
     max-width: 1600px;
     margin: 0 auto;
   }
-
+ 
   /* ══════════════════════════════════════
      MAPA / GRID DE BATALHA
   ══════════════════════════════════════ */
@@ -341,7 +341,7 @@
     width: 0;
     padding: 0;
   }
-
+ 
   /* ══════════════════════════════════════
      CHAT DE IMAGENS
   ══════════════════════════════════════ */
@@ -435,7 +435,7 @@
   }
   .imgchat-lightbox.show { display: flex; }
   .imgchat-lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; }
-
+ 
   .mapa-toolbar {
     display: flex;
     flex-wrap: wrap;
@@ -471,7 +471,7 @@
   .btn-mapa.danger:hover { background: var(--red); color: white; }
   .btn-mapa.gold { border-color: var(--gold); color: var(--gold); }
   .btn-mapa.gold:hover { background: var(--gold); color: #0a0a0f; }
-
+ 
   .mapa-viewport {
     flex: 1;
     overflow: auto;
@@ -547,7 +547,7 @@
     border-radius: 50%;
     pointer-events: none;
   }
-
+ 
   /* ── FICHA CARD ── */
   .ficha-card {
     background: var(--bg2);
@@ -603,9 +603,9 @@
     white-space: nowrap; flex-shrink: 0; transition: all 0.15s; margin-left: 6px;
   }
   .btn-dup-npc-card:hover { background: var(--gold); color: #1a1400; }
-
+ 
   .card-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 14px; }
-
+ 
   .section-label {
     font-size: 10px;
     font-weight: 600;
@@ -618,7 +618,7 @@
     gap: 8px;
   }
   .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-
+ 
   /* ── BARS ── */
   .resource-bars { display: flex; flex-direction: column; gap: 8px; }
   .resource-row { display: flex; align-items: center; gap: 8px; }
@@ -646,7 +646,7 @@
   }
   .num-input:focus { border-color: var(--border2); }
   .num-sep { color: var(--text2); font-size: 11px; }
-
+ 
   /* ── ATTRS ── */
   .attrs-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 5px; }
   .attr-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 7px; padding: 7px 3px; text-align: center; }
@@ -654,7 +654,7 @@
   .attr-val { font-size: 17px; font-weight: 700; color: var(--text); display: block; line-height: 1.2; }
   .attr-val[contenteditable="true"]:focus { outline: 1px solid var(--border2); border-radius: 3px; }
   .attr-mod { font-size: 10px; color: var(--text2); margin-top: 1px; }
-
+ 
   /* ── INICIATIVA BTN ── */
   .btn-iniciativa {
     width: 100%;
@@ -676,14 +676,14 @@
   }
   .btn-iniciativa:hover { background: var(--purple); color: white; box-shadow: 0 0 18px var(--purple-glow); }
   .btn-iniciativa:active { transform: scale(0.98); }
-
+ 
   /* ── STATUS GRID ── */
   .status-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
   .status-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 9px; text-align: center; }
   .status-box .s-label { font-size: 9px; color: var(--text2); letter-spacing: 1px; text-transform: uppercase; }
   .status-box .s-val { font-size: 19px; font-weight: 700; color: var(--text); display: block; margin-top: 2px; }
   .status-box .s-val[contenteditable="true"]:focus { outline: 1px solid var(--border2); border-radius: 3px; }
-
+ 
   /* ── TÉCNICAS ── */
   .tecnicas-list { display: flex; flex-direction: column; gap: 5px; }
   .tecnica-item { background: var(--bg3); border: 1px solid var(--border); border-radius: 7px; padding: 9px 12px; display: flex; flex-direction: column; gap: 2px; }
@@ -701,7 +701,7 @@
     padding: 1px 3px;
     color: var(--text);
   }
-
+ 
   /* ── DOMÍNIO ── */
   .dominio-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 9px; padding: 12px; }
   .dominio-box.expansao { border-color: rgba(168,85,247,0.5); background: linear-gradient(135deg,#0f0a1a,#160e22); }
@@ -719,7 +719,7 @@
     padding: 2px 4px;
   }
   .dominio-efeito { margin-top: 7px; font-size: 10px; color: var(--text); background: rgba(255,255,255,0.04); border-radius: 5px; padding: 7px 9px; line-height: 1.5; }
-
+ 
   /* ── PASSIVA ── */
   .passiva-box {
     background: linear-gradient(135deg,#1a1400,#140f00);
@@ -736,7 +736,7 @@
     border-radius: 4px;
     padding: 2px 4px;
   }
-
+ 
   /* ════════════════════════════════════
      PAINEL DIREITO (INICIATIVA + CHAT)
   ════════════════════════════════════ */
@@ -752,7 +752,7 @@
     background: var(--bg2);
     overflow: hidden;
   }
-
+ 
   /* ── ORDEM DE INICIATIVA ── */
   .initiative-panel {
     border-bottom: 1px solid var(--border);
@@ -785,7 +785,7 @@
     transition: all 0.15s;
   }
   .btn-clear-init:hover { color: var(--red); border-color: var(--red); }
-
+ 
   .initiative-list { display: flex; flex-direction: column; gap: 4px; }
   .init-row {
     display: flex;
@@ -832,7 +832,7 @@
   .init-nat.crit { background: rgba(34,197,94,0.15); color: var(--online); border: 1px solid rgba(34,197,94,0.3); }
   .init-nat.fail { background: var(--red-glow); color: var(--red); border: 1px solid rgba(255,74,74,0.3); }
   .init-empty { text-align: center; font-size: 11px; color: var(--text2); font-style: italic; padding: 8px 0; }
-
+ 
   /* ── CHAT ── */
   .chat-header {
     padding: 10px 14px;
@@ -857,7 +857,7 @@
   .chat-messages::-webkit-scrollbar-track { background: var(--bg3); border-radius: 3px; }
   .chat-messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
   .chat-messages::-webkit-scrollbar-thumb:hover { background: var(--purple); }
-
+ 
   .chat-msg {
     background: var(--bg3);
     border: 1px solid var(--border);
@@ -870,14 +870,14 @@
   .chat-msg.system { border-color: rgba(168,85,247,0.3); background: linear-gradient(135deg,#0f0a1a,#1a1030); text-align: center; color: var(--text2); font-style: italic; }
   .chat-msg.roll { border-color: rgba(240,192,64,0.35); background: linear-gradient(135deg,#100d00,#1a1400); }
   .chat-msg.roll-iniciativa { border-color: rgba(168,85,247,0.45); background: linear-gradient(135deg,#100a1a,#1c1030); }
-
+ 
   .chat-msg-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; }
   .chat-msg-author { font-weight: 700; font-size: 10px; }
   .chat-msg-author.mine  { color: var(--purple); }
   .chat-msg-author.other { color: var(--blue); }
   .chat-msg-time { font-size: 9px; color: var(--text2); }
   .chat-msg-text { color: var(--text); line-height: 1.5; }
-
+ 
   .chat-roll-result { display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
   .chat-roll-dice { font-size: 10px; color: var(--text2); }
   .chat-roll-total { font-family: 'Cinzel', serif; font-size: 20px; font-weight: 700; color: var(--gold); }
@@ -885,7 +885,7 @@
   .chat-roll-total.critical { color: var(--red); text-shadow: 0 0 8px var(--red); }
   .chat-roll-breakdown { font-size: 10px; color: var(--text2); }
   .chat-roll-label { font-size: 9px; color: var(--text2); margin-top: 2px; }
-
+ 
   .chat-input-area {
     padding: 8px 10px;
     border-top: 1px solid var(--border);
@@ -927,7 +927,7 @@
   }
   .chat-send-btn:hover { opacity: 0.85; }
   .chat-hint { font-size: 9px; color: var(--text2); padding: 0 10px 6px; }
-
+ 
   /* ════════════════════════════════════
      MODAL DADOS
   ════════════════════════════════════ */
@@ -953,7 +953,7 @@
   }
   .modal-overlay.show .modal-box { transform: translateY(0); }
   .modal-title { font-family: 'Cinzel', serif; font-size: 15px; color: var(--gold); letter-spacing: 2px; margin-bottom: 18px; text-align: center; }
-
+ 
   .modal-actions { display: flex; gap: 8px; }
   .btn-roll {
     flex: 1; background: linear-gradient(135deg,var(--purple),#7c3aed);
@@ -975,7 +975,7 @@
     padding: 11px 14px; cursor: pointer; font-size: 12px; transition: all 0.2s;
   }
   .btn-close-modal:hover { border-color: var(--red); color: var(--red); }
-
+ 
   /* ── TOAST ── */
   .toast {
     position: fixed; bottom: 20px; left: 50%;
@@ -990,7 +990,7 @@
   .toast.success { border-color: var(--online); color: var(--online); }
   .toast.error   { border-color: var(--red); color: var(--red); }
   .toast.roll    { border-color: var(--gold); color: var(--gold); font-family: 'Cinzel', serif; }
-
+ 
   /* ── MODO MESTRE ── */
   .btn-header.mestre { border-color: var(--gold); color: var(--gold); }
   .btn-header.mestre:hover { background: var(--gold); color: #0a0a0f; }
@@ -1002,7 +1002,7 @@
   }
   .ficha-card.mestre-mode { border-color: var(--gold); box-shadow: 0 0 28px rgba(240,192,64,0.12); }
   .ficha-card.mestre-mode .card-header { background: linear-gradient(135deg,#1a1400,#140f00); }
-
+ 
   /* ── AVATAR ── */
   .avatar-area {
     display: flex; align-items: center; gap: 12px; padding: 10px 18px 0;
@@ -1025,7 +1025,7 @@
   }
   .avatar-circle.editable:hover::after { opacity: 1; }
   .avatar-input { display: none; }
-
+ 
   /* ── STATUS / CONDIÇÕES ── */
   .status-overlay {
     position: absolute; inset: 0; background: rgba(10,10,15,0.88);
@@ -1039,7 +1039,7 @@
   }
   .status-overlay-sub { font-size: 11px; color: var(--text2); }
   .ficha-card { position: relative; }
-
+ 
   .condicoes-area { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
   .condicao-tag {
     display: flex; align-items: center; gap: 4px;
@@ -1066,7 +1066,7 @@
     cursor: pointer; transition: all 0.15s;
   }
   .btn-add-cond:hover { border-color: var(--purple); color: var(--purple); }
-
+ 
   /* ── TURNO ATIVO (sistema de turnos) ── */
   .init-row.ativo {
     border-color: var(--online) !important;
@@ -1096,7 +1096,7 @@
   }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
   .turno-ativo-banner span { animation: blink 1.2s infinite; }
-
+ 
   /* ══════════════════════════════════════
      BARDO — BARRA DE MÚSICA NO RODAPÉ
   ══════════════════════════════════════ */
@@ -1111,7 +1111,7 @@
     box-shadow: 0 -4px 24px rgba(0,0,0,0.5);
   }
   #bardoBar.visible { display: flex; }
-
+ 
   .bardo-top {
     display: flex;
     align-items: center;
@@ -1176,7 +1176,7 @@
   .bardo-btn.stop:hover { background: var(--red); color: white; }
   .bardo-btn.toggle-player { border-color: var(--border2); color: var(--text2); font-size: 10px; padding: 5px 9px; }
   .bardo-btn.toggle-player:hover { border-color: var(--blue); color: var(--blue); }
-
+ 
   .bardo-player-wrap {
     overflow: hidden;
     transition: max-height 0.35s ease;
@@ -1190,13 +1190,13 @@
     border: none;
     border-top: 1px solid var(--border);
   }
-
+ 
   /* empurrar conteúdo para cima quando o bardo está ativo */
   body.bardo-ativo .main-layout,
   body.bardo-ativo .player-select-screen {
     padding-bottom: 60px;
   }
-
+ 
   /* ── INVENTÁRIO ── */
   .inventario-list { display: flex; flex-direction: column; gap: 5px; }
   .inventario-item {
@@ -1239,7 +1239,7 @@
     transition: all 0.15s; margin-top: 2px;
   }
   .btn-add-tecnica:hover { border-color: var(--purple); color: var(--purple); }
-
+ 
   /* ── BOTÃO USAR HABILIDADE ── */
   .btn-usar-habilidade {
     background: transparent; border: 1px solid rgba(240,192,64,0.4);
@@ -1248,7 +1248,7 @@
     transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
   }
   .btn-usar-habilidade:hover { background: var(--gold); color: #0a0a0f; }
-
+ 
   /* ── ATTR CLICÁVEL ── */
   .attr-box.clicavel { cursor: pointer; transition: all 0.15s; }
   .attr-box.clicavel:hover {
@@ -1259,7 +1259,7 @@
   }
   .attr-box.clicavel:hover .attr-abbr { color: var(--purple); }
   .attr-box.clicavel:hover .attr-val  { color: var(--purple); }
-
+ 
   /* ── CHAT MSG HABILIDADE ── */
   .chat-msg.habilidade {
     border-color: rgba(240,192,64,0.45);
@@ -1285,7 +1285,7 @@
     font-size: 10px; color: var(--online); margin-top: 3px;
     display: flex; align-items: center; gap: 4px;
   }
-
+ 
   /* ── MODAL DADOS COMPOSTOS ── */
   .modal-overlay.composto .modal-box { width: 420px; }
   .grupos-dados {
@@ -1339,7 +1339,7 @@
     color: var(--gold); line-height: 1;
   }
   .composto-breakdown { font-size: 11px; color: var(--text2); margin-top: 4px; }
-
+ 
   /* ── CHAT HEADER com botão limpar ── */
   .chat-header {
     display: flex; align-items: center; justify-content: space-between;
@@ -1350,7 +1350,7 @@
     padding: 2px 8px; cursor: pointer; transition: all 0.15s;
   }
   .btn-limpar-chat:hover { color: var(--red); border-color: var(--red); }
-
+ 
   /* ── RECOLHER FICHA ── */
   .btn-recolher {
     width: 100%;
@@ -1386,7 +1386,7 @@
   .card-detalhes-inner {
     overflow: hidden;
   }
-
+ 
   /* ── CLASSE SELECT ── */
   .classe-select-wrap {
     margin-top: 6px;
@@ -1422,7 +1422,7 @@
   .classe-badge.fala           { border-color: rgba(251,191,36,0.5);  color: #fbbf24;  background: rgba(251,191,36,0.08); }
   .classe-badge.caster         { border-color: rgba(74,158,255,0.5);  color: var(--blue); background: rgba(74,158,255,0.08); }
   .classe-badge.shikigami      { border-color: rgba(52,211,153,0.5);  color: #34d399;  background: rgba(52,211,153,0.08); }
-
+ 
   /* ── MÚLTIPLAS PASSIVAS ── */
   .passivas-list { display: flex; flex-direction: column; gap: 8px; }
   .passiva-item { position: relative; }
@@ -1440,7 +1440,7 @@
     transition: all 0.15s; margin-top: 2px;
   }
   .btn-add-passiva:hover { border-color: var(--gold); color: var(--gold); }
-
+ 
   /* ── EDITAR PERSONAGEM NA SELEÇÃO ── */
   .btn-edit-ficha {
     margin-top: 6px; background: transparent;
@@ -1449,7 +1449,7 @@
     font-weight: 600; cursor: pointer; transition: all 0.2s;
   }
   .btn-edit-ficha:hover { background: var(--blue); color: white; }
-
+ 
   /* ── Responsive ── */
   @media (max-width: 860px) {
     .right-panel { width: 260px; }
@@ -1478,7 +1478,7 @@
     .mapa-toolbar { padding: 8px 10px; }
     .mapa-toolbar input[type="text"] { width: 140px; }
   }
-
+ 
   /* ══════════════════════════════════════
      ANIMAÇÃO — EXPANSÃO DE DOMÍNIO
   ══════════════════════════════════════ */
@@ -1501,13 +1501,13 @@
     82%  { opacity: 1; }
     100% { opacity: 0; }
   }
-
+ 
   .dominio-overlay .dom-vignette {
     position: absolute;
     inset: 0;
     background: radial-gradient(circle at center, rgba(20,5,35,0.4) 0%, rgba(0,0,0,0.95) 75%);
   }
-
+ 
   .dominio-overlay .dom-ring {
     position: absolute;
     top: 50%; left: 50%;
@@ -1525,7 +1525,7 @@
     70%  { opacity: 0.55; }
     100% { width: 1600px; height: 1600px; opacity: 0; }
   }
-
+ 
   .dominio-overlay .dom-flash {
     position: absolute;
     inset: 0;
@@ -1538,7 +1538,7 @@
     25%  { opacity: 1; }
     100% { opacity: 0; }
   }
-
+ 
   .dominio-overlay .dom-content {
     position: relative;
     text-align: center;
@@ -1552,7 +1552,7 @@
     60% { transform: translate(-5px, -3px); }
     80% { transform: translate(4px, 4px); }
   }
-
+ 
   .dominio-overlay .dom-kanji {
     font-family: 'Cinzel', serif;
     font-size: 22px;
@@ -1568,7 +1568,7 @@
     0%   { opacity: 0; transform: scale(0.85); }
     100% { opacity: 0.85; transform: scale(1); }
   }
-
+ 
   .dominio-overlay .dom-title {
     font-family: 'Cinzel', serif;
     font-weight: 700;
@@ -1584,7 +1584,7 @@
     60%  { opacity: 1; }
     100% { opacity: 1; transform: scale(1); letter-spacing: 2px; }
   }
-
+ 
   .dominio-overlay .dom-sub {
     margin-top: 10px;
     font-size: 14px;
@@ -1598,7 +1598,7 @@
     0%   { opacity: 0; transform: translateY(6px); }
     100% { opacity: 1; transform: translateY(0); }
   }
-
+ 
   .dominio-overlay .dom-particle {
     position: absolute;
     bottom: -10px;
@@ -1620,10 +1620,7 @@
 </style>
 </head>
 <body>
-<!-- ÁUDIO: Expansão de Domínio (s32–s33) -->
-<audio id="dominioSfx" preload="auto" src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAAoAABNbQAQEBYWHh4eJSUsLCw0NDs7O0JCSkpKUFBYWFhfX2ZmZm5uc3NzeHh+fn6Dg4iIiI6Ok5OTmpqhoaGqqq+vr7W1urq6wMDFxcXKytDQ0NXV2tra4ODl5eXq6u/v7/X1/v7+//8AAAAATGF2YzYwLjMxAAAAAAAAAAAAAAAAJAV8AAAAAAAATW3guS+NAAAAAAAAAAAAAAAAAAAAAP/74EQAAAH0AM/tBAAIROAaP6CAARx5izX5rIALarImtzTwACiE1L/LPbpeMH3ggGIPh8+UBAAZzgM/iAHwfP/KA+D4Pg+a/wIc0A+D/9ZcHz//KHOD4Pg+D4OBj4nB/4Ph8AAhJERIjtulvGoEAxB8HwfB/BAMFH8oCAIBjE4Pg+BAQBA55cCAgCAY8uBAQBAEDgP/4Pn//gQMd/QIAQwf5QMcHwfD5ECkbsstDqiou2sl1sclkZlihgDhmBDSQkgIjAY9MwNVCx0aUsSCK4sLEiyo00hADMJI4AXmLpJdhCyxwiCQKSQWMINecWghFNYKNv8w0aEYhOG8MXtfV2odg99HsgBlUobaWLpTMljJrVus/EpppfAs9F43R4wZTUMah2U3+24rZimGEndqI08/KqOvBuMti2FHugzjk3TXXIjFqLUsOZZyypSyrK1LezM3Ur/R3ZnmFfuvw7UllWmszvO6zgKngCPZWJndXGhpMJbrlXLW9f//+U1Q0HOSnGZ13//99ta7upVHhjO6VpZwuR3ay2yV2ym5NBh0b0AQcAgRlBxjzytTchUSrkxgAZDtKLXjQoWHLwFiJeTof5okrF4AZk3FASEggOAzywnuWKHENpbSKvHpL2OJGOJ9HXCupDmSZOWUdaaa0ks6Q5ExVwzkxISj4xbDkTywdUjOnmiXTg3TObCxn8zNq7Z9rtDIcZSM50M8R8yQGKFWLHd7fuo8KIyvcS+sJuZLRNq+BM40xuTHzXcB7vf8NUMLx89YIkWrWyQF/UzMqFe9jWtbNcQsMd4tW+LG3//l68b4x6p3ThPtKds8rAaTZKhlmGNUtWIqiWfVTUdVhUvXe/i7VuxKNUFMLBsBZLYtuhyqosw0GpQx+UFXhCTaGzdjKeJW550jJibntqSki5tGmLn34/h+d79lfm7xsK63awz13VRx3O93/Lbykccf9PEc/MfA/MeOO/9C01LpqwE22SojMKGLoIB0oEy1VYWtNyWAMigWDoBalLosIkCA4MFw6JowihDmYYUZZzKpZTnMRjIEEV8qTMJHOOQg9xRFMdWRA6oyqu9Sauh7NS9SlqzfOXdDsVWe3akjVO6sx9PyHNdHMxM9J3EWCesmTIrQ6sZCy7y7iPwKukMeZBBkLEAbdJWLCLztgdt8kxmlz0MUDaQPJtyazW7WgVPScCTQBOaMnC1UUmdFJ3JUyQYvdcUhxKZGo7NGshBKcCiwDBMoc9lWqb7ECNcpCwVZ4Q4mnN/h0yPKEcZ6JI9SHxI8LVTIuUE/+hxOCi/sJB+HwE0WGZzNNSVpwOcJAVGHHECFVmhL/QUKBJFKUMcjzxsSbu9D+NZkMgbFDZKUegwxJZBuxNIc2KUZsYhhWU1vQCBM0otsqlOB/f/7oETXAAOSVk/vYQAKcasp/ewUARAtez/sGHMCJypnvYSOPZRb2M8x3UXwoJ4pE60+0zlbrSYKkMGegTHadRY7AggNqbRsOUzdNSZBzM5sfi8fHHhQDUyM8GHB+OZIydb7BD/nBVR3mVQy3LCniE6dAhCAgF5CMI0JgRZVb6wuK5mmIB2QLcfgsqDJjBESuiXCk1GmzFWiN66TEdQm+bo6koCKudzCglEAZB4DFAIpwVII/w4WuQoKA8QjsIi8i7l3Qoa55rY7/GilvD9MiBJvrShn308bL+4nE0gYqBBHBEMwmIo6Q1ntcSjbKcDErmIp06jhWNEewRLaE0dfxdRjj8UDSITyCpTbp39gpsqykGFF4xNq6L6ZcwrFhO7urRCHXLFWe4siI3QICZgbECyUgBAImEGlo/JjJgy4q5HP3PpyZO8JMiOPglNDyD+Q32Q9BETWbGe/gD+5/gs4S9E0icGHY5hsFN5iYdzN0tbmFERceOmmMuf0OOXdLvqXNibdZixpZbVXlcVbjRY8ppyO/ZqZ58r1KS3ZlUol1in3zG5MavU1jKkwltshkvI1cN0gTuIVGKI5OPXrqB7Evv1GMnadNPqNqdbinCqnFMlQn/UqQ7Zc6dvbkKlv/Ypu2yg5qi9V/HHbQBDCqqmhV3F4GcJUNAE43cMqhwhgihUqFYtCGunjbUhJWP/7sETSgAQFYNB7CRvIgSuZ7WEjpVA9f0XsDNtqGK/neYehZZESqpsjwEYzRGCAyK4OHHh4GrLmzyBlMH42CQ7as9Wi3HVsqpRdiiwpBdHFvawyFzZKzMjPKru7pPTjuq+6mEbHaWZK8qlbX3HwptoPbO2uDpXlxghm25H/CVEXBvT0tCL+NPuhCVeYx3Y5bJEphCddJ5yI8kKl8oJXEQHLUbgth4XcRkh9mrlUsCSVrtytfkuNa9arzT9Vov3CNUlNT/vlW9PbyjU/ncsaPxXcmSNDRjaqOyg/thHMn1KvCj0jaNCzOabn1kmUTpcIpwrD/vVhQ8mI0P81RGX72ph3OAiiZncjZwlKlxBXa5mHZbt7bLyALwg5Ks5KIRHTFWM0BNNqiMDImSM6a8yuNaJihGuo6C7WlEDifrhFsjJmiSXtHJDFhdi1W7iwznZQMwSdNuqEP2xYUw6IqjPYRw2LWCiMouZE8D5xEOv8y/TO+bETF/cliISFT0P842j/+5HwgUUNr1qEfCJegRpDMrIackjaoioyZpwuAuWCSoRNQLer3fpOpnj6L6BERjABURfVOJXjLvToS01xgOIoRCLKIQwgHCgvbMbKDNqVZt2W2gyUqiFcwkhxxEekDWox6ceXtbpNnEIfxIwlRoo56MKqe7u/UvLuqzd39GR0spbP3x/37bfC89OMxvQ67iZmtBYTyIIk2SJUiA0CCiicZjWKhSACqlHGsDSIigCfuMoeOK6zdaSPPpJJdu1LcItjnJIxJKair6ZBGgIADqZBHI5VwcA1VkDjMBwhCHSM4IBR2wVBVlBMI2JB2hKeHirx8iZ5//ugRPSABBRc0PsDNtp/q/pPYSN9UQGBP+wxDOIKsCaxgZr8VlMvYwchw7Tyy82o+vBQxkvP9jgPvxslztUxvM/2fj5tGBpFBCZohXYzbbHHjCloIsktC0cDCR0TOQrThRkQ7rxLeKtuKiyVSSPJydVMUmQ2Xppx+5tdIDZc2Vs5tlhNled1xtnmKrKS3RAS1JnEUYmtnZ6V+0t9Rj7jfob9aF4VlZvrtGM7lXD1IhMUyyD28Ykrw9eLZth/rRmf/98xneb79jTNd7Ui2aXpjZ5IJ7nZYA11kja62yAjoqaozpPsMAgGRFwlVEyEMUJJfJajhtJpgRRIzZWh0B021aMMqMRQqLErLWoskhZgYkvXvHPLbabV0xsmSVSJnyjDaUx3Ji+R7CEiAl12MemxghApwb5+RbEMVy665xP82OGTvE/n0rNEw5A2fgZLpMlEpykDOHh4ZTd1tbvAwKFWhNIRpL/lrhEFASwRJyXs+b60Do5iWUS8+vabKbH2dpgglthTh+/QQa0X6y0aJ17VFDNmtBYoYIwU2yNyRxcwpdPpoOg4ypBjsEnmz/U4R0khRGIqHLps/STNzLLhmVTE+aXX+5FNi5kQIwrZBgsPwpwBNQi129TbSgqNRMGBAARkY8EcinaXCVlUAX43uTJ2ePi/RPBUWnMr3mG3IV6o9RXLEDEahub9tAQh//ugROEAJGtiUHsMM3h8qwncYSN9EAV3RewwbaH1Lue1hg3k2RWMUeEDJtcRXBmZ2sOjA0Yt6oaobmtGN0IMHAmBGDlJxgEEDUzcXDUc7k/NGtQWu8RyKLS8rMv7we9fvndl9ZS8KcGJKgM8Z3ZlIxyQpwHDe0uYW/BiwTg0hJZCREP01I6oyxxvmzQ5B7uReLV4ExY89aT964fJnJEorZEMidJhhCmnBVhd6IwTigNyJX0szCHYPrQZtK0upmXOGF8YRUmjua7Hl/8W+QqFDJ7KJaOTcyMd/akzEZnRbn6r5/1/fxH39yCWM/6xuQt2/dyaiTJVNAmGp7BiDSgiKnCERVEOAQApfSZhTrxF50az+sB6iUfa2wqB1KzyNWtr8ww1rHakC9t/5JLtVDgmHWZSKOZQt1M2JArkoQqa3lWfJJSYsya9Pmr/nEIncujGypmp+i/DyP+yHPH9/x89RAIKt4GBUqDICF1iGVyMsbTWFiOsGIVY7RZEeYmUsiRRpHBmaKCt8sY/BYkUsXzhelK+dsKbiqcQF07AyB4rt6xQrgHDk8oYDpZpfJQocgkHjpdkgqIZnbSY12vGM6QtHXdbLxD8W0RIkfqJrx0OYPaLUeIcjKJciX+h83bx9fH/CQ18j//xmLwZZWR6Y0xl7HiAzCuqmaakaSYJRa4LANMiQCHOJAEpoeLO//uwRNAABCFSz/sJHHp5q+ntYYNtER1/P+wxDyH/qie9lI48XC/LFVIPs1pgsQcOFV8RKu1hKysZLzURMlCRwO47dmw48tC6UVfpxucPKEJMxfzbMWKnDIKtMRlH3uwxV0G4kEisBGiUMCWLQV3KMfSP/yQkWFqo6NlH4iefz/hyr/40XKPGqxG26gjP7bEE2mUYTTYgIBpBq3FDAqIOIFGgJaiqpoErLTdl4mHgmhUAg4MPQwWbtQYZ50nNlW54pP3DF2yEkfFiAwWh4qcCDApFtdbtesYRWAWrg6ZsRiW/OUarKaOQkI3KGBorQBJVdHKl6flQSk3/y/o2fz8v/J0BkjaQgZi3DGPiRIIR0VDNb9rCmAMMSIqK6XDQHiREUYFTiGB3mh0i2m9cd+oHv2qKhqWK2EnnbdwIi0Sj8vx5dBLnajUtZRhpqEWpXlKIy5mZXVGpa9zCvpiOFvTxImctBN1dEGdlulTAiIKDlzTFgdRurrcn0XkZ30NvrnV3YiaR2O4GpmBqz3CxCKS1pvEAGYhj0oIfHEABTtgKaQzQkzloKYrjj8EWoFhhruiIOCSMWhU6xOsuvqGanWwTaYLs6RTflVHII27qS0UbCqvPq0rkUotrStqWoPNS16f3LXM0vDFG1WI4kuLHqbOSCeORdhRCIuU9Y52/5Ft/5aG2jQghHVIc4NEwSrMhmZMTRKhZUxqRZKq2foAgcVbTpDQ0Z0zFsSNgrOohEg+8iE7MZHydE9G07RMjFEmE1++MGhqpEclmpSYzEEVqE1ajC8UrToMSe1y1pICvCyk1UwV1JqpMedT7lvD7lSPs/KfTYu//+6BE84AEAmBO6wkb2nwr2d5gwqtQKX1B7CRxofKvp32EjezqamrH7meJ/8wed37giUUKoAUFagM4d3RmMy2RJ4dDBifBRgsBXaWyZ8QjdtInTltZYUwHaUeiyiK797nSmDDFR8BdKA3iKTzLMUcJPjSN51ltI1tEG8DjEeK1n6zjuERmoeD/XBsTJq7a46JMzn8n68c2KBrFGUTj2Ic0yhvJzOTMQebiuEVKfaDf/hhy0KGKQK0D+GARdbZGEWkU4BrrBIT2CrpWKvkLDAJWrsKn0+ooyR783iaPdqRCLvrfh+rNxOCKuEorUluippzKlp+Y5IiIsbusHBG1zJLklgotQ5Bv0sE6HvB4maoRpsFKQi1eTw2TtX6FKePQSoUZ/KxlZnSx9M21ZhaGPBe0m7fy7b70/gU08onOtFffaNBJyySpph4AIVU6X5iGJFAhUqi+6iMWXwsK+DE8YEhp738i1rCHIhWwE2ROOSSMlUhZ9Trzs9tBQnoNwtUx43KWHCHmZogcXRFLQqC9tHQ46KXBQIslqFXhNBNSn177l3Ym8yk9TP2hec+cykqFC9MjLBAo7+SAZrEuzGYLaRKpiaw4iUQELWA+AECw8a8uVEQtY3JQmXQA15dDUYo7cuJHyHyyAWtc28/T9dihxBknAiJYJ0ppPo3iSxa+3ZfmJejnlqiIMqrl2Hf/+6BE6QAEDlzP+wwbeILLyd1gZssPPXU5rBhyigeup72EohV20Vd3pu1bpUz8VdoM+3bf0Wpmrm5/rPiLdC447iPuJ4yFqJFbEHvzGp5qCMz86gMqeZdoUy2xt4kG+wQaETZEIzrQ6oawMsKXkZBFmFPstWcPQjSHY9qS+mSUBmiehrqREHHnppyVFbDF3sEHoJIonhD56mbO2Y2zW34UrzjRvk9nrf+zVOM9e4PSfGMp2ejl1W30PmYzpY27PLzx3+rmt+Ztvm/9++TP3Urow/7Wn6VfE7+0FzgSrLyiobcrabxape405dpCBOBdqyiIQ8tpiwjKGnOXEnBvD4RYMEvICJoFUwwJXicikiHGCASpZAsnCRK5GIWMgzLBUoSxZzUZU0meVjlZlqP0zv9bdS3t2bZrK1vkO7zpfeqyHW2Gb81fZ2u8ec7+9dre6/aPb5v/f75lsR0IgI1sxjOVbP+59Hj2rfdIkEm0lIfCBJDg6aEYi/JUAQiBg31S+KxrCvMinDsCQPBUZjM5QggpSZMYDSUDjbJAoFQ4YgYtE3mKWtycaLB6SDTgxGgfE7j5LJU3G1XzccvqvF6VvNqqfSNzwyxST31xfr+kbn/99obow27Ig1V4ta6m4S/6JPeatUXj9Mi0kSsDJMVLMqS3uuSlSbfJRBGlyFQpaBO4aMxQkIgDSgdBMNv/+7BE24AEPWFQ+wwzmorsKg9hJndQdYk3rBkQgfWxKP2EjfSjVpgUksRkm6smFidCjVpInMojZKiLGmIu8tXr4tWHBUyo+kN9KNH533p5HXTFGBtIaHvpw2ZjUuUyLQu2mRUNodRtOm+7dzyi5QrpCq/F/+EeWSXgxNmU+lzOg2ohNZZVRBITdbmNOYBuvwWia0AlhpJgaUaF44CyJo9EkRClhWuxZ+IcdyGsn6iq1Y4s80keQlJJ0JxfQzXMcpvLyTgmxmPrT7MnZxDvq3tEjLJThBccww/DMTX0GWwkQ4cDumhV8Lun/6nmR7tkURlz3U6xnTh5eZ5CBNQ1cQGgyi87RxZBMAqARqi5l3W7/a28cJg00HAX2QMChUnVdp2DhVSx60rDONDhuBMMXlIiAXWegQLqEMOyJuAVbUSJPwgVKfJRr25Bdoq+QXaVs0YQ4gwg5qMLgvMPasgdF4FVCTvxkK1gZoDQ2SVndppmS4l1M725RGJvdTjGcOHl5nkQyqZCXrvTJwir7kQpdbm0TI4nIHggoERgDoyPQCELOISSUJBAk4xdW6XLGgRqbJpbBVDMtCkjDg5pGZG4dCSMCUWhSNP73OJR8aUdhhrM1Em2HzDpQqPkxbPW2UY7lqm8j0KzUM+Qx0VTzqtrYvGl69WK4YoZp05wGkbJCpiztM2fWGXSh89tHljA6RJy5hBXlgsBSCtfbBbTjUgVaHoKwgayC4sEEAXkqwcEKEQFpEuEoI5av38FQXsQnykzcEb04tIlmOmFqPRKrxTTVbYU1pnEQ1yDiMBZ5WUUyVto4d+hhkRCjwkHwe46F/5K3KCFFv/7oET4gAQ8Yk57Jhzgg0vKX2Eji1EJZTmspHHKGjEm9YSN6WymxUo6EfUhru59BKVMWdOuwvUzGBR4fOtoH2mYgaBiCHFCRLwTIEAaFd2u0LcraSgOFCQcNGUMWtMiFQkRlJKbpqvlZb6EtKZQQAbIQKBEfQNb5TsIEaNmFxpaUGqxXXsl2EUZyi5Hy6Oa8NbY20zzrmGGmwJI5odIFX3bQNgQnp1xdcGIUZXjbAQ4nhIjMakeXnlK/JuWclXWH/8pGFOKhV0IIROADMa9mANBm0krQsQEI0hDBEAEhMS0fC86m6K6OScz8sdeRsTgMifQwH0tFsgoK0ZHyPxPWRcfH8B4WbxOtUbamN1xPmTasSmMSug6iTPMyaE8MqotERx0cKRhOi4g1PXbVELoz1oXbMRqQhASYSCaWXtK/JuWb8X1L/5SMKdZEbdg4czcJzL1cWBFnaxNINyROQJIOkB2Q7QNKg0nOIglgiA5m63Fqw220lqOAy+XSqHIj5g9PECZGjJ3FXSIg8Qyq8UnP3qsaQd+PN97CPwemjCQVOYgFkrCgq7q4RBQ2qvQ765ec4W6sySZqRZq0HqzPKWKchCm0nmRNDIl5/hTImF8GomraEhq30vpAxmHVCMRHLJJQSg8gHsHCABweIJUTIywk5ohYi2rItZPTuGUSfDE6wXQICOGFSdGjcVdg//7sETegAQaXdBrCRvqhCxJzGGDe1A1WTusJHFKKC8nvPSOMeRssMPR1Lszf7Xmn1ZQULrvpfVaTZw4uexS1IStFpurhEFDQJQdMOgJqqgmuIBm5zM1ftzJQSvHIKpMD1OITNl+ZEUUib/9TImF6qysdsCGlcPj8cNnAxVWlTEU00gDA8cWTlMAEAZgGIjjqxQStgoFoxeUEBVtUfjkOtjdqT35FLXFgeXw/fZ+utqMD0j+3shwbabvZenPV80naQzrcB5eM8AWhVpRy1enE92F/+eaeNgmquV08vLTg1tBAs30c6syIhHLeArDxR6Hqg8sThGiSIhg0Iyx/dW9/FqeI5hOSZCv1ZdxQuftvR59GeXb/3V2sSdN+xAqD01OzILLEV4wNv1dp05u+W7acZ3qPJ1MkQVWwlBLHTaAGgghBl94viyUHfKy6RDoiIXtKiVpW5KqIpT05O0g4EJOlelG4x2GJ/1uX++tki7b/0kqP5KOHNVc8kcNTl2dlIE41E5RqgOXVEYSYjdasLODly2AYMpgl6ngrWy1h0cTmiLErUWLAZByHw4BQGoZJxPMolCLxIYJBnVZWkEfVmW7/2IZVD85RCQhp3b9NaXnI4HOnWUwNByBCGpARNFozK9kWTv6yXvxLjEqBOsUIZQcN9oOBIY6ZWKFCJSEXlve6GlimIgpD9DdNCJppt7ZzXXxvH9Vu61M9iasGWdiIVVcq4tEUOoVNjPRGCwSAgcQJGCiYeAXAQ+qxdhzEHVdlyqJOvUvlPcoRsMJrL4rDalx1Vyzk821/b01py0QVI//XTInf+V///0Xs+SqFkZ4RlEHIkgV//ugZPwABQdiT/sMRchdZSovYSN7E/GFQ+yxEclCE6i9lInoQCBpgWsicpaBqALCigQBegsNHmw9igETedGw8xHKMUjxHNS4aSEN79VxkuoH9zqSqF41Hpp/Epe+de7ylbtmrJi7gyTxKUru8N5irIr5leniDnEuDDS6DbWxCnrnCgMkPHpPjM9/JFrE3qXWbx9OF3cSXcBmSltY3m8Fsl79z1Hki3oo5Kp3DG/i3pqJiudrh5H+fAgSapp7JfNPr4pmlGSPvX/g4+Z+AI6UyqZkAt5GwAWqCnmMqpoiPOStJQZwTK7VaOWLc9nUKVX//EbopAb4v8bLlnCKT+Z4a/qb/+z/5UAGDZ1hgQQJkb+KRGmVKa4xCQxSMyZALGTTQz4IjSpWQgb/Dx/Vz1GAKN2BQ4Lo1MBErHoJrp/sJLtPyoYDnMQCLFr5gv8haleHARMNxk+UNVgE3bBpcg4xhrjWmDrvawlZxiEDjqgr6L2Jdm3zcGv3L1aEJ5hisIy2J21eq5h27Dzr5MTbAuxici02CWrSdF8oe41d90fFyOG2+OWpeuiisUmF2HGwtBCAt678jhDWI9DjXnYrzcE2K+935XTyNxIhZs4av24Dhh1pXDr6wLblkSgSDae5I6aOPjF4U9zrtnuarxuxUmLva/YZlkZhqT8n+0T+3Ir2UdYQ8cWcWmrznu7U//ugZPeABY9jUv1h4Ao5Y3ovrCABIPGVSfmsAAkYjmk/MSIAppRfnAEBhdXUkSVY424AAAAAAAEnNBXdNH4q2YekEFNTytg+JUFdsy7yeGbqoucL7pNqBrA43Jky7n7hgQckiZnHUXk3jPje/9UCBKE7kFADBZWbGgUFgouww+KNtVDIGYMGxqnNiYjUAQwcJM3bQAWGSByERIADoeGNKBptpSOpqFiQyfSFCmBVKAZWPhQgUjaXCS7EYJLQiLg5iEAYwXjSjX2HHG8UxNGPFkqaFBAEQZki9LbkRgJWdWJo67FVE027pX6h93mWsgbjI6eNId2TR2RVr0BAIGJMEqhoAsC6VVzTEBS8qRw8FZDtXkEsiVXdN+43gvmHlTxacTqUsktpxr6xqeAI/HFYntnHcb3jZHJmVU5TWtr0ZG4zftMXe0t5nebDKGyWpK/0pcF+q0PuxK3TjToNdyiMlru8syFw5Oa/sgrunXxiHJK+Ujw/U/HMsu2pXZ5HV/xtd0tn4w7Dw09PKoIpsXAJMIhGoIwHxM6AAAAAAAD8JgQAeuuTF4EZYXis1Eflgm36+2IGU/UtvVr7to5pqckS/1K4bQDTPIJNERCiEvhCMyLoXgalgoSoQUkDlaAmAgnSbaIgulwz1h7QnREOLihbG5IqGhsZuZS8TlyMR85wI6lQL+TL+S97Y9GC//uwZM4ACPhmVH5vRBA446pfzTQEFPmBWf2HgACCA6Y/sgAEBvWYTfFuyMzm9V89XP4/+fnE2swXrzEDL2eHeseeWmvfxt5+I1exKW+sf//EKDJbNbVbn1t2a4TrepbKlmrn3o4KLT6bOKXXpcx87tjW729P8w4zBWnzI11r72rml91gYQXtSAAAgByADgAAADERfxk1aLS+INYhiSR6xE5cWkv/saVOqlIHmYhBCXsAAxCaTONVxsQ5Fn4cMiILRW4gPRuTTyf1MNRKhftasGQayEZ6fEk5KpFUpQ9Eg9vYegPh5GauORwTeNWXerVL8e488XxC9WvQv/j4k1JmPpaeMSST7VJRHIAoNSoeWnzi76/ZJ4ko3U3f6La3ZQP58RgQw9nD6M+9jm714UPnGmxqbcPsP4EhucPxEs21szpxZI7PtdFbabEdvV+T/ChfEHY2xdAAAAAAEZo+GF4kTuEhS7QReaiEII/EADWqg2aeBcc0CR2LBI+CjCyDEFV7/sLbksiBmBO0yxrMQE106cjXlU6aAwbq36L+deI8C12JQ7jLTO1cvBFHAtR3KQkMtFul+2e7bYdFforVc89QrssxzCanyxq6Lf/oUUaJ0uv/9iBKYIBoQgDCKIdkesxWSLS0P9m2Lj8ORcYMmNK/b9bHlHxt/FVF3MRqf15ZcBQ0OMAAAe605MZXf0y1Mym6mVMHPCCFrwzEZ8JIBXhAEsZQ5KJCMpEFHhkLopnQ4pnZEfwrRiKrOFX4vM8JhffzomkYrMGmmYlkNSoejJyazmfzurkkRmeQxP11MeULlFYtkHmyKIcaHYgCr8XWk3xMQJT/+5Bk5IA1PGNW+wxcWhMAyp4MLxFTYYNf7DER6DiDKXjApBWE/n+RpqzTK4SCWLqb1jh9UZq5sUC/BBxM9onE/9jjkB9Fr+f+TpWB5gjTYxYFCJhTZHgAAAAAAAiIoHMnwVUbIgJJeGMgSbABefcRDHhF9Dk1NoOtcXkIRM2MRVbBEJTZiqaqizcWlW7VLlTMNTOkcycCgycNstcSiAlzaMay/hd6mTVmpFdRXWiQFTGT+/wPT7E6aakRiUPWmiYTRRJQsIzKJolHX1PfU/rL02Pvv3iUh07osiEBXpby/ZLSqSon4xjQkmYiUlVbRZxbbBb5lFI1Kv4MXG/6fCXlFhz0QJmh4VIKW3DDqqKDZdIhF6eHNCJaIKefQcMIBvYUWYiHBrAzoctoyoiJDE1HZlo7W4Hp3ug1+oAiFPRwxAsxFjM/a9yuWYJGUo78RofMjhyAkf5zeWO6+w5qyjWrIVh6md3Fjb/Hx8akgQCed5fpiadJa5eX343FHezdhlHs6ftm7USRDHophucS/rUC1/Oafyh+r1/ZNaX9Wzo5DJ7/+4Bk8QB0oWRYewxD6hFgus4wLwVUYZNb7CTT6CSCa/iAnA1uqbtST3v5mPff3CW//SyDZRZnwMa4HIGxG9gAAAAAAYp+Wbl0ZK8w7GYNJoF3y8wiH1FqjAIRhLjKTFCBdKOQOCh/BnIZaXLYFb9/59WFGSxCdwJH0iPcWp5SdcRBN0PZUPBNkHPEIeXdiUMjOjIqAVy/I7urZC2IWcbgxwFIY75WqYPCOZS2QHJxV7+PAjK9XKWzvbnNm9tTEVbJMJaCE5xvRodyLmiVThZg6UyECMKVq/ERWV0JA7PW4FxFuktXpZblH/tLPtL57a//VkpyGsQR0YraACwYXK53bNEMBRZ5NXaryKdFNgAACdXgMqaaDwhAELqEKgYyBAYVo5fFTUaGly+1VaLKph1oflkLdyV2H+dtlj6Wo/TUEvqSGTvhJK0qa81NUEMpLS6BJmQSnVpIwdnED7j4pJSBAUxJdOjcSwnEdeLFhP/7kGTsgHU5ZNd7DDV4DcA6vgggAVYZk1vsPRHAMwLqOMCwBBHY1Hc+9EdGBPHReemLtIUNtxHSee7S7VNjUoPRRsyV/TT61IwLqvT/5/23YtC38Fc+L95/XyKrEXflIGtyH/5e/sfhHvTm5mFMDXN8AAAAAACptO0qwMIfyUAxFf25qqqIdQIAAAfNLCACQIQo3GCAM8LRgwMjIChDcQSBVqXWj+y94IZdtDm/bfrldrd/mVw1lUS3bX1cNihZUiryCFSgGvM5YS8qaPtvQ58824sz5fyszNMTdGt6LlCMFLm+fuWFqQvMJYo1OLyPdrgxmyFwdRYSO8+QtZKat+QkWefXP4uJdAocQ+f23vufSbHYUqPFpmvLs/Qad/8/uareS/zmq/55Xw+5IEjegAHx4D+BWSBwKVM6GqQBHSHXbLLMrKeJRUIAAAfMyc37gdSLCmaAaAZhBgAhnwVFlQJCHAXLQOfZrKwuLSrUDD0JcpSeHMaQeoTCN6qwfqDyi8SISSPSZDUrxDXGbWOLujvA5QplJfVpyWmzECg7u8Pxkf/7kGTxgDV7Ylf7DDaqFKDa3i3sExUFe1/tPNHgXgLoeawEHaDkSHqphk8U0GNymfZ1vDEduTK2Jno5LOdRT7+xpRjRxGIUbwaRGffz0k1fSTQOXyjs7ydVD5ny/s/G83s/73dSWfuhBDnoDboEoVAAAAAAG4jjcdHppvIwstiQEkJI7M/LqmdEAACbznLAQ4sqoIShmwOAskLTNAJQHoL8Q4vAoJWBii+mM3zqVSJYVEc8pPCKR06OrCclynYk2M7Z1PBVCkO2E9hPo8HXtjxIk+Kxau33x2UmNFyxsr6dlZSf1MyomFRNNAvM743gnPGlUpygPiFljffLA4+KVtqU0itZi4V8y/6/r3NDCKJNpFSmzudbH5OW/cpNzMc2shg4SOHzllqFAAOkMBaJ/DgVAQCoHcYmADOi/d3syXY4AQAbzVqUzIfLglsiIiCA8CgTdi2RECIaioArfAqc7L2v2XJctrUCFh4nQ1jXHS86LOLjyutGblAdFMGPGRlBeNrvir7T+2arsNW57WYiyqeZEk9Kzcd44oGdsjK7p5nPsv/7kGTuADU5Xtf7LEx4FuC6HmkhMRRNWWPsvS/gUYLoEZwMFMkDcaG5p5lfUG5qLw0uNpjkiKkVQh9z39/b/njNcvD3pf3E09+etvs0f7/xUzWHMYDkOu01ooAB1tYKXxwB3CwhnRiSKjbW2CXk7vZt5asTAgBd52uGmCZJiUgBDM9sQClUEBEKyIHSFZJAA5iYayYLiLhyO2VxARsc53rXhJTPPVWKy7SAlvFM6o9La1jpwUoXoTNPmBvks/Sf97UT2swISjcm35USvNT/ynymPniAsq+0IpgjL12ntEjDnykparKJMdXvHbc9SWU0Tlqh9hq3tn95E+9bddm/zXj587fuZOZk4Ah0EjgAsMIyACA2AtwFVjokRDgwS1YfX9Rd9dWpeqqnNDALICvEIQxRIyg41UI0BoDBAVDJAwYBTVeASH5sNTOLUIFrGCMqYqMl5wdlQ1NnHoruX5pWkA0eytxKfLV1m1JjntE482J3Nt0+2tszV39D0dv6hxsq5yR5I8mTSCAhHQP1e9Q2Yqx3xcNOpGud5qC5I+duYd/f0//7kGTyABTUWVl7bDR4FqC6BGsZARLphWXssNHodwLnPYwYTHhrTVjjxs+YdLLdW3if2Ou2uhNZNSl6K6BkkyMagMErkopcZqF5XHJyjxSOLRGO62gBEHVOUGHwxFgPefw/6FO8Qf/s8p/lP8vJ+f//OLPsjvMyhmIKjRd4sUWGQkg3GSQ8DBInhwIBAFTkkwFC6yeqFsVj7CAQFZ5q6YC2eFkybW9/LjmEswILvtNJa3PXbchqLwkBW643kG67NpqcKxeGts1VTvYvFTLElnqJOoGyvudglFyj0d6T1uLo2nRmN5aqJf2zxr5TSSmptVhWvG0+tGPnfJY40Gd/GXpW1NJZUTX5EkaKiV1YcjQQ5vFJAFRLQHpAynJbsqZpDSqQ2JElB2AtSj/AQykqHIKgJb0DwEG40aP/YLJus/mrZeunUl3R//3qIAZkhEQgS0AnkvRvyKhEpFqlDHqYpzBhWjRYQgRDdjV1AU5D9Nhf6A5zCOmkkRhGRm6KQpEkO0uTNKIn0fgkXZ1ewWR6hc/UOMsKyY5VEiUhJ9ySzKzazf/7kGT9AATBWVf7TFvaNEC6T2cMARLVi1XssM+o+YNqfYwkFKgDaFa2KXbPJDjVYswKmJOfTR2r1I5mO1SSgwiNJHN3Ui/ZL171JGF5L82JzzdqrPmQ5GFzgHysJWaeZRGAYkxFEpaCK6oRwswaLD14HjkahgmcFsMAGZt3WFATxYTpLsC3TZpHxfyqyPIrbfigfJmgwKgi2TB4VmBZlhxZzRwoF0kQyCBf97WFwFHCaluk7Va8ylGx++Nk7UU9bEgSQEpYBhTCkLiJfKWoBjDJZ3I0wQ5xMJCW0NTNgEeeR2aGpMihHEfy0a+2MogbDLKAQmUBORlREdszmNytSdxrW/qvyslUWvSdVrdsLLweusnbCZcyMNzQOiYslUNhaR+1t9RZlU6MKOc5j8JAdfpYgrbKM+VUJ0dTUl83qmL2PjT6WrKPWz+5pBaDxqpW7ZtkvAN6j6wGgVcj6OoImgZZlC+kvVJFUOGmBIawS2jAkLITKo7F5jeKSIVSEsK1T2Qf5Q+TjdwmmtB44gbIyQVXSCF71Zfp/2/9HW3sDZRblf/7oGTqgATpYtB7CTT6U+JZ7mcJDBIJVTmspNHJnK3ndZSJ8JrSyPClJm5tqf6n/T9//v7QToIVUduvbACcTuxsGIMAcoDdCiaLYVLYwhswteqAhf7fxtAMjxsWBNGRGotA8QUccMk5tBDxRsmSurNPjsS7DAk07ORdCyyaQmfAkOohqztLJFSURgkJkD/qSSmdBBEBYEyEyHI4HhzRo0NOkmW6PVoHQroLPOUtwLXHY4+lmpuJhtoqx7SREawtVO9frC8se9lSXpdDW+B5sCw8KrGCkCW4DqRU04Sg95uCYwcM2AGLoOo3CEVS9DNrEvjktlULfx2g6wYS6MmWTIoll+2LimS72KpXh3QhjSJdvr090LTdv/qQhi/Wp3VvupVMQxxLjnMApert+V0l789fk5yFTKdqPNMOKxABSWZVMSCUSlDBlWHWcFQAUEJEESaRoVHCAkdowl4nU7IwD4YnxCEgDEBwMVIwQ4ckkH2BKdRwZ7mhiyIhpi8i560WI4wPd8N2VH8T1m3sdCQJSDkMqpQ80axKS23AXRFs4/sPHdhOq1zTavqO9KCyy11e02DlyrKUupoGH7PM7T07wxC8pbzSSND0F4QX5bJACUG5CFaVitDE17Bh2htlbMW9ZpHxkMPLtdSD2h07pR5569Nfh6JyeKPfLefTYSnNEE5xEJSAZANmEyQYDP/7oGTpAAStYk9rKUPwbevp/2TCh1GdCz3ssSypoSvnNYCO+RHyHSqev/+DsjRE3TGnUVWQib854jXwgIn8y+nKw4ZA7H2x5cUfKgM1p3hlMltFuUGYXcbiCJZaOfBpGmpMAUQkoZEiIqqqkpm+i6Q0BOHcbCEH0d4Oy4665Wpj5a9MP5+UjDVJhmiyFqVQbVmqTkKe4qTe9Q/R08bJUo9E5E/1bX6Rnba1HDpKTOjs5ovBzafIdGmRNd/Drl1PuWMUQjdFMi+flrHSw0csq+qZ0333HzPX//DVVKVg9GlQKtZkxEtLa5NdDspL8IiTpqjAMJXIgDLL0DqqpQ+uXUFPEAgBABUDgEQwMACGHCIWKmEpiGLh0HxCpA2K+JhFIp4ce8L/qv7Rf//w3//9f7V/Df//FrXK6ixIhPajo7JNyqKE/+zdN+5svhVeT/+bcyLh3CYVM8cFYoUUYNpfpW4XWPTZD0zYfRSM0PCQqDmkEp4YyhAWZATGHBRgwkZC6iIzOQVDKAIUFQKFBw9eJ5T5iQohCVhCYJQACAI/mnPhwJRJ+kbWWNlZM8pmhjEi7pkwqatV5WkhAhDtAyqCyiqbCFbFwMUY2FAKAlpqhzWnhlz6bdB1VJmDAo1qrkAsaHQWWACa0GQCXdfajiWEJjrdC7DxBcGED0H32VXL6tusVQGjj7GXUj+EXv/7wGTfgASlYlB9YWAIc2h6T6ygAWTFmUf5vRABeQ9ovzeCAIom8e4wpan2uRBhQVUaZ67Fh3+nu0FqGY7G4KbyhqT9+LzdblFig6mEXQYE8rWGBAIA7q3JdD6XrQnQ5My5gTxQFb3n/f///mH//pWFtC66XhcomANul2uxuaXLLm0cx/6r7bqw7ekc1O01SmnaLZSCuToKkbkyKOX94AAAABBmw6GFR/q+byBVJSBnpEJD9LNm+BhQiTBdLe76aqued54oE6BHF7yy5/YhVd2HK8pk+Odm9TzkRZzLcc///iG8d/E3IDun///////yjf01kXrbkcl2gbpYFGHjG2CECUMgpmIVh0YtkBQyhyOCpS7wKEI9sihkcKiUCywPnyvOhOo5gYmtiUmMPGFbb5n/g0tS8GHHzu7qM8cIMfe7Yru3pn3vSlvilm++M++/S2MYrqBBbNUpv///OM21/jTAqDvOtuhQ4DIf55pFp0rJm5SW6vU8fEzJAQ9dMDhHVfs91n3zv/2+af6/p5Z5r4RQfrFR1AAAB14QHAAAGIlDVaWVMOWk4UJpsbPOf/9/OsfNfb/+UOthAnDBcGq0Kz7FrQgVdyrizS1Tkybv8QemTEQOqYxJMhqQkzEEJBCZhCA8CkclPRa6xobFDiXYyueQ3WlVQvrCWHE7y82A/vTmsNl8/Po2LwdEZBy2Q0F/WFE1m2lJGo/QwwmUm8bBJFuQw1RcGhlXPPvy2dEzDMQI0JusjSRU0RA5kaL1yLW6DZDIIEiEUfTxRKrEXDzzMxMSOY86DS7dNnT4zjcAAIKAABwCAiY97PGA47G7eQ2v//miAQCvDFdCqW1Cnbl1aD5AEYchqAiRxQMLQlojCSIjCsVJRbrZVmM0VPE4uomXnjXGtoJOp8kkLaFeoC8qadhf6XCvF1WqTvWCAuSbngp32nmYqgZ1ddQP/DZ4/yNIWqZEaYgPpl0i9Vg7//uQZPSAFRlY1e9p4AAyQtm97DwBEqVhWawxD4hsiaf1gJkso53JHyv1y5xjmUvQwRbLH/DUKGiU4OQvA8OwswvEjbIPjJFBdRge3+k2O+umiW7uTHdTbHurmHBYAy3QRUopIACUsADxOAAAAXwtJ7OrNjBJrfm5yGG/JtL7OXBy7IBVuBLAhKVSiTmXgqJAgEhQ7hhgoJW0tkFQJTOy3dW6LQiUSiNWaWkQ0fQKzDw8usoXc5KKEOtLiU8cXYl5CJlDI2kLYWjBthNGeXXE/lHKt8Nv+cZbO9jK4N6uHiQkRvVJY01CE7ayNZWJDy/gqhkWRypdNIpOqt5u+FGrMYzT4viiq3Wuo961ln+Nf6j1anFzm3efzZiy1xS8alfmNm+pi9SAInAAAAkFGABwIFp5iWpBVIuw9b/7p/MzhuTDZb8paHIxJmRFqDm+0QfUSILBo1KwEga+XbNQR0yAUdAxdgqdwzI19YIFwKFNDUpXNVpnik0i7cF5lQ6PSFfMSNO6tHZYW4Kljbis7LCmfNdHKsRbbI8fFKz1xB3Neb/v//uQZPAAFRBb1esvRFIY4mp/NAJlFXWFW6wl8+h5Cee9hJwc5qXp40OBeC3snvjb+JOXsfirgR/TGfB1jMCPS8G3bsJOfW2UTwYbf/vP9/j3/n8nfdffqr7PjnaWUusEqwmv07t4zdhKU7sWtgAAAICDCg4AAAHCSmAHBI+2LXt/sUNW9U8AIDyIcfM/zBo0pUgErUgI6z/RELl1DGEimyowDNAlNgEYQllyYICItJ+mFKXdsNRlVLjOWpfIYpAkP0u2ST9DUucE6TZrtNitpXIK9doZVerGUo4eREKzt/8br3W5R1XPJN16wtcG3SWxlCGTpE26LTv/ONRnjaD416cO4NSHLTyJq72Hmw5sWd3Oa5iaTKay217uVEUkYo1c86yzrTy6x8401RpzYtWEZUVRYCAAABQDNQA4VKN9FeTXyROL/IKMLIJE2rdC2bjv2PgDu6oEv+O4vV0gPRkRnSGIyG9AY0ozLzsJMKeCDjlDeGCgzpGwfxzGjRmRmmKR8naQAX7Q8bbYRTlbK0kco1rVqethOr8jwXTlKLaDdRA0//uQZOwAFR9hVnsPNPIkg3n/QYcHFEmRW+wld2iDiSh88KjlUbMKLkSA7ufy2Ma9w5Fj3Gg6QEJMo+P3+9hGu3Fy6UTk6Sh0RGjHDc8pZOvCV9OCtMWjZJkP6EteS883I5Nnd2npSqU5dW0veNV7lKCZZDHHAAACUDjIR4AAAULXRRk7v/EQdb/BbmosINh9VBnmTwZFQEUd0hJN62Mh9ohKUGEGwHOEJJwr8KAJRK5HARZNFo0eWItSAXko52B3fgd2YvK6HKOvNIN4b4UPc7uSXyN1PuyIGilcmuYEQV0aWYoiTVV+yaLrrnJZDjzIqpR6GhwLw42eHTq6gHAlE0ndCxHNOYWoxv/4mKkXMPKNQ0o8QSxcOhFqOY6ub3zbFj0c2Engc96b82jijHuKoACLHYKcgDgSVXIB2Rn/yHGN5PRhyoBfXufDdNUBEliFRhNraAVb4ZRBkQ1CbqidJQIrwWVULaCAgYBLhN1eKPrtbq4NHCwwiEAnEoy4UAWFyrOw0QNGHeXewgSgQpiZcSTTzdVQjRkLRyNH5aqojg1s//uQZOSAFOljVWsPStohI3ovNCMvUy2TV+wZFuBvCWg8EwiNXL20bFCc0Wdh5rLLxyMl7rY2qvvLFEFLLaBAHh6NJIJjW+I/q0Jso1iTxALlQdD0OA/ETSs3Ns8k71gymsVeqaDkvn2HLN5w6wAxNsBg0E8AAAMJGClMFI6MT/dVbub1FBHBkCm5eghBYeoZydkkKPUOFYgRxd0wgZcBkIaBZCKyHIsFpx4DkQ8pwnW1tpT/R8wsWTmCD3x8Aovjgi73T3fq2dun7EMFF6Eami+B3faVlU9h3bnNo1F7Wgi73bL5o+PZkySudmt75lI73irQTu4ikGNhSNwTOWBxT7mQ8GYfN2mYRxbwW9UWnR5Oql9/17Mr1rNhM+CbniwRzXJM3jCe5ndMZoEAI9Bb8nwAGgHX0M7YF/ma1v5BIK87oRAWZIVmS3RwA2BxCkUcRAMKqcv2SPGRDql7ERRWwASYgKMuSy+CmpajVvDUYkVuefeCEy5FGoelszdmoxGZqOSBljBC8iQ6GoCESxR0RaLgqom5dthO7M8A4H8CHWFr//uQZOkAFPBj1HspRGgeQoofPKIFE92PVeww0eBeiWl8gIj0E81teBM2LEjguBDCQsBPEaaRysqRcZO8zuGqhalPMGfofUEZuadRdqpDNULbUe8C8Q2tT9yo8eIpYgEkrdWmp7KOqoNDIshkqPMuXrgiHAgcggAAAJAO4PAAABmQFR5Cueul2xo3b/UYCeL84jXLcgMDfyID1lmrrRhSdtjoYBCJgBDKDjUJwkoNBs+SuKAyIVmSwjgLTe5ckOO/B0NwtkFZ/OSFnjfpKLCMzYk2rx14UqSZtv+yNU79qZtDWYAQ5HD0JykJ+IDuvw2peBleV0F2ywtqCwOCgHAtBYr60Oh+TQrVr6VaYWUu0X1Zm+ohSVUFIlp1e4tgWL319p9bYQjKkrm25uC6xjsZOEFuxNRULtMoWBWj1BD0vVpJyPx8DmbfgKEZB0kEekxpJjbe1FBmaxgAAcgABeADGAVOOO2PxZyda3/2A0pni5qWRTZCABXRsJEmog6UvC+IuFQgSNF1Bi9q4GAL0ddwVxhoBq9dxSbddbLZ6IiASRLK//uQZO4AFYdeVXsPRqoiAkl/ZCJLF+mNU6yxOshVAig9gzwEwyE9c/OFgJC0LRwGAiqBKSEbsdF5rEz9rJqyYq7dzUBIOXB/aLbrFqN2qSdHBpW+42w1kJGdN7wL3ZY9yb2y8v3qw48emFOPVB2dsGBNQSQvjXLMXKaPXOUh47Ji7ZMYOEwzIBQXLDxgnoTrx4QVnng8jFGJaI+OQ8MTUzUVsxhEK9y7dxdnISgSHhAcAAAAAbI6QkgmuA2TJlIO+cC7UH/+CtTmZcIimiSQ1MvoyFTmA0wYAVuKzDjhQqMCOKN75MobJDy7X1bVqfa3gPBZsYYRGzKsx5HBAOM0pjQJicskSgcfcjpHbdpHr8iNSGzbli80DDJBMbd4xyXW9bi80vnWZSdnl3TgmpkF47LMni1k6mEXNPBIrd/x6x/8S2URKeaTpOnNwudTAr2Ga27/X1QPKB6HX6YyValf8UwSZZQAAKjGvQfBAmAjeHoDEjlgdYCGdau82qg3MgIEBYAXRfQqA5gjQNGiqLORQMKS6SegaQngI9gHW3ohSOGc//uQZNiANfhk1/sQY4gYIMmHZwkTEyWBYewk0Yhcg2h5gQUEpxtZoSXYoNrSe8Ld09pG4ciknRhpcExUxCScDkUMjcYQQpaOoo3iEmgRxnIQ8svmRt0CUQIkG3JeSaSMVIkJpFCScKUldQUjGfxeedG6gULH0fd5xSZu/OEU2tgj1A0QFk8iyYdJNAvW4vOjS6rml8dOT92FpyRaG1d0FKrqwAAAAAAjfSk4Q07ou0AzQlrKIAUM6mNf/7duztAEiU+koi8ZiRNMXROsNZpFKQFqpSxGMtpOxqgm1kq4XtIK1Dr1Y2UPadcpi10sZL9JfqJI1Hy/B7cvWs69T87L+tcW9elLr1qyjMZ+vc1ju4FxHJNHtTbkGChcjRUXZDSYITuLWccKn1CSGwzQ0zZbSOIa1JiS7EcfAnWhSLWXpa/0jkgiPyr7nHQE2yIiemz4gUAABxSKNHGGEigzkzBh/QmtyZAxSq3fzpVGIgAkp4wJUv4ZskbYCZkGaSIDhRo2wCBCxIApAB6nCeeOZ5EoOYfqVlXZ0J1GqhV190PhQFRF//uQZNMANR9e2PsPSuoaALoeY1gBUqF1aeyxEaheAqh5nOAMO5FMFo6SBoIGwsBsPkQGhKhyab6mgy16D1vWizBAMuEJxFQy0XdooevKMVE0G3icItSXjPtJKt7k0sxirWWt6k/i0CRMEwxjmYX6heR80aiLTU4sxy2sSWrxuvWyy/FpOrxTWSkROk/a3rAawbYAAAAAAc44khAzIqlOAaMKYSMbnGE1lPPFG263+o0USAgSXiFxwGBVAg65SZ5NA5NFUkRCyyIA8VlrfzUaAlUkWCJOLE2ndmYzitFq5wrtLKQl8QxeiMTvzYQlWxvKu6XUM5uWtjie3Zyhx8JOapLBBiV2QB50vZ1zb87ma0LPL7q+Qfj51a3ZRhhMFCfuO2tn391s5yckWltrE+zJ/P9f9sR9/tua2W2bqufp4gBBCnQAAE8hcbRBJaZKdMSQtIaohFcWiXyv9ou6/aiDJAEou8PDEVLB56KAmdaIktAWiqKoRpQkBh2uKlTj5NlhJi+psToVjB/0kJtDLZYwwVdgOigM27cJwIHmrTgrnRWn//uQZNwANS1Z13tPSmIdINnuY1kRUnF9X+wwzchqA+c5h+DEWtVqeRqO42SRhpAcR1VILWaTysSTnHdjBOdv3zlWOzJVcqgvSKCuimkBOne+MJ0+bEvIhioFmWpsa1bsfYIc5IbMdsiUxjjG5GPM3bQhOFAADPRgXkhSH+unioD7ARnyL3f7LiYQgIoqcPczVFIBTMLBRbJwqZChciCRBdQVdi6aSC24xZW9kkeGxsQrtsmHN5OZFUl5kepMFx8eTRicSmZ7Phhhu128Q6wmjrvliNvUhUorBZJWpIj9XiWbEofZeVDiG4vFUcPPpX1GtFDzLVLNEJT4AChbhu4VJh4kNjxAEBSTUKIFuaeFl2lfmLaLdI+kGPE573heu5VXjgAEpJsAHhwniQEisHyBRNXbvvuqZUQBJTvNBHR3QHFrTEECGEPhYSQ4YAwBaQg6mo56p4ip93n+ZLRXiAFwUaESS02sErWSYc2cNhoACYjaGoKjjU9DUZzL0+Z4gTbNUgqzAYVbjpBF+LQVbR7LMl4SlloChnE3Rov2tnmRXhte//uQZOIANJ9P2HsPSxITYLnUPw8BE0F5aewlEeBHgukRhjBM8R7i6KnuH9NzSzxm3/aSq8yE4Ug1s15dbKffn7z5Uvcf8yUV82fyV3Hbni2el7kczhwcAAAAAAx20ybgrSEcX+WuBRU4BgtqmcqvmJYjIAAKfK7S6ojKNRcCEhcEeRhZVNXwvZN9Ai7SvhUplOKQy1xu+rsTXI8PTUfd1XuPCip6LGi1FzNRXKvCdZFQ9jwR5A5CbLmEZR5AbNrNyVWFgpBhBo2liSUUh5aTm3t6dks3IypCKc2YPPLPYqKXjdI1zkqTuXfYrFE8Ur6ntTX4e2b0Ed/+7X//ryqP//8NZxC+SuYhR5jm/R+c+7gIoCZYNgAAIYNNT8CFpjlJy6jCxxDz1hKrzPu5ZlQBBc3Aji0ZRAuGFkAlYoQHBCKl3I4ksmChmxp4sW6rE7I9wKbGDylRCHtsqzVhpTlpohigTz5/h3Ho8hmhSjpYyth9NW+/p/XU9XGY3H8Gq5JYwTLZktyl3R8VmOOLEAba0vMxM0JZI6doLswJ7Fk9SIGW//uQZPaANPpj2HtYSHIZQLoeawwFFKGLW+y9LYhZgue5jGBNRB6SHKFD2YamYkXZD3Xek6U8+3PPNc23DWOGuQAEJhAAAAAAA7tAMnqhsFKkwzfLeSG4IgfF3WfdS7mU9zQcQEMDy0YuEwsR/JkkgVzuYIxI0JWpjPAtyVwxIHstwVAXymBo9Wp5k9yNIoaZ5S9Z5we3eWj+NJLKcbjTBv/LYuitryL9/WUKOs2cOz692D9xnHbWtvXX1t7pJPPm7XNwnn/1LfNty0N70v+KFo1q8ei/XKdmUvMicCDKA7KTaFQbU0VLw7/7B7ZvZ4ud/b/63hTdmBjRimQAHhYCPbOJCGFeHCWwh5YFjOWvKrzf3LmHMgkGO853hAENHAY4FFmIulOYpRb8VCKga4gPBJlsupqnunCSKyeCxtbQ6c4jyJneJpqWvEZPZSNiHqtCoxRsT6m4BZTpSnmJ0xK7r7OVXctkodbeuRpig/NGji3el3I7EJ9GbuEHmSyzWyy43D5sq2d+IrF5wjbf6y15v19WegtP5l7qXrGZ7/mXkoNo//uAZPsCNKth2HsMRGAZQOm+YeYjE6WHXeww1cheBCf5h5hUIDkO/RWw5GpP6yJEGAAAAAAB6CR7ZRZgyKC4yrAE3mVCClAKLDkhr5TuXkzEuTBaKd4EVBQYBHCkgGgEsU1h5gxAkwFYzAAbi2JmbB+OCKnF6UeWFQJGXngdRd6IiCJOHTZ7I7rP1snYColcSW+vpGEU10NNIYITGLdfwTRKkqJUaAMIVujsUggKUR4SNbpCbVSRC2y9zaI2ijEPf/z4i90Q+ZVOm4+hsbPhe031NMkuarmsKuNk7e8/sQY+P2Ni03SvNc07ml55qotqkMSpRps6wQUAAF3OIGsM+zjsMg47hCrxkdGamouryJhkNgIAF4jGBxShoVZAZZMKLGCMcIXFCUTFO36SKSIbKwJyYaEQqI0C6vzcgMFF7CIG1WAHKXHz9jR5lZotsGEG5A6elsH1B7537l/F0xYZYeSEdLdZGJQSnlVJqkX/+5Bk7YA03VdX+y9K8h8A6d5rGQMU8Ydd7KVzyF2DKHmMDBxLsGD+tOuNuLiWmoev7hRbX+jkO1uaXEESyF/nbxxXLRgkDCNbdxHn0/3Dn/KLvpnG3SWzFziyLGJ+1aaBBBqiiEAAA+AAAABDykanMaC3JeZWF/Qmg8N/8aYWFeZdCU6XIg7wMCGIBxq9iZ+NnWQAGOhMaRa40ESKOKbdZqGa+XLlyw5fBdddUKjgwgUYSKgKISNo1GkVe2QSHiALIkRIqBllqRNZKzBqyXr57qUpQaehQoWGG2EpbK0LPvrNahVz//1/kb+N36yf1yyppBaNN69oJTjH7sar5+wvlZqNbyWl/S3lVfE8/8ZbVUnd5f3y+eSWMgVSd2ATSgAPHABxtFuCLXCUTXEn/7aDVa3dIhm3I0Csv84WBOzpsLi04QWARQUmJBoVttKZ1ERh6tkWOwEteSC1DVw+Xp0oKiGnVP05pqu2aYWsUswum16xHCxxykn69T/zXdmcvVqE9Of911uFllvc7M6Gu1OUkFs6ZpJBPDtMuaPRwAgJRID/+5Bk7wAU+WJX+yk0+hwgqi9nBgUTqYNZ7eEjiFOCKf2XjARiWT1GDqYKQiJolB+hnBeZ+nblJ2a70/XI4a9n5f5npz5r852uS05FbOyLtp2VrLfM/f78cwWAAJGsADxwAAAAJyxdiIfktbT///OfuVgHF3ALA6MrFLJJQp288KYCAEYMCMCIwIgbDAoCBMHIAkzUlozNwJAKAkgcAkNAlDQCBmUltGOGSkYHAA5gYAHGAaA+YHQAhi1HtmF4lsYFgBdIgtEACmyuYHpL3PupuYMggFwBKgFgIBTIJfTDYpzN4mzBcAizyfamSBsIlTrGJ6EGEYxGN4iDIUonpqNYR2KANUxdtLSBkRUJRgADI8CigpgCCSAVKqKzcDMoVE7UGwM2eWMDuS9DFkLmwNDkDSqXQeo5GbmUF1+PQyqga8nqzFOkQgE/M498ZRSFADYit9pFinwglkrP1jUrAVpOezl3UJQACEAAiJAAXGQ+epX0a32eu0trB6nPcXGxf/e7WLtQbFMZVPVr76ymiidhSqXQFE7Pyy9GalJnbvWa0rr/+8Bk9oAFMmVW7WWACBpCik+lFAEtaiNH+e6AgesTKT85JBBpdU1jX1TW86karWpndLQaprv40tWx///////////////////83/df/9/+f/////////yqtflNWzKq1qZ3S3ACgCCCSGANwZ5cKxSMBgABZ5KdONOGqJibCEzV8M+GRRcYBCm+5+Ag+YiFqd0ADLB0a2NDMAGgbzBtQqQZs/HJIMpAAxQ/UUUR0+1TJrcpDnEq5Af0EmWybIqNgb8CIJhMBETvhYYXJnBn+lwDScG67P/+uz/////1WqVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUWAAGCuhPyOipMQU1FMy4xMDCqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqv/7EGTiD/BFAMQvBAAKAAAP8OAAAQAAAaQAAAAgAAA0gAAABKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"></audio>
-
-
+ 
 <!-- SELECT SCREEN -->
 <div class="player-select-screen" id="selectScreen">
   <div>
@@ -1641,7 +1638,7 @@
   </div>
   <div id="playerGrid" class="player-grid" style="display:none"></div>
 </div>
-
+ 
 <!-- HEADER -->
 <header class="app-header" id="appHeader" style="display:none">
   <span class="app-title">✦ Jujutsu Kaisen RPG</span>
@@ -1664,15 +1661,15 @@
     </div>
   </div>
 </header>
-
+ 
 <!-- MAIN -->
 <div class="main-layout" id="mainLayout">
-
+ 
   <!-- Fichas -->
   <div class="fichas-area" id="fichasArea">
     <div class="fichas-container" id="fichasContainer"></div>
   </div>
-
+ 
   <!-- Mapa de Batalha -->
   <div class="mapa-area collapsed" id="mapaArea">
     <div class="mapa-toolbar" id="mapaToolbarMestre" style="display:none">
@@ -1701,7 +1698,7 @@
       </div>
     </div>
   </div>
-
+ 
   <!-- Chat de Imagens -->
   <div class="imagens-area collapsed" id="imagensArea">
     <div class="imgchat-toolbar">
@@ -1718,10 +1715,10 @@
       <button class="btn-mapa" onclick="document.getElementById('imagemFileInput').click()">📁 Upload</button>
     </div>
   </div>
-
+ 
   <!-- Painel Direito: Iniciativa + Chat -->
   <div class="right-panel" id="rightPanel">
-
+ 
     <!-- ORDEM DE INICIATIVA -->
     <div class="initiative-panel">
       <div class="initiative-header">
@@ -1737,7 +1734,7 @@
         <button class="btn-turno next" onclick="avancarTurno(1)">Próximo ▶</button>
       </div>
     </div>
-
+ 
     <!-- CHAT -->
     <div class="chat-header">
       <span>💬 LOG DE SESSÃO</span>
@@ -1752,7 +1749,7 @@
     </div>
   </div>
 </div>
-
+ 
 <!-- MODAL DADOS COMPOSTOS -->
 <div class="modal-overlay composto" id="diceCompostoModal" onclick="fecharCompostoSeFora(event)">
   <div class="modal-box">
@@ -1773,12 +1770,12 @@
     </div>
   </div>
 </div>
-
+ 
 <!-- LIGHTBOX DO CHAT DE IMAGENS -->
 <div class="imgchat-lightbox" id="imagemLightbox" onclick="fecharImagemLightbox()">
   <img id="imagemLightboxImg" src="" alt="">
 </div>
-
+ 
 <!-- BARDO — PLAYER DE MÚSICA -->
 <div id="bardoBar">
   <div class="bardo-top">
@@ -1795,9 +1792,9 @@
     <iframe id="bardoIframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
   </div>
 </div>
-
+ 
 <div class="toast" id="toast"></div>
-
+ 
 <!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
@@ -1805,7 +1802,7 @@ import { getDatabase, ref, set, get, push, onValue, remove }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
 import { getAuth, signInAnonymously, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-
+ 
 const firebaseConfig = {
   apiKey:            "AIzaSyCssTD1j4VUVsbOYRDq6t0NQ-L_oeQ5O8U",
   authDomain:        "ficha-online-c3048.firebaseapp.com",
@@ -1815,11 +1812,11 @@ const firebaseConfig = {
   messagingSenderId: "449356287217",
   appId:             "1:449356287217:web:e0b3969bb9e97e44ee2d50"
 };
-
+ 
 const app  = initializeApp(firebaseConfig);
 const db   = getDatabase(app);
 const auth = getAuth(app);
-
+ 
 let sessaoId   = null;
 let meuSlot    = null;
 let meuNome    = null;
@@ -1833,7 +1830,7 @@ let mapaData = {};
 let fichasNpcData = {};
 let unsubFichasNpc = null;
 let dominioAnimUltimoTs = Date.now();
-
+ 
 /* ══════════════════════════════════════
    AUTENTICAÇÃO ANÔNIMA (necessária pra Firebase Rules)
    Cada navegador recebe um ID único e persistente, usado
@@ -1848,7 +1845,7 @@ onAuthStateChanged(auth, user => {
 signInAnonymously(auth).catch(() => {
   showToast('Não foi possível conectar com segurança. Recarregue a página.', 'error');
 });
-
+ 
 function aguardarAuth() {
   return new Promise(resolve => {
     if (authPronto) { resolve(); return; }
@@ -1857,7 +1854,7 @@ function aguardarAuth() {
     }, 80);
   });
 }
-
+ 
 // Expor referência ao db para funções globais
 window.__db = db;
 window.__ref = ref;
@@ -1867,16 +1864,16 @@ window.__remove = remove;
 window.__getSessaoId = () => sessaoId;
 window.__getMeuSlot  = () => meuSlot;
 window.__getFichas   = () => fichasData;
-
+ 
 function getFicha(slot) {
   return fichasData[slot] || fichasNpcData[slot] || null;
 }
-
+ 
 /* ══════════════════════════════════════
    BARDO — MÚSICA SINCRONIZADA VIA FIREBASE
 ══════════════════════════════════════ */
 let bardoPlayerAberto = false;
-
+ 
 function bardoExtrairVideoId(url) {
   // Suporta: youtube.com/watch?v=ID, youtu.be/ID, youtube.com/live/ID
   const patterns = [
@@ -1890,16 +1887,16 @@ function bardoExtrairVideoId(url) {
   }
   return null;
 }
-
+ 
 function bardoAtualizarUI(data) {
   const bar = document.getElementById('bardoBar');
   const nowPlaying = document.getElementById('bardoNowPlaying');
   const iframe = document.getElementById('bardoIframe');
-
+ 
   // Bardo sempre visível após entrar na sessão
   bar.classList.add('visible');
   document.body.classList.add('bardo-ativo');
-
+ 
   if (!data || !data.videoId) {
     iframe.src = '';
     nowPlaying.innerHTML = 'Nenhuma música tocando';
@@ -1907,26 +1904,26 @@ function bardoAtualizarUI(data) {
   }
   document.body.classList.add('bardo-ativo');
   nowPlaying.innerHTML = `♪ <span>${data.titulo || 'YouTube'}</span> — por ${data.quem || '?'}`;
-
+ 
   const embedUrl = `https://www.youtube.com/embed/${data.videoId}?autoplay=1&rel=0`;
   if (iframe.src !== embedUrl) {
     iframe.src = embedUrl;
   }
 }
-
+ 
 window.bardoTocar = function() {
   const input = document.getElementById('bardoInput').value.trim();
   if (!input) { showToast('Cole um link do YouTube!', 'error'); return; }
   const videoId = bardoExtrairVideoId(input);
   if (!videoId) { showToast('Link do YouTube inválido.', 'error'); return; }
-
+ 
   const sid = window.__getSessaoId();
   if (!sid) { showToast('Entre em uma sessão primeiro.', 'error'); return; }
-
+ 
   const quem = window.__getMeuSlot() || 'Mestre';
   const fichas = window.__getFichas();
   const nomeQuem = fichas[quem]?.nome || quem;
-
+ 
   // Buscar título via oEmbed (sem API key)
   fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`)
     .then(r => r.json())
@@ -1941,13 +1938,13 @@ window.bardoTocar = function() {
       document.getElementById('bardoInput').value = '';
     });
 };
-
+ 
 window.bardoParar = function() {
   const sid = window.__getSessaoId();
   if (!sid) return;
   window.__set(window.__ref(window.__db, `sessoes/${sid}/bardo`), null);
 };
-
+ 
 window.bardoTogglePlayer = function() {
   bardoPlayerAberto = !bardoPlayerAberto;
   const wrap = document.getElementById('bardoPlayerWrap');
@@ -1955,14 +1952,14 @@ window.bardoTogglePlayer = function() {
   wrap.classList.toggle('open', bardoPlayerAberto);
   btn.textContent = bardoPlayerAberto ? '▲ Player' : '▼ Player';
 };
-
+ 
 // Escutar mudanças do Bardo no Firebase (chamado após entrar na sessão)
 window.__iniciarBardoListener = function(sid) {
   onValue(window.__ref(window.__db, `sessoes/${sid}/bardo`), snap => {
     bardoAtualizarUI(snap.val());
   });
 };
-
+ 
 /* ── DEFAULT ── */
 function tecnicasInatasDefault() {
   return [
@@ -1997,21 +1994,21 @@ function fichaDefault(nome) {
     inventario: [], condicoes: [], avatar: null
   };
 }
-
+ 
 /* ── TOAST ── */
 window.showToast = function(msg, type='') {
   const t = document.getElementById('toast');
   t.textContent = msg; t.className = 'toast '+type+' show';
   setTimeout(() => t.className = 'toast', 2800);
 };
-
+ 
 /* ══════════════════════════════════════
    SESSÕES RECENTES (lembradas só neste navegador,
    via localStorage — nunca expostas a outros usuários)
 ══════════════════════════════════════ */
 const CHAVE_SESSOES_RECENTES = 'jk_sessoes_recentes';
 const MAX_SESSOES_RECENTES = 8;
-
+ 
 function obterSessoesRecentes() {
   try {
     const raw = localStorage.getItem(CHAVE_SESSOES_RECENTES);
@@ -2021,7 +2018,7 @@ function obterSessoesRecentes() {
     return [];
   }
 }
-
+ 
 function salvarSessaoRecente(id) {
   try {
     let lista = obterSessoesRecentes().filter(s => s.id !== id);
@@ -2030,7 +2027,7 @@ function salvarSessaoRecente(id) {
     localStorage.setItem(CHAVE_SESSOES_RECENTES, JSON.stringify(lista));
   } catch (e) { /* localStorage indisponível — só não lembra, sem quebrar o app */ }
 }
-
+ 
 function removerSessaoRecente(id) {
   try {
     const lista = obterSessoesRecentes().filter(s => s.id !== id);
@@ -2038,7 +2035,7 @@ function removerSessaoRecente(id) {
   } catch (e) {}
   renderSessoesRecentes();
 }
-
+ 
 function tempoRelativo(ts) {
   const diffMin = Math.floor((Date.now() - ts) / 60000);
   if (diffMin < 1) return 'agora há pouco';
@@ -2048,7 +2045,7 @@ function tempoRelativo(ts) {
   const diffD = Math.floor(diffH / 24);
   return `há ${diffD}d`;
 }
-
+ 
 function renderSessoesRecentes() {
   const box = document.getElementById('recentSessionsBox');
   const grid = document.getElementById('recentSessionsGrid');
@@ -2077,7 +2074,7 @@ function renderSessoesRecentes() {
   });
 }
 renderSessoesRecentes();
-
+ 
 /* ══════════════════════════════════════
    SELECT SCREEN
 ══════════════════════════════════════ */
@@ -2089,7 +2086,7 @@ window.entrarSessao = async function() {
   salvarSessaoRecente(val);
   carregarSelecaoPersonagens();
 };
-
+ 
 function carregarSelecaoPersonagens() {
   const grid = document.getElementById('playerGrid');
   grid.style.display = 'grid';
@@ -2098,17 +2095,17 @@ function carregarSelecaoPersonagens() {
     renderSelecaoPersonagens(snap.val() || {});
   });
 }
-
+ 
 function renderSelecaoPersonagens(dados) {
   const grid = document.getElementById('playerGrid');
   grid.innerHTML = '';
   const ids = Object.keys(dados);
-
+ 
   const titulo = document.createElement('p');
   titulo.style.cssText = 'color:var(--text2);font-size:12px;text-align:center;grid-column:1/-1;';
   titulo.textContent = ids.length ? 'Selecione um personagem existente ou crie um novo:' : 'Nenhum personagem nesta sessão ainda — crie o primeiro:';
   grid.appendChild(titulo);
-
+ 
   ids.forEach(id => {
     const ficha = dados[id] || {};
     const souDono = ficha.dono && ficha.dono === meuUid;
@@ -2137,13 +2134,13 @@ function renderSelecaoPersonagens(dados) {
     }
     grid.appendChild(c);
   });
-
+ 
   const novo = document.createElement('div');
   novo.className = 'player-card new-card';
   novo.innerHTML = `<div class="slot-name">＋ Novo Personagem</div><div class="slot-status">Criar ficha</div>`;
   novo.onclick = () => abrirCriarPersonagem();
   grid.appendChild(novo);
-
+ 
   const mestre = document.createElement('div');
   mestre.className = 'player-card new-card';
   mestre.style.cssText = 'border-color:rgba(240,192,64,0.5);';
@@ -2151,7 +2148,7 @@ function renderSelecaoPersonagens(dados) {
   mestre.onclick = () => entrarComoMestre();
   grid.appendChild(mestre);
 }
-
+ 
 function abrirCriarPersonagem() {
   const grid = document.getElementById('playerGrid');
   grid.innerHTML = `
@@ -2171,7 +2168,7 @@ function abrirCriarPersonagem() {
   nomeInput.addEventListener('keydown', e => { if (e.key==='Enter') { e.preventDefault(); document.getElementById('novoPinInput').focus(); } });
   nomeInput.focus();
 }
-
+ 
 async function criarPersonagem() {
   const nome = document.getElementById('novoNomeInput').value.trim();
   const pin  = document.getElementById('novoPinInput').value.trim();
@@ -2184,7 +2181,7 @@ async function criarPersonagem() {
   await set(ref(db, `sessoes/${sessaoId}/_seguranca/pins/${novaRef.key}`), pin);
   escolherPersonagem(novaRef.key, ficha);
 }
-
+ 
 function abrirEditarPersonagem(id, ficha) {
   const grid = document.getElementById('playerGrid');
   grid.innerHTML = `
@@ -2209,7 +2206,7 @@ function abrirEditarPersonagem(id, ficha) {
   };
   document.getElementById('btnVoltarDeEdicao').onclick = carregarSelecaoPersonagens;
 }
-
+ 
 async function entrarComoMestre() {
   const senha = prompt('🔒 Senha do Mestre:');
   if (senha === null) return; // cancelou
@@ -2226,7 +2223,7 @@ async function entrarComoMestre() {
   meuNome = '👁 Mestre';
   iniciarApp();
 }
-
+ 
 async function escolherPersonagem(id, ficha) {
   await aguardarAuth();
   if (!ficha.dono) {
@@ -2246,7 +2243,7 @@ async function escolherPersonagem(id, ficha) {
   meuNome = (ficha && ficha.nome) || 'Personagem';
   iniciarApp();
 }
-
+ 
 async function reivindicarComPin(id, ficha) {
   const pin = prompt(`Digite o PIN de recuperação de "${ficha.nome||'Personagem'}":`);
   if (pin === null) return;
@@ -2260,14 +2257,14 @@ async function reivindicarComPin(id, ficha) {
     showToast('PIN incorreto.', 'error');
   }
 }
-
+ 
 window.excluirFicha = function(id, nome) {
   if (!confirm(`Excluir a ficha de "${nome||'Personagem'}"? Esta ação não pode ser desfeita.`)) return;
   remove(ref(db, `sessoes/${sessaoId}/fichas/${id}`))
     .then(() => { showToast('Ficha excluída.','success'); carregarSelecaoPersonagens(); })
     .catch(() => showToast('Erro ao excluir ficha','error'));
 };
-
+ 
 /* ══════════════════════════════════════
    APP PRINCIPAL
 ══════════════════════════════════════ */
@@ -2277,14 +2274,14 @@ function iniciarApp() {
   document.getElementById('mainLayout').classList.add('visible');
   document.getElementById('sessionLabel').textContent = 'Sessão: '+sessaoId;
   document.getElementById('mySlotLabel').textContent = '[ '+meuNome+' ]';
-
+ 
   if (modoMestre) {
     document.getElementById('btnMestre').classList.add('active');
     document.getElementById('mySlotLabel').style.color = 'var(--gold)';
     ativarListenerNpc();
   }
   atualizarVisibilidadeMestreUI();
-
+ 
   // Fichas em tempo real
   onValue(ref(db, `sessoes/${sessaoId}/fichas`), snap => {
     fichasData = snap.val() || {};
@@ -2295,22 +2292,22 @@ function iniciarApp() {
       document.getElementById('mySlotLabel').textContent = '[ '+nomeAtual+' ]';
     }
   });
-
+ 
   // Chat em tempo real
   onValue(ref(db, `sessoes/${sessaoId}/chat`), snap => {
     renderChat(snap.val() || {});
   });
-
+ 
   // Chat de imagens em tempo real
   onValue(ref(db, `sessoes/${sessaoId}/chatImagens`), snap => {
     renderImagens(snap.val() || {});
   });
-
+ 
   // Iniciativa em tempo real
   onValue(ref(db, `sessoes/${sessaoId}/iniciativa`), snap => {
     renderIniciativa(snap.val() || {});
   });
-
+ 
   // Turno em tempo real
   onValue(ref(db, `sessoes/${sessaoId}/turno`), snap => {
     const t = snap.val();
@@ -2323,35 +2320,35 @@ function iniciarApp() {
     }
     renderIniciativa(window.__iniciativaCache || {});
   });
-
+ 
   // Mapa de batalha em tempo real
   onValue(ref(db, `sessoes/${sessaoId}/mapa`), snap => {
     mapaData = snap.val() || {};
     renderMapa();
   });
-
+ 
   // Mensagem de entrada
   enviarSistema(meuNome + ' entrou na sessão.');
-
+ 
   // Bardo — música sincronizada
   window.__iniciarBardoListener(sessaoId);
 }
-
+ 
 /* ══════════════════════════════════════
    MENU LATERAL — ABAS (FICHAS / MAPA / CHAT DE IMAGENS)
 ══════════════════════════════════════ */
 const ABA_LABELS = { fichas: '📋 Fichas', mapa: '🗺️ Mapa', imagens: '🖼️ Imagens' };
-
+ 
 window.toggleMenuPaginas = function() {
   document.getElementById('menuPaginasDropdown').classList.toggle('show');
 };
-
+ 
 document.addEventListener('click', e => {
   const wrap = document.querySelector('.menu-wrap');
   const dropdown = document.getElementById('menuPaginasDropdown');
   if (wrap && dropdown && !wrap.contains(e.target)) dropdown.classList.remove('show');
 });
-
+ 
 window.mudarAba = function(aba) {
   const areas = {
     fichas:  document.getElementById('fichasArea'),
@@ -2363,7 +2360,7 @@ window.mudarAba = function(aba) {
     mapa:    document.getElementById('menuItemMapa'),
     imagens: document.getElementById('menuItemImagens'),
   };
-
+ 
   Object.keys(areas).forEach(key => {
     if (key === aba) {
       areas[key].classList.remove('collapsed');
@@ -2373,13 +2370,13 @@ window.mudarAba = function(aba) {
       itens[key].classList.remove('active');
     }
   });
-
+ 
   document.getElementById('btnMenuPaginas').innerHTML = `☰ ${ABA_LABELS[aba] || 'Páginas'} ▾`;
   document.getElementById('menuPaginasDropdown').classList.remove('show');
-
+ 
   if (aba === 'mapa') setTimeout(renderMapa, 60);
 };
-
+ 
 /* ══════════════════════════════════════
    FICHAS DE NPC (visíveis apenas ao Mestre)
    Guardadas num nó separado (fichasNpc) que só é
@@ -2402,7 +2399,7 @@ function atualizarVisibilidadeMestreUI() {
   const btn = document.getElementById('btnAddNpcFicha');
   if (btn) btn.style.display = modoMestre ? 'inline-block' : 'none';
 }
-
+ 
 window.criarFichaNpc = async function() {
   if (!modoMestre) { showToast('Apenas o Mestre pode criar fichas de NPC.', 'error'); return; }
   const nome = prompt('Nome do NPC / Monstro:');
@@ -2413,7 +2410,7 @@ window.criarFichaNpc = async function() {
   await set(novaRef, ficha);
   showToast(`Ficha de "${nome}" criada — visível só pra você.`, 'success');
 };
-
+ 
 /* ══════════════════════════════════════
    MODO MESTRE
 ══════════════════════════════════════ */
@@ -2453,7 +2450,7 @@ window.toggleMestre = async function() {
     showToast('Modo Mestre desativado.','');
   }
 };
-
+ 
 /* ══════════════════════════════════════
    ORDEM DE INICIATIVA
 ══════════════════════════════════════ */
@@ -2461,7 +2458,7 @@ function renderIniciativa(data) {
   window.__iniciativaCache = data;
   const list = document.getElementById('initiativeList');
   const entries = Object.values(data);
-
+ 
   if (entries.length === 0) {
     list.innerHTML = '<div class="init-empty">Nenhuma iniciativa rolada ainda.</div>';
     document.getElementById('turnoControls').style.display = 'none';
@@ -2470,27 +2467,27 @@ function renderIniciativa(data) {
     document.querySelectorAll('.turno-ativo-banner').forEach(b => b.remove());
     return;
   }
-
+ 
   entries.sort((a, b) => b.total - a.total);
-
+ 
   // Garantir que turnoAtual seja válido
   if (turnoAtual >= entries.length) turnoAtual = 0;
   const ativoEntry = entries[turnoAtual];
-
+ 
   list.innerHTML = '';
   entries.forEach((e, i) => {
     const row = document.createElement('div');
     const isAtivo = i === turnoAtual;
     const rankClass = isAtivo ? 'ativo' : (i === 0 && turnoAtual !== 0 ? 'first' : i === 1 ? 'second' : '');
     row.className = 'init-row ' + rankClass;
-
+ 
     const rankIcon = isAtivo ? '▶' : i === 0 ? '👑' : i === 1 ? '②' : i === 2 ? '③' : (i + 1);
     const natTag = e.roll === 20
       ? '<span class="init-nat crit">NAT 20</span>'
       : e.roll === 1
       ? '<span class="init-nat fail">FALHA</span>'
       : '';
-
+ 
     row.innerHTML = `
       <span class="init-rank">${rankIcon}</span>
       <span class="init-score">${e.total}</span>
@@ -2499,17 +2496,17 @@ function renderIniciativa(data) {
     `;
     list.appendChild(row);
   });
-
+ 
   // Mostrar/esconder controles de turno (só mestre ou se já há iniciativa)
   const turnoCtrl = document.getElementById('turnoControls');
   turnoCtrl.style.display = 'flex';
   document.getElementById('turnoCounter').textContent = `Turno ${turnoNumero} · ${ativoEntry?.charName||''}`;
-
+ 
   // Destacar card da ficha ativa
   document.querySelectorAll('.ficha-card').forEach(card => {
     const isTurnoAtivo = ativoEntry && card.dataset.slot === ativoEntry.slot;
     card.classList.toggle('turno-ativo', isTurnoAtivo);
-
+ 
     // Banner de turno ativo
     const bannerExistente = card.querySelector('.turno-ativo-banner');
     if (isTurnoAtivo && !bannerExistente) {
@@ -2522,52 +2519,42 @@ function renderIniciativa(data) {
     }
   });
 }
-
+ 
 window.avancarTurno = function(dir) {
   const entries = Object.values(window.__iniciativaCache || {});
   if (entries.length === 0) return;
   entries.sort((a, b) => b.total - a.total);
-
+ 
   const novoIndice = (turnoAtual + dir + entries.length) % entries.length;
   let novoNumero = turnoNumero;
   if (dir > 0 && novoIndice === 0) novoNumero++;
   if (dir < 0 && turnoAtual === 0) novoNumero = Math.max(1, novoNumero - 1);
-
+ 
   set(ref(db, `sessoes/${sessaoId}/turno`), { indice: novoIndice, numero: novoNumero });
   const nome = entries[novoIndice]?.charName || '';
   enviarSistema(`⚔️ Turno ${novoNumero} — vez de ${nome}.`);
 };
-
+ 
 window.limparIniciativa = function() {
   if (!sessaoId) return;
   remove(ref(db, `sessoes/${sessaoId}/iniciativa`));
   remove(ref(db, `sessoes/${sessaoId}/turno`));
   enviarSistema('Ordem de iniciativa reiniciada.');
 };
-
+ 
 window.limparChat = function() {
   if (!sessaoId) return;
   if (!confirm('Limpar todo o log de sessão? Esta ação não pode ser desfeita.')) return;
   remove(ref(db, `sessoes/${sessaoId}/chat`));
 };
-
+ 
 /* ══════════════════════════════════════
    ANIMAÇÃO — EXPANSÃO DE DOMÍNIO
 ══════════════════════════════════════ */
 function tocarAnimacaoDominio(charName) {
-  // Tocar áudio do segundo 32-33
-  try {
-    const sfx = document.getElementById('dominioSfx');
-    if (sfx) {
-      sfx.currentTime = 0;
-      sfx.volume = 1.0;
-      sfx.play().catch(() => {});
-    }
-  } catch(e) {}
-
   const overlay = document.createElement('div');
   overlay.className = 'dominio-overlay';
-
+ 
   let particles = '';
   for (let i = 0; i < 45; i++) {
     const left = Math.random() * 100;
@@ -2576,7 +2563,7 @@ function tocarAnimacaoDominio(charName) {
     const size = (3 + Math.random() * 4).toFixed(1);
     particles += `<div class="dom-particle" style="left:${left}%;width:${size}px;height:${size}px;animation-duration:${dur}s;animation-delay:${delay}s;"></div>`;
   }
-
+ 
   overlay.innerHTML = `
     <div class="dom-vignette"></div>
     <div class="dom-flash"></div>
@@ -2589,34 +2576,34 @@ function tocarAnimacaoDominio(charName) {
       <div class="dom-sub">ativada por <b>${esc(charName||'???')}</b></div>
     </div>
   `;
-
+ 
   document.body.appendChild(overlay);
   setTimeout(() => overlay.remove(), 3700);
 }
-
+ 
 /* ══════════════════════════════════════
    CHAT
 ══════════════════════════════════════ */
 function renderChat(msgs) {
   const container = document.getElementById('chatMessages');
   const atBottom = container.scrollHeight - container.clientHeight <= container.scrollTop + 50;
-
+ 
   const lista = Object.values(msgs).sort((a,b) => (a.ts||0)-(b.ts||0));
-
+ 
   lista.forEach(msg => {
     if (msg.type === 'habilidade' && msg.habilidadeNome === 'Expansão de Domínio' && (msg.ts||0) > dominioAnimUltimoTs) {
       dominioAnimUltimoTs = msg.ts;
       tocarAnimacaoDominio(msg.charName);
     }
   });
-
+ 
   container.innerHTML = '';
-
+ 
   lista.forEach(msg => {
     const div = document.createElement('div');
     div.className = 'chat-msg ' + (msg.type||'');
     const hora = msg.ts ? new Date(msg.ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '';
-
+ 
     if (msg.type === 'system') {
       div.innerHTML = `<span style="font-size:10px;">⚙ ${msg.text}</span>`;
     } else if (msg.type === 'habilidade') {
@@ -2689,56 +2676,56 @@ function renderChat(msgs) {
     }
     container.appendChild(div);
   });
-
+ 
   if (atBottom) container.scrollTop = container.scrollHeight;
 }
-
+ 
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
-
+ 
 function enviarSistema(texto) {
   push(ref(db, `sessoes/${sessaoId}/chat`), { type:'system', text:texto, ts:Date.now() });
 }
-
+ 
 window.chatKeydown = function(e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviarMensagem(); }
 };
-
+ 
 window.enviarMensagem = function() {
   const inp = document.getElementById('chatInput');
   const texto = inp.value.trim();
   if (!texto) return;
   inp.value = '';
-
+ 
   // /r NdX ou /r NdX+B
   const m = texto.match(/^\/r(?:oll)?\s+(\d+)d(\d+)(?:\s*[+]\s*(\d+))?$/i);
   if (m) {
     publicarRolagem(parseInt(m[1]), parseInt(m[2]), m[3] ? parseInt(m[3]) : 0, null, 'roll');
     return;
   }
-
+ 
   const charName = fichasData[meuSlot]?.nome || meuSlot;
   push(ref(db, `sessoes/${sessaoId}/chat`), {
     type:'msg', slot:meuSlot, charName, text:texto, ts:Date.now()
   });
 };
-
+ 
 /* ══════════════════════════════════════
    CHAT DE IMAGENS
 ══════════════════════════════════════ */
 function renderImagens(msgs) {
   const container = document.getElementById('imagensFeed');
   const atBottom = container.scrollHeight - container.clientHeight <= container.scrollTop + 50;
-
+ 
   const lista = Object.values(msgs).sort((a,b) => (a.ts||0)-(b.ts||0));
   container.innerHTML = '';
-
+ 
   if (lista.length === 0) {
     container.innerHTML = '<div class="imgchat-empty">Nenhuma imagem enviada ainda. Cole uma URL ou envie um arquivo abaixo.</div>';
     return;
   }
-
+ 
   lista.forEach(msg => {
     const ac = msg.slot === meuSlot ? 'mine' : 'other';
     const hora = msg.ts ? new Date(msg.ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '';
@@ -2755,10 +2742,10 @@ function renderImagens(msgs) {
     div.querySelector('img').addEventListener('click', () => abrirImagemLightbox(msg.url));
     container.appendChild(div);
   });
-
+ 
   if (atBottom) container.scrollTop = container.scrollHeight;
 }
-
+ 
 function publicarImagem(url, legenda) {
   if (!sessaoId) { showToast('Entre em uma sessão primeiro.', 'error'); return; }
   if (!url) return;
@@ -2770,7 +2757,7 @@ function publicarImagem(url, legenda) {
     showToast('Erro ao registrar imagem.', 'error');
   });
 }
-
+ 
 // Comprime imagem no canvas antes do upload
 function comprimirArquivo(file) {
   return new Promise((resolve, reject) => {
@@ -2801,25 +2788,25 @@ function comprimirArquivo(file) {
     reader.readAsDataURL(file);
   });
 }
-
+ 
 // Upload via Imgur API (client_id público, sem login)
 async function uploadImgur(file) {
   const blob = await comprimirArquivo(file);
   const form = new FormData();
   form.append('image', blob, 'imagem.jpg');
-
+ 
   const resp = await fetch('https://api.imgur.com/3/image', {
     method: 'POST',
     headers: { Authorization: 'Client-ID 546c25a59c58ad7' },
     body: form
   });
-
+ 
   if (!resp.ok) throw new Error(`Imgur HTTP ${resp.status}`);
   const data = await resp.json();
   if (!data.success) throw new Error('Imgur recusou o upload');
   return data.data.link;
 }
-
+ 
 window.enviarImagemArquivo = async function(e) {
   const file = e.target.files[0];
   e.target.value = '';
@@ -2828,9 +2815,9 @@ window.enviarImagemArquivo = async function(e) {
     showToast('Selecione um arquivo de imagem.', 'error');
     return;
   }
-
+ 
   showToast('Enviando imagem... ⏳', '');
-
+ 
   try {
     const url = await uploadImgur(file);
     publicarImagem(url);
@@ -2840,23 +2827,23 @@ window.enviarImagemArquivo = async function(e) {
     showToast('Falha no upload. Tente colar uma URL direta.', 'error');
   }
 };
-
+ 
 window.limparImagens = function() {
   if (!sessaoId) return;
   if (!confirm('Limpar todo o chat de imagens? Esta ação não pode ser desfeita.')) return;
   remove(ref(db, `sessoes/${sessaoId}/chatImagens`));
 };
-
+ 
 window.abrirImagemLightbox = function(url) {
   document.getElementById('imagemLightboxImg').src = url;
   document.getElementById('imagemLightbox').classList.add('show');
 };
-
+ 
 window.fecharImagemLightbox = function() {
   document.getElementById('imagemLightbox').classList.remove('show');
   document.getElementById('imagemLightboxImg').src = '';
 };
-
+ 
 /* ══════════════════════════════════════
    ROLAGEM GENÉRICA
 ══════════════════════════════════════ */
@@ -2865,7 +2852,7 @@ function rolarDice(qty, sides) {
   for (let i = 0; i < qty; i++) r.push(Math.floor(Math.random()*sides)+1);
   return r;
 }
-
+ 
 function publicarRolagem(qty, sides, bonus, label, tipo) {
   const rolls  = rolarDice(qty, sides);
   const soma   = rolls.reduce((a,b)=>a+b,0);
@@ -2875,7 +2862,7 @@ function publicarRolagem(qty, sides, bonus, label, tipo) {
   const slotEfetivo = window.__rolarComoSlot || meuSlot;
   const charName = getFicha(slotEfetivo)?.nome || (modoMestre ? '👁 Mestre' : meuSlot);
   const formula  = bonus ? `${qty}d${sides}+${bonus}` : `${qty}d${sides}`;
-
+ 
   push(ref(db, `sessoes/${sessaoId}/chat`), {
     type: tipo||'roll', slot:slotEfetivo, charName, formula, rolls, bonus:bonus||0, total,
     label: label || (isCrit?'⚡ Crítico Natural!': isFail?'💀 Falha Crítica!':''),
@@ -2884,7 +2871,7 @@ function publicarRolagem(qty, sides, bonus, label, tipo) {
   });
   return { rolls, total, isCrit, isFail };
 }
-
+ 
 /* ══════════════════════════════════════
    INICIATIVA
 ══════════════════════════════════════ */
@@ -2898,12 +2885,12 @@ window.rolarIniciativa = function(slot, dexVal) {
   const isCrit = roll===20;
   const isFail = roll===1;
   const charName = getFicha(slot)?.nome || slot;
-
+ 
   // Salvar na ordem de iniciativa (keyed por slot para sobrescrever re-rolls)
   set(ref(db, `sessoes/${sessaoId}/iniciativa/${slot.replace(/\s+/g,'_')}`), {
     slot, charName, roll, bonus, total, ts: Date.now()
   });
-
+ 
   // Postar no chat
   push(ref(db, `sessoes/${sessaoId}/chat`), {
     type:'roll-iniciativa', slot, charName,
@@ -2913,10 +2900,10 @@ window.rolarIniciativa = function(slot, dexVal) {
     special: isCrit?'nat20': isFail?'critical':'',
     ts: Date.now()
   });
-
+ 
   showToast(`⚔️ Iniciativa: ${roll}${bonusStr} = ${total}`, 'roll');
 };
-
+ 
 /* ══════════════════════════════════════
    MAPA DE BATALHA
 ══════════════════════════════════════ */
@@ -2927,7 +2914,7 @@ window.definirMapaUrl = function() {
   document.getElementById('mapaUrlInput').value = '';
   showToast('Mapa atualizado!', 'success');
 };
-
+ 
 window.definirMapaArquivo = function(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -2939,24 +2926,24 @@ window.definirMapaArquivo = function(e) {
   reader.readAsDataURL(file);
   e.target.value = '';
 };
-
+ 
 window.aplicarGradeMapa = function() {
   const cols = Math.max(4, Math.min(60, parseInt(document.getElementById('mapaCols').value)||20));
   const rows = Math.max(4, Math.min(60, parseInt(document.getElementById('mapaRows').value)||14));
   set(ref(db, `sessoes/${sessaoId}/mapa/cols`), cols);
   set(ref(db, `sessoes/${sessaoId}/mapa/rows`), rows);
 };
-
+ 
 window.toggleGradeVisivel = function() {
   const atual = mapaData.grade !== false;
   set(ref(db, `sessoes/${sessaoId}/mapa/grade`), !atual);
 };
-
+ 
 window.limparMapa = function() {
   if (!confirm('Limpar o mapa e remover todos os tokens? Esta ação não pode ser desfeita.')) return;
   remove(ref(db, `sessoes/${sessaoId}/mapa`));
 };
-
+ 
 window.adicionarMeuToken = function() {
   if (!sessaoId) return;
   const tokensAtuais = mapaData.tokens || {};
@@ -2977,13 +2964,13 @@ window.adicionarMeuToken = function() {
     avatar: ficha.avatar || null, cor: null, col, row
   });
 };
-
+ 
 window.adicionarTokenNpc = function() {
   if (!sessaoId) return;
   const tokensAtuais = mapaData.tokens || {};
   const npcsComFicha = Object.entries(fichasNpcData || {})
     .filter(([slot]) => !Object.values(tokensAtuais).some(t => t.tipo === 'npc' && t.slot === slot));
-
+ 
   if (npcsComFicha.length > 0) {
     let msg = 'Colocar token de qual ficha de NPC já criada?\n\n';
     npcsComFicha.forEach(([slot, ficha], i) => { msg += `${i+1}. ${ficha.nome || 'NPC sem nome'}\n`; });
@@ -3000,7 +2987,7 @@ window.adicionarTokenNpc = function() {
   }
   adicionarTokenNpcSolto();
 };
-
+ 
 function adicionarTokenDeFichaNpc(slot, ficha) {
   const tokensAtuais = mapaData.tokens || {};
   const cols = mapaData.cols || 20;
@@ -3020,7 +3007,7 @@ function adicionarTokenDeFichaNpc(slot, ficha) {
   });
   showToast(`Token de "${ficha.nome || 'NPC'}" colocado no mapa.`, 'success');
 }
-
+ 
 function adicionarTokenNpcSolto() {
   const nome = prompt('Nome do NPC/Monstro:');
   if (!nome) return;
@@ -3032,7 +3019,7 @@ function adicionarTokenNpcSolto() {
   const novaRef = push(ref(db, `sessoes/${sessaoId}/mapa/tokens`));
   set(novaRef, { tipo:'npc', slot:null, nome, emoji, cor, col: Math.floor(cols/2), row: Math.floor(rows/2) });
 }
-
+ 
 function renderMapa() {
   if (!sessaoId) return;
   const canvas = document.getElementById('mapaCanvas');
@@ -3040,30 +3027,30 @@ function renderMapa() {
   const overlay = document.getElementById('mapaGridOverlay');
   const emptyState = document.getElementById('mapaEmptyState');
   if (!canvas || !viewport) return;
-
+ 
   const cols = mapaData.cols || 20;
   const rows = mapaData.rows || 14;
   const mostrarGrade = mapaData.grade !== false;
-
+ 
   const larguraDisponivel = Math.max(viewport.clientWidth - 40, 280);
   let cellSize = Math.floor(larguraDisponivel / cols);
   cellSize = Math.max(20, Math.min(70, cellSize));
-
+ 
   canvas.style.width  = (cellSize*cols) + 'px';
   canvas.style.height = (cellSize*rows) + 'px';
   canvas.style.backgroundImage = mapaData.imageUrl ? `url("${mapaData.imageUrl}")` : 'none';
   emptyState.style.display = mapaData.imageUrl ? 'none' : 'flex';
-
+ 
   overlay.style.backgroundImage = mostrarGrade
     ? 'linear-gradient(to right, rgba(255,255,255,0.18) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.18) 1px, transparent 1px)'
     : 'none';
   overlay.style.backgroundSize = `${cellSize}px ${cellSize}px`;
-
+ 
   const tokensAtuais = mapaData.tokens || {};
   canvas.querySelectorAll('.mapa-token').forEach(el => {
     if (!tokensAtuais[el.dataset.id]) el.remove();
   });
-
+ 
   Object.entries(tokensAtuais).forEach(([id, tk]) => {
     let el = canvas.querySelector(`.mapa-token[data-id="${id}"]`);
     const podeMover = modoMestre || tk.slot === meuSlot;
@@ -3079,7 +3066,7 @@ function renderMapa() {
     el.classList.toggle('is-npc', tk.tipo === 'npc');
     el.style.cursor = podeMover ? 'grab' : 'default';
     el.dataset.cell = cellSize;
-
+ 
     // Vida vinculada à ficha (se o token estiver ligado a uma ficha de PC ou NPC)
     let pvAtual = null;
     if (tk.slot) {
@@ -3088,7 +3075,7 @@ function renderMapa() {
     }
     const morto = pvAtual !== null && pvAtual <= 0;
     el.classList.toggle('is-morto', morto);
-
+ 
     const circle = el.querySelector('.mapa-token-circle');
     circle.style.width  = (cellSize*0.8)+'px';
     circle.style.height = (cellSize*0.8)+'px';
@@ -3096,18 +3083,18 @@ function renderMapa() {
     circle.innerHTML = (tk.avatar ? `<img src="${tk.avatar}">` : esc(tk.emoji || (tk.nome||'?')[0]))
       + (morto ? `<div class="mapa-token-skull">☠️</div>` : '');
     circle.style.borderColor = tk.cor || '';
-
+ 
     el.querySelector('.mapa-token-label').textContent = tk.nome || '';
-
+ 
     if (!el.classList.contains('dragging')) {
       el.style.left = (tk.col*cellSize + cellSize*0.1) + 'px';
       el.style.top  = (tk.row*cellSize + cellSize*0.1) + 'px';
     }
-
+ 
     // Sempre recriar o botão de remoção para garantir id/nome atualizados
     const remBtnExistente = el.querySelector('.mapa-token-remove');
     if (remBtnExistente) remBtnExistente.remove();
-
+ 
     if (podeMover) {
       const remBtn = document.createElement('div');
       remBtn.className = 'mapa-token-remove';
@@ -3128,23 +3115,23 @@ function renderMapa() {
       el.appendChild(remBtn);
     }
   });
-
+ 
   const toolbarMestre = document.getElementById('mapaToolbarMestre');
   const btnAddNpc = document.getElementById('btnAddNpcToken');
   if (toolbarMestre) toolbarMestre.style.display = modoMestre ? 'flex' : 'none';
   if (btnAddNpc) btnAddNpc.style.display = modoMestre ? 'inline-block' : 'none';
   const btnGrade = document.getElementById('btnGradeToggle');
   if (btnGrade) btnGrade.textContent = mostrarGrade ? '▦ Grade: ON' : '▦ Grade: OFF';
-
+ 
   const colsInput = document.getElementById('mapaCols');
   const rowsInput = document.getElementById('mapaRows');
   if (colsInput && document.activeElement !== colsInput) colsInput.value = cols;
   if (rowsInput && document.activeElement !== rowsInput) rowsInput.value = rows;
 }
-
+ 
 function ativarDragToken(el, id) {
   let startX, startY, origLeft, origTop, dragging = false;
-
+ 
   el.addEventListener('pointerdown', e => {
     // Ignorar se o clique veio do botão de remoção
     if (e.target.classList.contains('mapa-token-remove')) return;
@@ -3159,13 +3146,13 @@ function ativarDragToken(el, id) {
     origLeft = parseFloat(el.style.left)||0;
     origTop  = parseFloat(el.style.top)||0;
   });
-
+ 
   el.addEventListener('pointermove', e => {
     if (!dragging) return;
     el.style.left = (origLeft + (e.clientX-startX)) + 'px';
     el.style.top  = (origTop  + (e.clientY-startY)) + 'px';
   });
-
+ 
   function soltar() {
     if (!dragging) return;
     dragging = false;
@@ -3183,9 +3170,9 @@ function ativarDragToken(el, id) {
   el.addEventListener('pointerup', soltar);
   el.addEventListener('pointercancel', soltar);
 }
-
+ 
 window.addEventListener('resize', () => { if (sessaoId) renderMapa(); });
-
+ 
 /* ══════════════════════════════════════
    RENDERIZAR FICHAS
 ══════════════════════════════════════ */
@@ -3202,7 +3189,7 @@ function renderFichas() {
   // Re-aplicar destaque de turno
   if (window.__iniciativaCache) renderIniciativa(window.__iniciativaCache);
 }
-
+ 
 function criarCard(slot, d, isNpc) {
   isNpc = !!isNpc;
   const ismine = (slot === meuSlot) || modoMestre;
@@ -3214,7 +3201,7 @@ function criarCard(slot, d, isNpc) {
   if (isNpc) cardClass += ' is-npc-ficha';
   card.className = cardClass;
   card.dataset.slot = slot;
-
+ 
   const ea = ismine ? 'contenteditable="true"' : 'contenteditable="false"';
   const pvPct  = Math.max(0,Math.min(100, d.pvMax>0?(d.pv/d.pvMax)*100:0));
   const eaPct  = Math.max(0,Math.min(100, d.eaMax>0?(d.ea/d.eaMax)*100:0));
@@ -3224,7 +3211,7 @@ function criarCard(slot, d, isNpc) {
   const dexStr = (dexMod>=0?'+':'')+dexMod;
   const tecnicasInatas = Array.isArray(d.tecnicasInatas) ? d.tecnicasInatas : (d.tecnicasInatas ? Object.values(d.tecnicasInatas) : []);
   const feiticos = Array.isArray(d.feiticos) ? d.feiticos : (d.feiticos ? Object.values(d.feiticos) : []);
-
+ 
   // Suporte a passivas múltiplas (retrocompatível com campo passiva antigo)
   let passivas = [];
   if (Array.isArray(d.passivas) && d.passivas.length > 0) {
@@ -3236,12 +3223,12 @@ function criarCard(slot, d, isNpc) {
   } else {
     passivas = [passivaDefault()];
   }
-
+ 
   const dominioSimples = d.dominioSimples || dominioSimplesDefault();
   const dominioExpansao = d.dominioExpansao || dominioExpansaoDefault();
   const inventario = Array.isArray(d.inventario) ? d.inventario : Object.values(d.inventario || {});
   const condicoes  = Array.isArray(d.condicoes)  ? d.condicoes  : Object.values(d.condicoes  || {});
-
+ 
   // Classe do personagem
   const classeAtual = d.classe || 'feiticeiro';
   const isRestricao = classeAtual === 'restricao';
@@ -3253,17 +3240,17 @@ function criarCard(slot, d, isNpc) {
     { value: 'shikigami', label: '🐉 Shikigami' },
   ];
   const classeBadgeLabel = CLASSES.find(c => c.value === classeAtual)?.label || '✨ Caster';
-
+ 
   // Avatar
   const avatarSrc = d.avatar ? `<img src="${d.avatar}" alt="avatar">` : `<span style="font-size:22px">${(d.nome||'?')[0]}</span>`;
   const avatarEditable = ismine ? 'class="avatar-circle editable"' : 'class="avatar-circle"';
-
+ 
   // Badge mestre
   const badgeLabel = isNpc ? '👹 NPC' : (modoMestre && !isMeuCard ? '👁 Mestre' : (isMeuCard ? '✦ Você' : (d.nome||'Jogador')));
   const badgeClass = isNpc ? 'npc' : (isMeuCard ? '' : (modoMestre ? '' : 'other'));
   const dupNpcBtnHTML = isNpc ? `<button class="btn-dup-npc-card" title="Duplicar esta ficha de NPC">📑 Duplicar</button>` : '';
   const delNpcBtnHTML = isNpc ? `<button class="btn-del-npc-card" title="Remover este NPC da sessão">🗑️ Remover NPC</button>` : '';
-
+ 
   // Condições HTML
   const COND_INFO = {
     sangrando:           { icon:'🩸', label:'Sangrando' },
@@ -3283,7 +3270,7 @@ function criarCard(slot, d, isNpc) {
     return `<span class="condicao-tag cond-${c}">${info.icon} ${info.label} ${rem}</span>`;
   }).join('');
   const addCondBtn = ismine ? `<button class="btn-add-cond" data-slot="${slot}">+ Condição</button>` : '';
-
+ 
   // Inventário HTML
   const inventarioHTML = inventario.map((item, idx) => `
     <div class="inventario-item" data-idx="${idx}">
@@ -3294,7 +3281,7 @@ function criarCard(slot, d, isNpc) {
       </div>
       ${ismine ? `<button class="btn-del-item" data-idx="${idx}" title="Remover item">✕</button>` : ''}
     </div>`).join('');
-
+ 
   // Técnicas de reforço fixas com botão rolar
   const tecnicasReforcoFixed = [
     { nome:'Reforço dos Punhos',      custo:'5 EA',  formula:'1d4', label:'Reforço dos Punhos', efeito:'1d4 + Mod. FOR',            desc:'Imbui as mãos com energia amaldiçoada para causar mais dano.' },
@@ -3302,7 +3289,7 @@ function criarCard(slot, d, isNpc) {
     { nome:'Passo Amaldiçoado',       custo:'15 EA', formula:'1d6', label:'Passo Amaldiçoado',   efeito:'+3m Deslocamento por 2 rodadas', desc:'Aumenta o deslocamento temporariamente.' },
     { nome:'Fortalecimento de Habilidade', custo:'20 EA', formula:'1d8', label:'Fortalecimento', efeito:'Reforço da Técnica',       desc:'Melhora capacidade, dano e qualidade de uma técnica.' },
   ];
-
+ 
   card.innerHTML = `
     <div class="card-header">
       <div ${avatarEditable} data-slot="${slot}" title="${ismine?'Clique para alterar avatar':''}">
@@ -3330,9 +3317,9 @@ function criarCard(slot, d, isNpc) {
       ${dupNpcBtnHTML}
       ${delNpcBtnHTML}
     </div>
-
+ 
     <div class="card-body">
-
+ 
       <div>
         <div class="section-label">Recursos</div>
         <div class="resource-bars">
@@ -3366,7 +3353,7 @@ function criarCard(slot, d, isNpc) {
           </div>` : ''}
         </div>
       </div>
-
+ 
       <div>
         <div class="section-label">Status</div>
         <div class="status-grid">
@@ -3375,7 +3362,7 @@ function criarCard(slot, d, isNpc) {
           <div class="status-box"><span class="s-label">Grau</span><span class="s-val" style="font-size:13px" ${ea} data-field="grau2">${d.grau||'3'}</span></div>
         </div>
       </div>
-
+ 
       <div>
         <div class="section-label">Atributos</div>
         <div class="attrs-grid">
@@ -3397,10 +3384,10 @@ function criarCard(slot, d, isNpc) {
           <span class="recolher-icon">▲</span> <span class="recolher-txt">Recolher Detalhes</span>
         </button>
       </div>
-
+ 
       <div class="card-detalhes" id="detalhes-${slot}">
       <div class="card-detalhes-inner">
-
+ 
       ${!isRestricao ? `
       <div>
         <div class="section-label">Técnicas de Reforço</div>
@@ -3424,7 +3411,7 @@ function criarCard(slot, d, isNpc) {
           </div>`).join('')}
         </div>
       </div>
-
+ 
       <div>
         <div class="section-label">Técnicas Inatas</div>
         <div class="tecnicas-list" id="tecnicasInatas-${slot}">
@@ -3432,7 +3419,7 @@ function criarCard(slot, d, isNpc) {
         </div>
         ${ismine ? `<button class="btn-add-tecnica" data-campo="tecnicasInatas">＋ Adicionar Técnica Inata</button>` : ''}
       </div>
-
+ 
       <div>
         <div class="section-label">Feitiços</div>
         <div class="tecnicas-list" id="feiticos-${slot}">
@@ -3440,7 +3427,7 @@ function criarCard(slot, d, isNpc) {
         </div>
         ${ismine ? `<button class="btn-add-tecnica" data-campo="feiticos">＋ Adicionar Feitiço</button>` : ''}
       </div>` : ''}
-
+ 
       <div>
         <div class="section-label">Passiva${passivas.length > 1 ? 's' : ''}</div>
         <div class="passivas-list" id="passivas-${slot}">
@@ -3464,7 +3451,7 @@ function criarCard(slot, d, isNpc) {
         </div>
         ${ismine ? `<button class="btn-add-passiva" data-slot="${slot}">＋ Adicionar Passiva</button>` : ''}
       </div>
-
+ 
       <div>
         <div class="section-label">Inventário</div>
         <div class="inventario-list" id="inv-${slot}">
@@ -3472,7 +3459,7 @@ function criarCard(slot, d, isNpc) {
         </div>
         ${ismine ? `<button class="btn-add-item" data-slot="${slot}">＋ Adicionar item</button>` : ''}
       </div>
-
+ 
       ${!isRestricao ? `
       <div>
         <div class="section-label">Barreiras &amp; Domínios</div>
@@ -3511,12 +3498,12 @@ function criarCard(slot, d, isNpc) {
           </div>
         </div>
       </div>` : ''}
-
+ 
       </div><!-- fim card-detalhes-inner -->
       </div><!-- fim card-detalhes -->
-
+ 
     </div>`;
-
+ 
   // Clique em atributo para rolar — apenas na própria ficha (ou mestre em NPC)
   if (isMeuCard || (modoMestre && isNpc)) {
     card.querySelectorAll('.attr-box.clicavel').forEach(box => {
@@ -3529,7 +3516,7 @@ function criarCard(slot, d, isNpc) {
       });
     });
   }
-
+ 
   // Overlay inconsciente/derrotado
   if (d.pvMax > 0 && d.pv <= 0) {
     const overlay = document.createElement('div');
@@ -3544,7 +3531,7 @@ function criarCard(slot, d, isNpc) {
     }
     card.appendChild(overlay);
   }
-
+ 
   // Eventos
   if (ismine) {
     // Inputs numéricos
@@ -3555,7 +3542,7 @@ function criarCard(slot, d, isNpc) {
         inp.addEventListener('change', () => salvar(slot, inp.dataset.field, Number(inp.value), isNpc));
       }
     });
-
+ 
     // Contenteditable
     card.querySelectorAll('[contenteditable="true"]').forEach(el => {
       el.addEventListener('blur', () => {
@@ -3565,7 +3552,7 @@ function criarCard(slot, d, isNpc) {
       });
       el.addEventListener('keydown', e => { if (e.key==='Enter'){e.preventDefault();el.blur();} });
     });
-
+ 
     // Botões USAR habilidade
     card.querySelectorAll('.btn-usar-habilidade').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -3582,7 +3569,7 @@ function criarCard(slot, d, isNpc) {
         if (modoMestre) window.__rolarComoSlot = null;
       });
     });
-
+ 
     // Avatar click
     const avatarEl = card.querySelector('.avatar-circle');
     const fileInput = card.querySelector('.avatar-input');
@@ -3596,13 +3583,13 @@ function criarCard(slot, d, isNpc) {
         reader.readAsDataURL(file);
       });
     }
-
+ 
     // Adicionar condição
     const addCondBtnEl = card.querySelector('.btn-add-cond');
     if (addCondBtnEl) {
       addCondBtnEl.addEventListener('click', () => abrirMenuCondicao(slot, d.condicoes||[], isNpc));
     }
-
+ 
     // Remover condição
     card.querySelectorAll('.remove-cond').forEach(el => {
       el.addEventListener('click', e => {
@@ -3614,7 +3601,7 @@ function criarCard(slot, d, isNpc) {
         salvar(slot, 'condicoes', novas.length ? novas : null, isNpc);
       });
     });
-
+ 
     // Select de classe
     const classeSelectEl = card.querySelector('.classe-select');
     if (classeSelectEl) {
@@ -3622,7 +3609,7 @@ function criarCard(slot, d, isNpc) {
         salvar(slot, 'classe', classeSelectEl.value, isNpc);
       });
     }
-
+ 
     // Adicionar passiva
     const addPassivaBtn = card.querySelector('.btn-add-passiva');
     if (addPassivaBtn) {
@@ -3641,7 +3628,7 @@ function criarCard(slot, d, isNpc) {
         salvar(slot, 'passivas', [...passAtual, passivaDefault()], isNpc);
       });
     }
-
+ 
     // Remover passiva
     card.querySelectorAll('.btn-del-passiva').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -3660,7 +3647,7 @@ function criarCard(slot, d, isNpc) {
         salvar(slot, 'inventario', inv, isNpc);
       });
     }
-
+ 
     // Remover item do inventário
     card.querySelectorAll('.btn-del-item').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -3671,7 +3658,7 @@ function criarCard(slot, d, isNpc) {
         salvar(slot, 'inventario', inv.length ? inv : null, isNpc);
       });
     });
-
+ 
     // Adicionar Técnica Inata ou Feitiço
     card.querySelectorAll('.btn-add-tecnica').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -3683,7 +3670,7 @@ function criarCard(slot, d, isNpc) {
         salvar(slot, campo, [...atual, novoItem], isNpc);
       });
     });
-
+ 
     // Remover Técnica Inata ou Feitiço
     card.querySelectorAll('.btn-del-tecnica').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -3696,7 +3683,7 @@ function criarCard(slot, d, isNpc) {
         salvar(slot, campo, atual.length ? atual : null, isNpc);
       });
     });
-
+ 
     // Remover ficha de NPC inteira (somente Mestre)
     const delNpcBtn = card.querySelector('.btn-del-npc-card');
     if (delNpcBtn) {
@@ -3708,7 +3695,7 @@ function criarCard(slot, d, isNpc) {
         }
       });
     }
-
+ 
     // Duplicar ficha de NPC inteira (somente Mestre) — agiliza criar vários
     // monstros parecidos (ex: "Goblin 1", "Goblin 2"...)
     const dupNpcBtn = card.querySelector('.btn-dup-npc-card');
@@ -3725,7 +3712,7 @@ function criarCard(slot, d, isNpc) {
       });
     }
   }
-
+ 
   // Botão recolher/expandir detalhes — funciona em QUALQUER ficha (própria,
   // de outro jogador, ou NPC), de forma 100% local: estado salvo apenas no
   // localStorage de quem clicou, nunca sincronizado pelo Firebase.
@@ -3733,7 +3720,7 @@ function criarCard(slot, d, isNpc) {
   const detalhesDiv = card.querySelector('.card-detalhes');
   if (btnRecolher && detalhesDiv) {
     const chaveStorage = `jk_recolhido_${sessaoId}_${isNpc ? 'npc' : 'pc'}_${slot}`;
-
+ 
     // Restaurar estado salvo localmente
     const estadoSalvo = localStorage.getItem(chaveStorage);
     if (estadoSalvo === 'sim') {
@@ -3741,7 +3728,7 @@ function criarCard(slot, d, isNpc) {
       btnRecolher.querySelector('.recolher-icon').textContent = '▼';
       btnRecolher.querySelector('.recolher-txt').textContent  = 'Ver Detalhes';
     }
-
+ 
     btnRecolher.addEventListener('click', () => {
       const recolhido = detalhesDiv.classList.toggle('recolhido');
       const icon = btnRecolher.querySelector('.recolher-icon');
@@ -3751,27 +3738,27 @@ function criarCard(slot, d, isNpc) {
       localStorage.setItem(chaveStorage, recolhido ? 'sim' : 'nao');
     });
   }
-
+ 
   return card;
 }
-
+ 
 // Extrai custo numérico de EA de uma string como "10 EA" → 10
 function parseCustoEA(custoStr) {
   const m = (custoStr||'').match(/(\d+)/);
   return m ? parseInt(m[1]) : 0;
 }
-
+ 
 /* ══════════════════════════════════════
    USAR HABILIDADE — publica no chat e desconta EA
 ══════════════════════════════════════ */
 function usarHabilidade(slot, nome, custo, custoNum, efeito, desc, isNpc) {
   const fichaAtual = getFicha(slot);
   if (!fichaAtual) return;
-
+ 
   let eaReduzido = false;
   let eaAntes = Number(fichaAtual.ea)||0;
   let eaDepois = eaAntes;
-
+ 
   if (custoNum > 0) {
     if (eaAntes < custoNum) {
       if (!confirm(`⚠️ EA insuficiente! Você tem ${eaAntes} EA mas a habilidade custa ${custoNum} EA. Usar mesmo assim?`)) return;
@@ -3781,10 +3768,10 @@ function usarHabilidade(slot, nome, custo, custoNum, efeito, desc, isNpc) {
       eaReduzido = true;
     }
   }
-
+ 
   const slotEfetivo = window.__rolarComoSlot || meuSlot;
   const charName = getFicha(slotEfetivo)?.nome || (modoMestre ? '👁 Mestre' : meuSlot);
-
+ 
   push(ref(db, `sessoes/${sessaoId}/chat`), {
     type: 'habilidade',
     slot: slotEfetivo,
@@ -3799,7 +3786,7 @@ function usarHabilidade(slot, nome, custo, custoNum, efeito, desc, isNpc) {
     ts: Date.now()
   });
 }
-
+ 
 /* ══════════════════════════════════════
    ROLAR ATRIBUTO — 1d20 + mod do atributo
 ══════════════════════════════════════ */
@@ -3811,11 +3798,11 @@ function rolarAtributo(slot, atributo, valor) {
   const modStr = (mod>=0?'+':'')+mod;
   const isCrit = roll === 20;
   const isFail = roll === 1;
-
+ 
   const slotEfetivo = window.__rolarComoSlot || meuSlot;
   const charName = getFicha(slotEfetivo)?.nome || (modoMestre ? '👁 Mestre' : meuSlot);
   const atNome = atributo.toUpperCase();
-
+ 
   push(ref(db, `sessoes/${sessaoId}/chat`), {
     type: 'roll',
     slot: slotEfetivo,
@@ -3828,15 +3815,15 @@ function rolarAtributo(slot, atributo, valor) {
     special: isCrit ? 'nat20' : isFail ? 'critical' : '',
     ts: Date.now()
   });
-
+ 
   showToast(`🎯 ${atNome}: ${roll}${modStr} = ${total}`, 'roll');
 }
-
+ 
 /* ══════════════════════════════════════
    MODAL DE DADOS COMPOSTOS
 ══════════════════════════════════════ */
 let gruposDadosAtual = [];
-
+ 
 window.abrirCompostoModal = function(gruposIniciais) {
   gruposDadosAtual = gruposIniciais || [{ qty:1, sides:6 }];
   renderGruposDados();
@@ -3845,15 +3832,15 @@ window.abrirCompostoModal = function(gruposIniciais) {
   document.getElementById('compostoBreakdown').textContent = '';
   document.getElementById('diceCompostoModal').classList.add('show');
 };
-
+ 
 window.fecharCompostoModal = function() {
   document.getElementById('diceCompostoModal').classList.remove('show');
 };
-
+ 
 window.fecharCompostoSeFora = function(e) {
   if (e.target === document.getElementById('diceCompostoModal')) fecharCompostoModal();
 };
-
+ 
 function renderGruposDados() {
   const container = document.getElementById('gruposDados');
   container.innerHTML = '';
@@ -3884,20 +3871,20 @@ function renderGruposDados() {
     container.appendChild(row);
   });
 }
-
+ 
 window.adicionarGrupoDado = function() {
   gruposDadosAtual.push({ qty:1, sides:6 });
   renderGruposDados();
 };
-
+ 
 window.rolarComposto = function() {
   if (!sessaoId) { showToast('Entre em uma sessão primeiro.', 'error'); return; }
   const bonus = parseInt(document.getElementById('compostoBonus').value)||0;
-
+ 
   let todosRolls = [];
   let partes = [];
   let totalGeral = 0;
-
+ 
   gruposDadosAtual.forEach(g => {
     const rolls = rolarDice(g.qty, g.sides);
     const soma = rolls.reduce((a,b)=>a+b,0);
@@ -3906,19 +3893,19 @@ window.rolarComposto = function() {
     totalGeral += soma;
   });
   totalGeral += bonus;
-
+ 
   // Exibir preview
   const breakdownPartes = partes.map(p => `${p.formula}[${p.rolls.join('+')}]=${p.soma}`).join(' + ');
   const breakdownFull = bonus !== 0 ? `${breakdownPartes} ${bonus>=0?'+':''} ${bonus}` : breakdownPartes;
   document.getElementById('compostoTotal').textContent = totalGeral;
   document.getElementById('compostoBreakdown').textContent = breakdownFull;
-
+ 
   // Formula legível
   const formulaStr = gruposDadosAtual.map(g=>`${g.qty}d${g.sides}`).join('+') + (bonus!==0?(bonus>0?'+':'')+bonus:'');
-
+ 
   const slotEfetivo = window.__rolarComoSlot || meuSlot;
   const charName = getFicha(slotEfetivo)?.nome || (modoMestre ? '👁 Mestre' : meuSlot);
-
+ 
   push(ref(db, `sessoes/${sessaoId}/chat`), {
     type: 'roll-composto',
     slot: slotEfetivo,
@@ -3931,10 +3918,10 @@ window.rolarComposto = function() {
     special: '',
     ts: Date.now()
   });
-
+ 
   setTimeout(() => fecharCompostoModal(), 900);
 };
-
+ 
 // Gera o HTML de um item de Técnica Inata ou Feitiço (campo = 'tecnicasInatas' | 'feiticos')
 function renderTecnicaEditavel(campo, t, idx, ismine, ea) {
   const custoNum = parseCustoEA(t.custo);
@@ -3958,7 +3945,7 @@ function renderTecnicaEditavel(campo, t, idx, ismine, ea) {
     <span class="tecnica-desc" ${ea} data-field="${campo}/${idx}/desc">${t.desc||'Descreva o efeito da técnica...'}</span>
   </div>`;
 }
-
+ 
 function abrirMenuCondicao(slot, condicoesRaw, isNpc) {
   const condicoesAtuais = Array.isArray(condicoesRaw) ? condicoesRaw : Object.values(condicoesRaw || {});
   const CONDS_STATUS  = ['sangrando','atordoado','envenenado','amedrontado','paralisado','invisivel'];
@@ -3973,12 +3960,12 @@ function abrirMenuCondicao(slot, condicoesRaw, isNpc) {
   const dispReforco = CONDS_REFORCO.filter(c => !condicoesAtuais.includes(c));
   const todas = [...dispStatus, ...dispReforco];
   if (todas.length === 0) { showToast('Todas as condições já aplicadas.',''); return; }
-
+ 
   let msg = 'Adicionar condição:';
   if (dispStatus.length)  msg += '\n\n── Status ──\n'  + dispStatus.map((c,i)=>`${i+1}. ${LABELS[c]}`).join('\n');
   if (dispReforco.length) msg += '\n\n── Técnicas de Reforço ──\n' + dispReforco.map((c,i)=>`${dispStatus.length+i+1}. ${LABELS[c]}`).join('\n');
   msg += '\n\nDigite o número:';
-
+ 
   const escolha = prompt(msg);
   if (!escolha) return;
   const idx = parseInt(escolha) - 1;
@@ -3987,7 +3974,7 @@ function abrirMenuCondicao(slot, condicoesRaw, isNpc) {
     salvar(slot, 'condicoes', novas, isNpc);
   }
 }
-
+ 
 function salvar(slot, field, value, isNpc) {
   // Firebase ignora arrays vazios; gravar null para limpar o nó
   const val = (Array.isArray(value) && value.length === 0) ? null : value;
