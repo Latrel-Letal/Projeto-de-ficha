@@ -1126,16 +1126,6 @@
   }
   .btn-dominio-toggle.desligar:hover { background: var(--red); color: white; }
 
-  .dominio-ativo-banner.simples {
-    background: linear-gradient(90deg, rgba(74,158,255,0.2), transparent);
-    border-bottom: 1px solid rgba(74,158,255,0.4);
-    color: var(--blue);
-  }
-  .btn-dominio-toggle.simples.ligar {
-    border-color: rgba(74,158,255,0.5); color: var(--blue); background: transparent;
-  }
-  .btn-dominio-toggle.simples.ligar:hover { background: var(--blue); color: white; }
-
   /* token com domínio ativo — anel pulsante roxo */
   .mapa-token.dominio-ativo .mapa-token-circle {
     border-color: var(--purple) !important;
@@ -4043,12 +4033,12 @@ function criarCard(slot, d, isNpc) {
   // Banner de domínio ativo
   const dominioSimplesEsteSlot = !!dominiosSimplesAtivos[slot];
   const bannerSimplesHTML = dominioSimplesEsteSlot ? `
-    <div class="dominio-ativo-banner simples">
+    <div class="dominio-ativo-banner">
       <span><span class="dom-blink">◆</span> DOMÍNIO SIMPLES ATIVO — ${esc(d.dominioSimples?.nome || dominioSimples.nome || 'Domínio Simples')}</span>
       ${ismine ? `<button class="btn-dominio-simples-toggle desligar" data-slot="${slot}">✕ Encerrar Domínio</button>` : ''}
     </div>` : (ismine ? `
     <div style="padding:4px 18px 0">
-      <button class="btn-dominio-simples-toggle simples ligar" data-slot="${slot}" style="margin-bottom:2px">🛡️ Ativar Domínio Simples</button>
+      <button class="btn-dominio-simples-toggle ligar" data-slot="${slot}" style="margin-bottom:2px">🛡️ Ativar Domínio Simples</button>
     </div>` : '');
 
   const bannerExpansaoHTML = dominioEsteSlot ? `
