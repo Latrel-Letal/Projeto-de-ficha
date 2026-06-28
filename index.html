@@ -1241,21 +1241,59 @@
     display: flex; align-items: center; justify-content: space-between; gap: 6px;
   }
   .dominio-ativo-banner .dom-blink { animation: blink 1.4s infinite; }
-  .btn-dominio-toggle {
+  .btn-dominio-toggle,
+  .btn-dominio-simples-toggle {
     font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
     border-radius: 20px; padding: 3px 10px; cursor: pointer;
     transition: all 0.2s; border: 1px solid; white-space: nowrap;
   }
-  .btn-dominio-toggle.ligar {
+  .btn-dominio-toggle.ligar,
+  .btn-dominio-simples-toggle.ligar {
     border-color: rgba(168,85,247,0.5); color: var(--purple); background: transparent;
   }
-  .btn-dominio-toggle.ligar:hover { background: var(--purple); color: white; }
-  .btn-dominio-toggle.desligar {
+  .btn-dominio-toggle.ligar:hover,
+  .btn-dominio-simples-toggle.ligar:hover { background: var(--purple); color: white; }
+  .btn-dominio-toggle.desligar,
+  .btn-dominio-simples-toggle.desligar {
     border-color: var(--red); color: var(--red); background: rgba(255,74,74,0.08);
   }
-  .btn-dominio-toggle.desligar:hover { background: var(--red); color: white; }
+  .btn-dominio-toggle.desligar:hover,
+  .btn-dominio-simples-toggle.desligar:hover { background: var(--red); color: white; }
 
   /* token com domínio ativo — anel pulsante roxo */
+  /* ── ZONA DE DOMÍNIO NO MAPA ── */
+  .dominio-zona-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+    overflow: visible;
+  }
+  .dominio-zona-cell {
+    animation: domZonaPulse 2s ease-in-out infinite;
+    transform-origin: center;
+  }
+  @keyframes domZonaPulse {
+    0%,100% { opacity: 0.18; }
+    50%      { opacity: 0.38; }
+  }
+  .dominio-zona-borda {
+    animation: domBordaPulse 2s ease-in-out infinite;
+  }
+  @keyframes domBordaPulse {
+    0%,100% { opacity: 0.55; stroke-width: 1.5; }
+    50%      { opacity: 1;    stroke-width: 2.5; }
+  }
+  .dominio-zona-label {
+    animation: domLabelPulse 2s ease-in-out infinite;
+  }
+  @keyframes domLabelPulse {
+    0%,100% { opacity: 0.5; }
+    50%      { opacity: 0.9; }
+  }
+
   .mapa-token.dominio-ativo .mapa-token-circle {
     border-color: var(--purple) !important;
     box-shadow: 0 0 0 3px rgba(168,85,247,0.5), 0 0 18px rgba(168,85,247,0.7) !important;
@@ -2422,6 +2460,7 @@
     </div>
     <div class="mapa-viewport" id="mapaViewport">
       <div class="mapa-canvas" id="mapaCanvas">
+        <svg class="dominio-zona-svg" id="dominioZonaSvg"></svg>
         <div class="mapa-grid-overlay" id="mapaGridOverlay"></div>
         <div class="mapa-empty-state" id="mapaEmptyState">🗺️ Nenhum mapa definido ainda.<br>Peça ao Mestre para definir um mapa.</div>
       </div>
@@ -3893,6 +3932,113 @@ function adicionarTokenNpcSolto() {
   set(novaRef, { tipo:'npc', slot:null, nome, emoji, cor, col: Math.floor(cols/2), row: Math.floor(rows/2) });
 }
 
+function renderDominioZona(cellSize, cols, rows) {
+  const svg = document.getElementById('dominioZonaSvg');
+  if (!svg) return;
+  svg.innerHTML = '';
+
+  const tokensAtuais = mapaData.tokens || {};
+
+  Object.entries(tokensAtuais).forEach(([id, tk]) => {
+    if (!tk.slot) return;
+    if (!dominiosAtivos[tk.slot]) return;
+
+    const col = tk.col ?? 0;
+    const row = tk.row ?? 0;
+    const raio = 3; // raio em células (cobre 3 células ao redor = 7x7 aproximado)
+
+    // Cor baseada no personagem (usa roxo padrão do domínio)
+    const corFill   = 'rgba(120, 40, 255, 0.22)';
+    const corBorda  = 'rgba(168, 85, 247, 0.9)';
+    const corSombra = 'rgba(80, 0, 200, 0.12)';
+
+    // Coletar células dentro do raio (círculo)
+    const celulas = [];
+    for (let r = -raio; r <= raio; r++) {
+      for (let c = -raio; c <= raio; c++) {
+        const dist = Math.sqrt(r*r + c*c);
+        if (dist <= raio + 0.5) {
+          const gc = col + c;
+          const gr = row + r;
+          if (gc >= 0 && gc < cols && gr >= 0 && gr < rows) {
+            celulas.push({ c: gc, r: gr, dist });
+          }
+        }
+      }
+    }
+
+    // Atraso de animação por célula para efeito ondulante
+    celulas.forEach(({ c: gc, r: gr, dist }) => {
+      const x = gc * cellSize;
+      const y = gr * cellSize;
+      const delay = (dist * 0.15).toFixed(2);
+
+      // Célula preenchida
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', x + 0.5);
+      rect.setAttribute('y', y + 0.5);
+      rect.setAttribute('width', cellSize - 1);
+      rect.setAttribute('height', cellSize - 1);
+      rect.setAttribute('fill', corFill);
+      rect.setAttribute('rx', '2');
+      rect.setAttribute('class', 'dominio-zona-cell');
+      rect.style.animationDelay = delay + 's';
+      svg.appendChild(rect);
+    });
+
+    // Borda exterior da zona (apenas células na borda do círculo)
+    celulas.forEach(({ c: gc, r: gr }) => {
+      const vizinhos = [
+        { dc: 0, dr: -1 }, { dc: 0, dr: 1 },
+        { dc: -1, dr: 0 }, { dc: 1, dr: 0 },
+      ];
+      vizinhos.forEach(({ dc, dr }) => {
+        const nc = gc + dc;
+        const nr = gr + dr;
+        const dentroZona = celulas.some(cel => cel.c === nc && cel.r === nr);
+        if (!dentroZona) {
+          // Desenhar aresta desta célula nessa direção
+          const x = gc * cellSize;
+          const y = gr * cellSize;
+          let x1, y1, x2, y2;
+          if (dr === -1) { x1 = x;            y1 = y;            x2 = x+cellSize;  y2 = y; }
+          if (dr ===  1) { x1 = x;            y1 = y+cellSize;   x2 = x+cellSize;  y2 = y+cellSize; }
+          if (dc === -1) { x1 = x;            y1 = y;            x2 = x;           y2 = y+cellSize; }
+          if (dc ===  1) { x1 = x+cellSize;   y1 = y;            x2 = x+cellSize;  y2 = y+cellSize; }
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+          line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+          line.setAttribute('stroke', corBorda);
+          line.setAttribute('stroke-width', '2');
+          line.setAttribute('stroke-linecap', 'round');
+          line.setAttribute('class', 'dominio-zona-borda');
+          svg.appendChild(line);
+        }
+      });
+    });
+
+    // Label "DOMÍNIO" no centro da zona
+    const fichaSlot = fichasData[tk.slot] || fichasNpcData[tk.slot];
+    const nomeDom = fichaSlot?.nome ? fichaSlot.nome : 'Domínio';
+    const cx = (col + 0.5) * cellSize;
+    const cy = (row - raio - 0.3) * cellSize;
+    if (cy > 0) {
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', cx);
+      text.setAttribute('y', cy);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('fill', 'rgba(200, 150, 255, 0.95)');
+      text.setAttribute('font-size', Math.max(8, cellSize * 0.28));
+      text.setAttribute('font-family', 'Cinzel, serif');
+      text.setAttribute('font-weight', '700');
+      text.setAttribute('letter-spacing', '1');
+      text.setAttribute('class', 'dominio-zona-label');
+      text.textContent = '💀 ' + nomeDom;
+      svg.appendChild(text);
+    }
+  });
+}
+
 function renderMapa() {
   if (!sessaoId) return;
   const canvas = document.getElementById('mapaCanvas');
@@ -3913,6 +4059,9 @@ function renderMapa() {
   canvas.style.height = (cellSize*rows) + 'px';
   canvas.style.backgroundImage = mapaData.imageUrl ? `url("${mapaData.imageUrl}")` : 'none';
   emptyState.style.display = mapaData.imageUrl ? 'none' : 'flex';
+
+  // Renderizar zona de domínio (antes dos tokens)
+  renderDominioZona(cellSize, cols, rows);
 
   overlay.style.backgroundImage = mostrarGrade
     ? 'linear-gradient(to right, rgba(255,255,255,0.18) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.18) 1px, transparent 1px)'
@@ -4178,26 +4327,43 @@ function criarCard(slot, d, isNpc) {
 
   // Banner de domínio ativo
   const dominioSimplesEsteSlot = !!dominiosSimplesAtivos[slot];
+
+  // Banners quando domínio ESTÁ ativo (aparecem separados com info)
   const bannerSimplesHTML = dominioSimplesEsteSlot ? `
     <div class="dominio-ativo-banner">
-      <span><span class="dom-blink">◆</span> DOMÍNIO SIMPLES ATIVO — ${esc(d.dominioSimples?.nome || dominioSimples.nome || 'Domínio Simples')}</span>
-      ${ismine ? `<button class="btn-dominio-simples-toggle desligar" data-slot="${slot}">✕ Encerrar Domínio</button>` : ''}
-    </div>` : (ismine ? `
-    <div style="padding:4px 18px 0">
-      <button class="btn-dominio-simples-toggle ligar" data-slot="${slot}" style="margin-bottom:2px">🛡️ Ativar Domínio Simples</button>
-    </div>` : '');
+      <span><span class="dom-blink">◆</span> DOMÍNIO SIMPLES ATIVO</span>
+      ${ismine ? `<button class="btn-dominio-simples-toggle desligar" data-slot="${slot}">✕ Encerrar</button>` : ''}
+    </div>` : '';
 
   const bannerExpansaoHTML = dominioEsteSlot ? `
     <div class="dominio-ativo-banner">
-      <span><span class="dom-blink">◆</span> DOMÍNIO ATIVO — ${esc(d.dominioExpansao?.nome || 'Expansão de Domínio')}</span>
-      ${ismine ? `<button class="btn-dominio-toggle desligar" data-slot="${slot}">✕ Encerrar Domínio</button>` : ''}
-    </div>` : (ismine ? `
-    <div style="padding:4px 18px 0">
-      <button class="btn-dominio-toggle ligar" data-slot="${slot}" style="margin-bottom:2px">💀 Ativar Domínio</button>
-    </div>` : '');
+      <span><span class="dom-blink">◆</span> DOMÍNIO ATIVO</span>
+      ${ismine ? `<button class="btn-dominio-toggle desligar" data-slot="${slot}">✕ Encerrar</button>` : ''}
+    </div>` : '';
 
-  // Restrição Celestial não possui seção de Domínios — não exibe os botões/banners de ativação
-  const dominioBannerHTML = !isRestricao ? (bannerSimplesHTML + bannerExpansaoHTML) : '';
+  // Botões lado a lado quando nenhum domínio está ativo (só para o dono)
+  const botoesInativos = ismine && !dominioSimplesEsteSlot && !dominioEsteSlot ? `
+    <div style="display:flex;gap:6px;padding:6px 18px 0;flex-wrap:wrap;">
+      <button class="btn-dominio-simples-toggle ligar" data-slot="${slot}">🛡️ Ativar Domínio Simples</button>
+      <button class="btn-dominio-toggle ligar" data-slot="${slot}">💀 Ativar Domínio</button>
+    </div>` : '';
+
+  // Se só um está ativo, mostra o banner do ativo + botão do outro
+  const botaoSimplesSeExpansaoAtiva = ismine && !dominioSimplesEsteSlot && dominioEsteSlot ? `
+    <div style="padding:2px 18px 0">
+      <button class="btn-dominio-simples-toggle ligar" data-slot="${slot}">🛡️ Ativar Domínio Simples</button>
+    </div>` : '';
+  const botaoExpansaoSeSimplesAtivo = ismine && dominioSimplesEsteSlot && !dominioEsteSlot ? `
+    <div style="padding:2px 18px 0">
+      <button class="btn-dominio-toggle ligar" data-slot="${slot}">💀 Ativar Domínio</button>
+    </div>` : '';
+
+  // Restrição Celestial não possui seção de Domínios
+  const dominioBannerHTML = !isRestricao ? (
+    botoesInativos +
+    bannerSimplesHTML + botaoExpansaoSeSimplesAtivo +
+    bannerExpansaoHTML + botaoSimplesSeExpansaoAtiva
+  ) : '';
 
   // ── Helpers para gerar seções de acordeão ──
   function acord(titulo, id, conteudo, abertoPadrao) {
