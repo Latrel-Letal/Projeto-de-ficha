@@ -20,25 +20,10 @@
     --purple:      #a855f7;
     --purple-glow: rgba(168,85,247,0.15);
     --gold:        #f0c040;
-    --text:        #e8e8f5;
-    --text2:       #a0a0c0; /* corrigido: era #8888aa, reprovava WCAG AA */
+    --text:        #e0e0f0;
+    --text2:       #8888aa;
     --online:      #22c55e;
     --radius:      10px;
-    /* ── novas variáveis para micro-animações ── */
-    --ease-bounce: cubic-bezier(0.34,1.56,0.64,1);
-    --ease-smooth: cubic-bezier(0.4,0,0.2,1);
-    --dur-fast:    150ms;
-    --dur-mid:     280ms;
-    --dur-slow:    450ms;
-  }
-
-  /* Respeitar preferência por movimento reduzido */
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -642,6 +627,10 @@
   .resource-label.ea  { color: var(--blue); }
   .resource-label.pvt { color: var(--gold); }
   .bar-track { flex: 1; height: 11px; background: var(--bg3); border-radius: 6px; border: 1px solid var(--border); overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 6px; transition: width 0.4s cubic-bezier(0.4,0,0.2,1); }
+  .bar-fill.pv  { background: linear-gradient(90deg,#7f1d1d,var(--red)); }
+  .bar-fill.ea  { background: linear-gradient(90deg,#1e3a6e,var(--blue)); }
+  .bar-fill.pvt { background: linear-gradient(90deg,#78350f,var(--gold)); }
   .resource-inputs { display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
   .num-input {
     width: 42px;
@@ -875,42 +864,11 @@
     border-radius: 7px;
     padding: 7px 9px;
     font-size: 11px;
-    animation: chatMsgIn 0.32s var(--ease-smooth) both;
-  }
-  @keyframes chatMsgIn {
-    from { opacity:0; transform:translateY(7px); filter:blur(2px); }
-    to   { opacity:1; transform:translateY(0);   filter:blur(0);   }
+    animation: fadeIn 0.2s ease;
   }
   @keyframes fadeIn { from{opacity:0;transform:translateY(3px)} to{opacity:1;transform:translateY(0)} }
   .chat-msg.system { border-color: rgba(168,85,247,0.3); background: linear-gradient(135deg,#0f0a1a,#1a1030); text-align: center; color: var(--text2); font-style: italic; }
-  .chat-msg.roll {
-    border-color: rgba(240,192,64,0.35);
-    background: linear-gradient(135deg,#100d00,#1a1400);
-    animation: chatRollIn 0.38s var(--ease-bounce) both;
-  }
-  @keyframes chatRollIn {
-    from { opacity:0; transform:translateY(10px) scale(0.96); }
-    60%  { transform:translateY(-2px) scale(1.01); }
-    to   { opacity:1; transform:translateY(0) scale(1); }
-  }
-  /* Rolagem crítica: brilho dourado que desaparece */
-  .chat-msg.roll:has(.nat20) {
-    animation: chatRollIn 0.38s var(--ease-bounce) both, goldFlash 1.2s ease 0.38s both;
-  }
-  @keyframes goldFlash {
-    0%   { box-shadow: 0 0 0 0 rgba(240,192,64,0); }
-    30%  { box-shadow: 0 0 18px 4px rgba(240,192,64,0.6); }
-    100% { box-shadow: 0 0 0 0 rgba(240,192,64,0); }
-  }
-  /* Falha crítica: brilho vermelho */
-  .chat-msg.roll:has(.critical) {
-    animation: chatRollIn 0.38s var(--ease-bounce) both, redFlash 1.2s ease 0.38s both;
-  }
-  @keyframes redFlash {
-    0%   { box-shadow: 0 0 0 0 rgba(255,74,74,0); }
-    30%  { box-shadow: 0 0 18px 4px rgba(255,74,74,0.55); }
-    100% { box-shadow: 0 0 0 0 rgba(255,74,74,0); }
-  }
+  .chat-msg.roll { border-color: rgba(240,192,64,0.35); background: linear-gradient(135deg,#100d00,#1a1400); }
   .chat-msg.roll-iniciativa { border-color: rgba(168,85,247,0.45); background: linear-gradient(135deg,#100a1a,#1c1030); }
 
   .chat-msg-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; }
@@ -1020,34 +978,18 @@
 
   /* ── TOAST ── */
   .toast {
-    position: fixed; bottom: 24px; left: 50%;
-    transform: translateX(-50%) translateY(14px);
+    position: fixed; bottom: 20px; left: 50%;
+    transform: translateX(-50%) translateY(8px);
     background: var(--bg2); border: 1px solid var(--border2);
-    border-radius: 10px; padding: 10px 18px 10px 14px;
+    border-radius: 8px; padding: 10px 16px;
     font-size: 12px; color: var(--text);
-    opacity: 0; transition: all 0.32s var(--ease-smooth); z-index: 999;
-    max-width: 320px; text-align: center; white-space: pre-line;
-    display: flex; align-items: center; gap: 9px;
-    box-shadow: 0 8px 28px rgba(0,0,0,0.55);
-    pointer-events: none;
+    opacity: 0; transition: all 0.3s; z-index: 999;
+    max-width: 300px; text-align: center; white-space: pre-line;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  .toast-icon {
-    font-size: 16px;
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .toast-icon.spin { animation: toastIconSpin 0.5s var(--ease-bounce); }
-  @keyframes toastIconSpin {
-    from { transform: rotate(-30deg) scale(0.5); opacity:0; }
-    to   { transform: rotate(0deg)  scale(1);   opacity:1; }
-  }
-  .toast-text { flex: 1; text-align: left; }
-  .toast.success { border-color: var(--online); color: var(--online); background: rgba(34,197,94,0.07); }
-  .toast.error   { border-color: var(--red);    color: var(--red);    background: rgba(255,74,74,0.07); }
-  .toast.roll    { border-color: var(--gold);   color: var(--gold);   font-family: 'Cinzel', serif; background: rgba(240,192,64,0.07); }
+  .toast.success { border-color: var(--online); color: var(--online); }
+  .toast.error   { border-color: var(--red); color: var(--red); }
+  .toast.roll    { border-color: var(--gold); color: var(--gold); font-family: 'Cinzel', serif; }
 
   /* ── MODO MESTRE ── */
   .btn-header.mestre { border-color: var(--gold); color: var(--gold); }
@@ -1356,118 +1298,11 @@
   .attr-box.clicavel:hover {
     border-color: var(--purple);
     background: var(--purple-glow);
-    transform: translateY(-2px) scale(1.04);
-    box-shadow: 0 4px 16px var(--purple-glow);
+    transform: translateY(-1px);
+    box-shadow: 0 0 10px var(--purple-glow);
   }
-  .attr-box.clicavel:active { transform: translateY(0) scale(0.96); }
   .attr-box.clicavel:hover .attr-abbr { color: var(--purple); }
   .attr-box.clicavel:hover .attr-val  { color: var(--purple); }
-
-  /* Animação de "rolar" quando o dado é lançado */
-  .attr-box.rolando {
-    animation: attrRoll 0.45s var(--ease-bounce);
-  }
-  @keyframes attrRoll {
-    0%   { transform: translateY(0) rotate(0deg); }
-    30%  { transform: translateY(-5px) rotate(-4deg); }
-    60%  { transform: translateY(-2px) rotate(2deg); }
-    100% { transform: translateY(0) rotate(0deg); }
-  }
-
-  /* ── BARRA DE PV — animação de dano ── */
-  .bar-fill {
-    height: 100%; border-radius: 6px;
-    transition: width 0.45s var(--ease-smooth);
-  }
-  .bar-fill.pv  { background: linear-gradient(90deg,#7f1d1d,var(--red)); }
-  .bar-fill.ea  { background: linear-gradient(90deg,#1e3a6e,var(--blue)); }
-  .bar-fill.pvt { background: linear-gradient(90deg,#78350f,var(--gold)); }
-
-  /* pulso vermelho na barra quando PV cai */
-  @keyframes pvDamage {
-    0%   { box-shadow: inset 0 0 0 0 rgba(255,74,74,0); }
-    40%  { box-shadow: inset 0 0 12px 3px rgba(255,74,74,0.7); }
-    100% { box-shadow: inset 0 0 0 0 rgba(255,74,74,0); }
-  }
-  .bar-track.pv-damage { animation: pvDamage 0.8s ease; }
-
-  /* ── TOKEN DANO (shake) ── */
-  @keyframes tokenDamageShake {
-    0%,100% { transform: translate(0,0); }
-    15%     { transform: translate(-4px, 2px); }
-    30%     { transform: translate(5px,-3px); }
-    45%     { transform: translate(-3px,-2px); }
-    60%     { transform: translate(3px, 3px); }
-    75%     { transform: translate(-2px, 1px); }
-  }
-  .mapa-token.recebeu-dano .mapa-token-circle {
-    animation: tokenDamageShake 0.45s ease;
-  }
-
-  /* ── SKELETON LOADING ── */
-  .skeleton-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    overflow: hidden;
-    padding: 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .skeleton-line {
-    border-radius: 6px;
-    background: linear-gradient(90deg, var(--bg3) 25%, var(--border) 50%, var(--bg3) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.6s infinite;
-  }
-  @keyframes shimmer {
-    from { background-position: 200% 0; }
-    to   { background-position: -200% 0; }
-  }
-
-  /* ── INDICADOR "DIGITANDO" ── */
-  .typing-indicator {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 5px 9px;
-    font-size: 10px;
-    color: var(--text2);
-    font-style: italic;
-    min-height: 24px;
-    transition: opacity 0.3s ease;
-  }
-  .typing-dots {
-    display: flex;
-    gap: 3px;
-    align-items: center;
-  }
-  .typing-dots span {
-    width: 4px; height: 4px;
-    border-radius: 50%;
-    background: var(--text2);
-    animation: typingBounce 1.1s ease-in-out infinite;
-  }
-  .typing-dots span:nth-child(2) { animation-delay: 0.18s; }
-  .typing-dots span:nth-child(3) { animation-delay: 0.36s; }
-  @keyframes typingBounce {
-    0%,80%,100% { transform: translateY(0);    opacity: 0.4; }
-    40%          { transform: translateY(-4px); opacity: 1;   }
-  }
-
-  /* ── ZOOM NO MAPA (ctrl + roda) ── */
-  .mapa-canvas { transform-origin: 0 0; }
-
-  /* ── ENTRADA DOS CARDS DE FICHA ── */
-  .ficha-card {
-    position: relative;
-    animation: cardEntrar 0.35s var(--ease-smooth) both;
-  }
-  @keyframes cardEntrar {
-    from { opacity:0; transform:translateY(12px); }
-    to   { opacity:1; transform:translateY(0); }
-  }
 
   /* ── CHAT MSG HABILIDADE ── */
   .chat-msg.habilidade {
@@ -1582,28 +1417,14 @@
   }
   .btn-recolher:hover { border-color: var(--purple); color: var(--purple); }
   .btn-recolher:active { transform: scale(0.98); }
-  .recolher-icon {
-    display: inline-block;
-    transition: transform var(--dur-slow) var(--ease-smooth);
-  }
-  .btn-recolher[data-recolhido="true"] .recolher-icon {
-    transform: rotate(180deg);
-  }
   .card-detalhes {
     display: grid;
     grid-template-rows: 1fr;
-    /* opacidade com delay 0 ao expandir, sem delay ao recolher */
-    transition:
-      grid-template-rows var(--dur-slow) var(--ease-smooth),
-      opacity var(--dur-mid) var(--ease-smooth) 0ms;
+    transition: grid-template-rows 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease;
     opacity: 1;
   }
   .card-detalhes.recolhido {
     grid-template-rows: 0fr;
-    /* ao recolher: opacidade some ANTES da altura colapsar */
-    transition:
-      grid-template-rows var(--dur-slow) var(--ease-smooth) 60ms,
-      opacity var(--dur-fast) var(--ease-smooth) 0ms;
     opacity: 0;
   }
   .card-detalhes-inner {
@@ -2402,11 +2223,6 @@
     </div>
     <div class="chat-messages" id="chatMessages"></div>
     <div class="chat-hint">Use /r NdX para rolar — ex: /r 2d6</div>
-    <!-- indicador "está digitando" -->
-    <div class="typing-indicator" id="typingIndicator" style="display:none">
-      <div class="typing-dots"><span></span><span></span><span></span></div>
-      <span id="typingName"></span> está digitando...
-    </div>
     <div class="chat-input-area">
       <textarea class="chat-input" id="chatInput" placeholder="Mensagem..." rows="1"
         onkeydown="chatKeydown(event)"></textarea>
@@ -2458,10 +2274,7 @@
   </div>
 </div>
 
-<div class="toast" id="toast">
-  <span class="toast-icon" id="toastIcon"></span>
-  <span class="toast-text" id="toastText"></span>
-</div>
+<div class="toast" id="toast"></div>
 
 <!-- FIREBASE -->
 <script type="module">
@@ -2665,280 +2478,16 @@ function fichaDefault(nome) {
 }
 
 /* ── TOAST ── */
-const TOAST_ICONS = {
-  success: '✓',
-  error:   '✕',
-  roll:    '🎲',
-  '':      '◆',
-};
-let _toastTimer = null;
 window.showToast = function(msg, type='') {
-  const t    = document.getElementById('toast');
-  const icon = document.getElementById('toastIcon');
-  const txt  = document.getElementById('toastText');
-
-  // Cancela timer anterior
-  if (_toastTimer) { clearTimeout(_toastTimer); _toastTimer = null; }
-
-  icon.textContent = TOAST_ICONS[type] ?? '◆';
-  icon.className   = 'toast-icon spin';
-  txt.textContent  = msg;
-  t.className      = `toast ${type} show`;
-
-  _toastTimer = setTimeout(() => {
-    t.className = `toast ${type}`;
-    _toastTimer = null;
-  }, 2800);
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast '+type+' show';
+  setTimeout(() => t.className = 'toast', 2800);
 };
 
 /* ══════════════════════════════════════
-   SOM — Web Audio API (sem dependências)
-   Sons suaves gerados proceduralmente.
+   SESSÕES RECENTES (lembradas só neste navegador,
+   via localStorage — nunca expostas a outros usuários)
 ══════════════════════════════════════ */
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
-let _audioCtx = null;
-
-function getAudioCtx() {
-  if (!_audioCtx) {
-    try { _audioCtx = new AudioCtx(); } catch(e) { return null; }
-  }
-  if (_audioCtx.state === 'suspended') _audioCtx.resume().catch(()=>{});
-  return _audioCtx;
-}
-
-// Clique curto + ressonância — rolagem de dado
-function somRolagem(isCrit, isFail) {
-  const ctx = getAudioCtx();
-  if (!ctx) return;
-
-  const t = ctx.currentTime;
-  const master = ctx.createGain();
-  master.gain.setValueAtTime(0.28, t);
-  master.connect(ctx.destination);
-
-  // Cliques de dados (3 oscilações rápidas)
-  [0, 0.04, 0.09].forEach((delay, i) => {
-    const osc = ctx.createOscillator();
-    const g   = ctx.createGain();
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(isCrit ? 900 + i*200 : isFail ? 220 - i*30 : 500 + i*80, t + delay);
-    osc.frequency.exponentialRampToValueAtTime(isCrit ? 1600 : isFail ? 80 : 200, t + delay + 0.07);
-    g.gain.setValueAtTime(0.35, t + delay);
-    g.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.12);
-    osc.connect(g); g.connect(master);
-    osc.start(t + delay); osc.stop(t + delay + 0.13);
-  });
-
-  // Ressonância final — crítico: acorde brilhante; falha: nota grave
-  if (isCrit || isFail) {
-    const osc2 = ctx.createOscillator();
-    const g2   = ctx.createGain();
-    osc2.type = 'sine';
-    osc2.frequency.setValueAtTime(isCrit ? 880 : 110, t + 0.14);
-    g2.gain.setValueAtTime(0.2, t + 0.14);
-    g2.gain.exponentialRampToValueAtTime(0.001, t + 0.65);
-    osc2.connect(g2); g2.connect(master);
-    osc2.start(t + 0.14); osc2.stop(t + 0.66);
-  }
-}
-
-// Whoosh suave — habilidade usada
-function somHabilidade() {
-  const ctx = getAudioCtx();
-  if (!ctx) return;
-  const t = ctx.currentTime;
-  const osc = ctx.createOscillator();
-  const g   = ctx.createGain();
-  const filter = ctx.createBiquadFilter();
-  filter.type = 'bandpass';
-  filter.frequency.setValueAtTime(300, t);
-  filter.frequency.exponentialRampToValueAtTime(2400, t + 0.3);
-  osc.type = 'sawtooth';
-  osc.frequency.setValueAtTime(60, t);
-  osc.frequency.exponentialRampToValueAtTime(400, t + 0.3);
-  g.gain.setValueAtTime(0, t);
-  g.gain.linearRampToValueAtTime(0.18, t + 0.06);
-  g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
-  osc.connect(filter); filter.connect(g); g.connect(ctx.destination);
-  osc.start(t); osc.stop(t + 0.41);
-}
-
-// Ping suave — mensagem de sistema / entrada
-function somSistema() {
-  const ctx = getAudioCtx();
-  if (!ctx) return;
-  const t = ctx.currentTime;
-  const osc = ctx.createOscillator();
-  const g   = ctx.createGain();
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(660, t);
-  osc.frequency.exponentialRampToValueAtTime(880, t + 0.08);
-  g.gain.setValueAtTime(0.15, t);
-  g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
-  osc.connect(g); g.connect(ctx.destination);
-  osc.start(t); osc.stop(t + 0.41);
-}
-
-// Bum dramático — domínio ativado (além da animação visual)
-function somDominio() {
-  const ctx = getAudioCtx();
-  if (!ctx) return;
-  const t = ctx.currentTime;
-  // Sub-bass
-  const sub = ctx.createOscillator();
-  const gSub = ctx.createGain();
-  sub.type = 'sine';
-  sub.frequency.setValueAtTime(55, t);
-  sub.frequency.exponentialRampToValueAtTime(30, t + 0.8);
-  gSub.gain.setValueAtTime(0.5, t);
-  gSub.gain.exponentialRampToValueAtTime(0.001, t + 0.9);
-  sub.connect(gSub); gSub.connect(ctx.destination);
-  sub.start(t); sub.stop(t + 0.9);
-  // Shimmer
-  const hi = ctx.createOscillator();
-  const gHi = ctx.createGain();
-  hi.type = 'triangle';
-  hi.frequency.setValueAtTime(1200, t + 0.05);
-  hi.frequency.exponentialRampToValueAtTime(400, t + 0.5);
-  gHi.gain.setValueAtTime(0.12, t + 0.05);
-  gHi.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
-  hi.connect(gHi); gHi.connect(ctx.destination);
-  hi.start(t + 0.05); hi.stop(t + 0.56);
-}
-
-/* ══════════════════════════════════════
-   SKELETON LOADING — exibe cartões
-   de espera enquanto o Firebase carrega
-══════════════════════════════════════ */
-function mostrarSkeletons(n) {
-  const container = document.getElementById('fichasContainer');
-  if (!container) return;
-  container.innerHTML = '';
-  for (let i = 0; i < n; i++) {
-    container.insertAdjacentHTML('beforeend', `
-      <div class="skeleton-card">
-        <div style="display:flex;gap:12px;align-items:center">
-          <div class="skeleton-line" style="width:52px;height:52px;border-radius:50%;flex-shrink:0"></div>
-          <div style="flex:1;display:flex;flex-direction:column;gap:7px">
-            <div class="skeleton-line" style="height:14px;width:55%"></div>
-            <div class="skeleton-line" style="height:10px;width:80%"></div>
-            <div class="skeleton-line" style="height:10px;width:40%"></div>
-          </div>
-        </div>
-        <div class="skeleton-line" style="height:10px;width:100%"></div>
-        <div class="skeleton-line" style="height:10px;width:90%"></div>
-        <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px">
-          ${[...Array(6)].map(()=>'<div class="skeleton-line" style="height:52px;border-radius:7px"></div>').join('')}
-        </div>
-      </div>`);
-  }
-}
-
-/* ══════════════════════════════════════
-   INDICADOR "ESTÁ DIGITANDO"
-   Usa Firebase para broadcast em tempo real.
-   Chave: sessoes/ID/digitando/meuSlot = { nome, ts }
-   Expira após 3s sem atualização.
-══════════════════════════════════════ */
-let _digitandoTimer = null;
-
-function broadcastDigitando() {
-  if (!sessaoId || !meuSlot) return;
-  const nome = fichasData[meuSlot]?.nome || meuNome || 'Alguém';
-  set(ref(db, `sessoes/${sessaoId}/digitando/${meuSlot.replace(/[.#$/[\]]/g,'_')}`),
-    { nome, ts: Date.now() });
-  if (_digitandoTimer) clearTimeout(_digitandoTimer);
-  _digitandoTimer = setTimeout(() => limparDigitando(), 3000);
-}
-
-function limparDigitando() {
-  if (!sessaoId || !meuSlot) return;
-  remove(ref(db, `sessoes/${sessaoId}/digitando/${meuSlot.replace(/[.#$/[\]]/g,'_')}`));
-  if (_digitandoTimer) { clearTimeout(_digitandoTimer); _digitandoTimer = null; }
-}
-
-function iniciarListenerDigitando(sid) {
-  onValue(ref(db, `sessoes/${sid}/digitando`), snap => {
-    const dados = snap.val() || {};
-    const agora = Date.now();
-    // Filtrar quem está digitando (últimos 4s), excluir eu mesmo
-    const outros = Object.entries(dados)
-      .filter(([k, v]) => k !== meuSlot.replace(/[.#$/[\]]/g,'_') && (agora - (v.ts||0)) < 4000)
-      .map(([, v]) => v.nome);
-
-    const el   = document.getElementById('typingIndicator');
-    const nome = document.getElementById('typingName');
-    if (!el || !nome) return;
-    if (outros.length > 0) {
-      nome.textContent = outros.join(', ');
-      el.style.display = 'flex';
-    } else {
-      el.style.display = 'none';
-    }
-  });
-}
-
-/* ══════════════════════════════════════
-   ZOOM NO MAPA (Ctrl + roda do mouse)
-══════════════════════════════════════ */
-let mapaZoom = 1;
-const ZOOM_MIN = 0.4, ZOOM_MAX = 3, ZOOM_STEP = 0.12;
-
-function iniciarZoomMapa() {
-  const viewport = document.getElementById('mapaViewport');
-  if (!viewport) return;
-  viewport.addEventListener('wheel', e => {
-    if (!e.ctrlKey && !e.metaKey) return;
-    e.preventDefault();
-    const delta = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
-    mapaZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, mapaZoom + delta));
-    const canvas = document.getElementById('mapaCanvas');
-    if (canvas) {
-      canvas.style.transform = `scale(${mapaZoom})`;
-      canvas.style.transformOrigin = '0 0';
-    }
-    showToast(`🔍 Zoom: ${Math.round(mapaZoom*100)}%`, '');
-  }, { passive: false });
-}
-
-/* ══════════════════════════════════════
-   RASTRO DE MOVIMENTO DO TOKEN
-   Exibe fantasmas temporários ao soltar.
-══════════════════════════════════════ */
-function criarRastroToken(canvas, colAntes, rowAntes, colDepois, rowDepois, cellSize, avatar, nome) {
-  if (colAntes === colDepois && rowAntes === rowDepois) return;
-  const ghost = document.createElement('div');
-  ghost.style.cssText = `
-    position:absolute;
-    left:${colAntes*cellSize + cellSize*0.1}px;
-    top:${rowAntes*cellSize + cellSize*0.1}px;
-    width:${cellSize*0.8}px;
-    height:${cellSize*0.8}px;
-    border-radius:50%;
-    border:2px dashed rgba(168,85,247,0.6);
-    background:rgba(168,85,247,0.08);
-    pointer-events:none;
-    z-index:3;
-    display:flex;align-items:center;justify-content:center;
-    font-size:${cellSize*0.28}px;
-    opacity:0.7;
-    transition:opacity 1.2s ease;
-  `;
-  ghost.textContent = avatar ? '' : (nome||'?')[0];
-  if (avatar) {
-    const img = document.createElement('img');
-    img.src = avatar;
-    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;opacity:0.4;filter:grayscale(0.5)';
-    ghost.appendChild(img);
-  }
-  canvas.appendChild(ghost);
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => { ghost.style.opacity = '0'; });
-  });
-  setTimeout(() => ghost.remove(), 1400);
-}
-
-
 const CHAVE_SESSOES_RECENTES = 'jk_sessoes_recentes';
 const MAX_SESSOES_RECENTES = 8;
 
@@ -4524,7 +4073,7 @@ function criarCard(slot, d, isNpc) {
         </div>
       </div>` : ''}
 
-      ${(!isRestricao && !isLutador && !isFala) ? `
+      ${!isRestricao ? `
       <div>
         <div class="section-label">Técnicas Inatas</div>
         <div class="tecnicas-list" id="tecnicasInatas-${slot}">
