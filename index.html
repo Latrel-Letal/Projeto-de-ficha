@@ -1126,6 +1126,16 @@
   }
   .btn-dominio-toggle.desligar:hover { background: var(--red); color: white; }
 
+  .dominio-ativo-banner.simples {
+    background: linear-gradient(90deg, rgba(74,158,255,0.2), transparent);
+    border-bottom: 1px solid rgba(74,158,255,0.4);
+    color: var(--blue);
+  }
+  .btn-dominio-toggle.simples.ligar {
+    border-color: rgba(74,158,255,0.5); color: var(--blue); background: transparent;
+  }
+  .btn-dominio-toggle.simples.ligar:hover { background: var(--blue); color: white; }
+
   /* token com domínio ativo — anel pulsante roxo */
   .mapa-token.dominio-ativo .mapa-token-circle {
     border-color: var(--purple) !important;
@@ -2412,6 +2422,7 @@ let turnoNumero = 1;
 let mapaData = {};
 let fichasNpcData = {};
 let dominiosAtivos = {}; // { slot: true } sincronizado pelo Firebase
+let dominiosSimplesAtivos = {}; // { slot: true } sincronizado pelo Firebase (Domínio Simples)
 let unsubFichasNpc = null;
 let dominioAnimUltimoTs = Date.now();
 
@@ -2918,6 +2929,12 @@ function iniciarApp() {
     renderMapa();
   });
 
+  // Domínios Simples ativos em tempo real
+  onValue(ref(db, `sessoes/${sessaoId}/dominiosSimplesAtivos`), snap => {
+    dominiosSimplesAtivos = snap.val() || {};
+    renderFichas();
+  });
+
   // Mensagem de entrada
   enviarSistema(meuNome + ' entrou na sessão.');
 
@@ -3178,6 +3195,14 @@ function tocarAnimacaoDominio(charName) {
   `;
 
   document.body.appendChild(overlay);
+
+  // Áudio toca para todos os jogadores conectados, não apenas na ficha de Gabriel
+  try {
+    const audio = new Audio('data:audio/mp3;base64,' + GABRIEL_AUDIO_B64);
+    audio.volume = 0.9;
+    audio.play().catch(() => {});
+  } catch(e) {}
+
   setTimeout(() => overlay.remove(), 3700);
 }
 
@@ -4016,7 +4041,17 @@ function criarCard(slot, d, isNpc) {
   ];
 
   // Banner de domínio ativo
-  const dominioBannerHTML = dominioEsteSlot ? `
+  const dominioSimplesEsteSlot = !!dominiosSimplesAtivos[slot];
+  const bannerSimplesHTML = dominioSimplesEsteSlot ? `
+    <div class="dominio-ativo-banner simples">
+      <span><span class="dom-blink">◆</span> DOMÍNIO SIMPLES ATIVO — ${esc(d.dominioSimples?.nome || dominioSimples.nome || 'Domínio Simples')}</span>
+      ${ismine ? `<button class="btn-dominio-simples-toggle desligar" data-slot="${slot}">✕ Encerrar Domínio</button>` : ''}
+    </div>` : (ismine ? `
+    <div style="padding:4px 18px 0">
+      <button class="btn-dominio-simples-toggle simples ligar" data-slot="${slot}" style="margin-bottom:2px">🛡️ Ativar Domínio Simples</button>
+    </div>` : '');
+
+  const bannerExpansaoHTML = dominioEsteSlot ? `
     <div class="dominio-ativo-banner">
       <span><span class="dom-blink">◆</span> DOMÍNIO ATIVO — ${esc(d.dominioExpansao?.nome || 'Expansão de Domínio')}</span>
       ${ismine ? `<button class="btn-dominio-toggle desligar" data-slot="${slot}">✕ Encerrar Domínio</button>` : ''}
@@ -4024,6 +4059,9 @@ function criarCard(slot, d, isNpc) {
     <div style="padding:4px 18px 0">
       <button class="btn-dominio-toggle ligar" data-slot="${slot}" style="margin-bottom:2px">💀 Ativar Domínio</button>
     </div>` : '');
+
+  // Restrição Celestial não possui seção de Domínios — não exibe os botões/banners de ativação
+  const dominioBannerHTML = !isRestricao ? (bannerSimplesHTML + bannerExpansaoHTML) : '';
 
   // ── Helpers para gerar seções de acordeão ──
   function acord(titulo, id, conteudo, abertoPadrao) {
@@ -4727,6 +4765,26 @@ function criarCard(slot, d, isNpc) {
         set(ref(db, `sessoes/${sessaoId}/dominiosAtivos/${slotAlvo}`), true);
         const nomeFicha = getFicha(slotAlvo)?.nome || slotAlvo;
         enviarSistema(`💀 Domínio de ${nomeFicha} ativado!`);
+      }
+    });
+  });
+
+  // Botão de Domínio Simples ativo — ligar/desligar
+  card.querySelectorAll('.btn-dominio-simples-toggle').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const slotAlvo = btn.dataset.slot;
+      const ativo = !!dominiosSimplesAtivos[slotAlvo];
+      if (ativo) {
+        // Desligar
+        remove(ref(db, `sessoes/${sessaoId}/dominiosSimplesAtivos/${slotAlvo}`));
+        const nomeFicha = getFicha(slotAlvo)?.nome || slotAlvo;
+        enviarSistema(`🛡️ Domínio Simples de ${nomeFicha} encerrado.`);
+      } else {
+        // Ligar
+        set(ref(db, `sessoes/${sessaoId}/dominiosSimplesAtivos/${slotAlvo}`), true);
+        const nomeFicha = getFicha(slotAlvo)?.nome || slotAlvo;
+        enviarSistema(`🛡️ Domínio Simples de ${nomeFicha} ativado!`);
       }
     });
   });
