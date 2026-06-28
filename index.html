@@ -1431,6 +1431,108 @@
     overflow: hidden;
   }
 
+  /* ══════════════════════════════════════
+     ABAS DA FICHA (Combate / Habilidades / Geral)
+  ══════════════════════════════════════ */
+  .card-tabs-nav {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+    gap: 0;
+    flex-shrink: 0;
+  }
+  .card-tab-btn {
+    flex: 1;
+    padding: 9px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text2);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.18s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .card-tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  .card-tab-btn.active {
+    color: var(--purple);
+    border-bottom-color: var(--purple);
+    background: rgba(168,85,247,0.06);
+  }
+  .ficha-card.is-mine .card-tab-btn.active { color: var(--purple); border-bottom-color: var(--purple); }
+  .ficha-card.mestre-mode .card-tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); background: rgba(240,192,64,0.06); }
+  .card-tab-panel {
+    display: none;
+    flex-direction: column;
+    gap: 14px;
+    padding: 14px 18px;
+    animation: fadeIn 0.18s ease;
+  }
+  .card-tab-panel.active { display: flex; }
+
+  /* ── ACORDEÕES dentro das abas ── */
+  .acordeao {
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .acordeao:focus-within { border-color: var(--border2); }
+  .acordeao-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 13px;
+    cursor: pointer;
+    background: var(--bg3);
+    user-select: none;
+    gap: 8px;
+    transition: background 0.15s;
+  }
+  .acordeao-header:hover { background: rgba(255,255,255,0.04); }
+  .acordeao-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--text2);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .acordeao.open .acordeao-title { color: var(--text); }
+  .acordeao-chevron {
+    font-size: 10px;
+    color: var(--text2);
+    transition: transform 0.22s cubic-bezier(0.4,0,0.2,1);
+    flex-shrink: 0;
+  }
+  .acordeao.open .acordeao-chevron { transform: rotate(180deg); color: var(--purple); }
+  .acordeao-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  .acordeao.open .acordeao-body { grid-template-rows: 1fr; }
+  .acordeao-body-inner {
+    overflow: hidden;
+  }
+  .acordeao-content {
+    padding: 12px 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+  }
+
   /* ── CLASSE SELECT ── */
   .classe-select-wrap {
     margin-top: 6px;
@@ -3923,8 +4025,249 @@ function criarCard(slot, d, isNpc) {
       <button class="btn-dominio-toggle ligar" data-slot="${slot}" style="margin-bottom:2px">💀 Ativar Domínio</button>
     </div>` : '');
 
+  // ── Helpers para gerar seções de acordeão ──
+  function acord(titulo, id, conteudo, abertoPadrao) {
+    const estadoKey = `jk_acord_${sessaoId}_${slot}_${id}`;
+    const salvo = localStorage.getItem(estadoKey);
+    const open = salvo !== null ? (salvo === 'sim') : (abertoPadrao !== false);
+    return `
+    <div class="acordeao ${open ? 'open' : ''}" data-acord="${id}">
+      <div class="acordeao-header">
+        <span class="acordeao-title">${titulo}</span>
+        <span class="acordeao-chevron">▼</span>
+      </div>
+      <div class="acordeao-body"><div class="acordeao-body-inner">
+        <div class="acordeao-content">${conteudo}</div>
+      </div></div>
+    </div>`;
+  }
+
+  // ── Construir conteúdo de cada seção como string ──
+
+  // — recursos —
+  const secRecursos = `
+    <div class="resource-bars">
+      <div class="resource-row">
+        <span class="resource-label pv">PV</span>
+        <div class="bar-track"><div class="bar-fill pv" style="width:${pvPct}%"></div></div>
+        <div class="resource-inputs">
+          <input class="num-input" type="number" data-field="pv"    value="${d.pv}"    min="0" max="${d.pvMax}"  ${ismine?'':'disabled'}>
+          <span class="num-sep">/</span>
+          <input class="num-input" type="number" data-field="pvMax" value="${d.pvMax}" min="0" ${ismine?'':'disabled'}>
+        </div>
+      </div>
+      <div class="resource-row">
+        <span class="resource-label pvt">PVT</span>
+        <div class="bar-track"><div class="bar-fill pvt" style="width:${pvtPct}%"></div></div>
+        <div class="resource-inputs">
+          <input class="num-input" type="number" data-field="pvt"    value="${d.pvt}"     min="0" max="${d.pvtMax||99}" ${ismine?'':'disabled'}>
+          <span class="num-sep">/</span>
+          <input class="num-input" type="number" data-field="pvtMax" value="${d.pvtMax||0}" min="0" ${ismine?'':'disabled'}>
+        </div>
+      </div>
+      ${!isRestricao ? `
+      <div class="resource-row">
+        <span class="resource-label ea">EA</span>
+        <div class="bar-track"><div class="bar-fill ea" style="width:${eaPct}%"></div></div>
+        <div class="resource-inputs">
+          <input class="num-input" type="number" data-field="ea"    value="${d.ea}"    min="0" max="${d.eaMax}"  ${ismine?'':'disabled'}>
+          <span class="num-sep">/</span>
+          <input class="num-input" type="number" data-field="eaMax" value="${d.eaMax}" min="0" ${ismine?'':'disabled'}>
+        </div>
+      </div>` : ''}
+    </div>`;
+
+  // — status —
+  const secStatus = `
+    <div class="status-grid">
+      <div class="status-box"><span class="s-label">Deslocamento</span><span class="s-val" ${ea} data-field="deslocamento">${d.deslocamento??0}m</span></div>
+      <div class="status-box"><span class="s-label">CA</span><span class="s-val" ${ea} data-field="ca">${d.ca??0}</span></div>
+      <div class="status-box"><span class="s-label">Grau</span><span class="s-val" style="font-size:13px" ${ea} data-field="grau2">${d.grau||'3'}</span></div>
+    </div>`;
+
+  // — atributos —
+  const secAtributos = `
+    <div class="attrs-grid">
+      ${['for','dex','con','int','wis','cha'].map(a=>`
+        <div class="attr-box clicavel" data-attr="${a}" data-val="${d[a]??0}" title="Clique para rolar ${a.toUpperCase()} (1d20 ${Math.floor(((d[a]??0)-10)/2)>=0?'+':''}${Math.floor(((d[a]??0)-10)/2)})">
+          <div class="attr-abbr">${a.toUpperCase()}</div>
+          <span class="attr-val" ${ea} data-field="${a}">${d[a]??0}</span>
+          <div class="attr-mod">${mod(d[a]??0)}</div>
+        </div>`).join('')}
+    </div>
+    ${(isMeuCard || (modoMestre && isNpc)) ? `
+    <button class="btn-iniciativa" onclick="rolarIniciativa('${slot}', ${d.dex??0})">
+      🎲 Iniciativa &nbsp;<small style="opacity:0.65;font-size:10px;">(1d20 ${dexStr})</small>
+    </button>` : `
+    <div style="margin-top:4px;padding:7px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;text-align:center;font-size:10px;color:var(--text2);">
+      ⚔️ Iniciativa DEX ${dexStr}
+    </div>`}`;
+
+  // — arsenal —
+  const secArsenal = temArsenal ? `
+    <div class="arsenal-list" id="arsenal-${slot}">
+      ${arsenal.map((a,i) => renderArmaCard(a, i, ismine, ea)).join('')}
+    </div>
+    ${ismine ? `<button class="btn-add-arma">＋ Adicionar Arma</button>` : ''}` : '';
+
+  // — shikigami —
+  const secShikigami = isShikigami ? `
+    <div class="shikigami-list" id="shikigamis-${slot}">
+      ${shikigamis.map((sk,i) => renderShikigamiCard(sk, i, ismine, ea)).join('')}
+    </div>
+    ${ismine ? `<button class="btn-add-shikigami">＋ Adicionar Shikigami</button>` : ''}` : '';
+
+  // — falas —
+  const secFalas = isFala ? `
+    <div class="falas-list" id="falasAmal-${slot}">
+      ${falasAmal.map((f,i) => renderFalaCard(f, i, ismine, ea)).join('')}
+    </div>
+    ${ismine && falasAmal.length < 5 ? `<button class="btn-add-fala">＋ Adicionar Fala (${falasAmal.length}/5)</button>` : ''}` : '';
+
+  // — técnicas de reforço —
+  const secReforco = (!isRestricao && !isFala) ? `
+    <div class="tecnicas-list">
+      ${tecnicasReforcoFixed.map(t => `
+      <div class="tecnica-item">
+        <div class="tecnica-top">
+          <span class="tecnica-nome">${t.nome}</span>
+          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+            <span class="tecnica-custo">${t.custo}</span>
+            ${ismine ? `<button class="btn-usar-habilidade"
+              data-nome="${t.nome}"
+              data-custo="${t.custo}"
+              data-custo-num="${parseCustoEA(t.custo)}"
+              data-efeito="${t.efeito.replace(/"/g,'&quot;')}"
+              data-desc="${t.desc.replace(/"/g,'&quot;')}">⚡ Usar</button>` : ''}
+          </div>
+        </div>
+        <span class="tecnica-efeito">${t.efeito}</span>
+        <span class="tecnica-desc">${t.desc}</span>
+      </div>`).join('')}
+    </div>` : '';
+
+  // — técnicas inatas —
+  const secInatas = !isRestricao ? `
+    <div class="tecnicas-list" id="tecnicasInatas-${slot}">
+      ${tecnicasInatas.map((t,i)=>renderTecnicaEditavel('tecnicasInatas', t, i, ismine, ea)).join('')}
+    </div>
+    ${ismine ? `<button class="btn-add-tecnica" data-campo="tecnicasInatas">＋ Adicionar Técnica Inata</button>` : ''}` : '';
+
+  // — feitiços (só caster) —
+  const secFeiticos = (!isRestricao && !isLutador && !isShikigami && !isFala) ? `
+    <div class="tecnicas-list" id="feiticos-${slot}">
+      ${feiticos.map((t,i)=>renderTecnicaEditavel('feiticos', t, i, ismine, ea)).join('')}
+    </div>
+    ${ismine ? `<button class="btn-add-tecnica" data-campo="feiticos">＋ Adicionar Feitiço</button>` : ''}` : '';
+
+  // — passivas —
+  const secPassivas = `
+    <div class="passivas-list" id="passivas-${slot}">
+      ${passivas.map((p, i) => `
+      <div class="passiva-box passiva-item" data-idx="${i}">
+        ${ismine && passivas.length > 1 ? `<button class="btn-del-passiva" data-idx="${i}" title="Remover passiva">✕</button>` : ''}
+        <div class="passiva-top">
+          <div class="passiva-title" ${ea} data-field="passivas/${i}/nome">${p.nome||'Nome da Passiva'}</div>
+          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+            <span class="tecnica-custo" ${ea} data-field="passivas/${i}/custo">${p.custo||'— EA'}</span>
+            ${ismine ? `<button class="btn-usar-habilidade"
+              data-nome="${(p.nome||'Passiva').replace(/"/g,'&quot;')}"
+              data-custo="${(p.custo||'').replace(/"/g,'&quot;')}"
+              data-custo-num="${parseCustoEA(p.custo)}"
+              data-efeito="${(p.efeito||'').replace(/"/g,'&quot;')}"
+              data-desc="">⚡ Usar</button>` : ''}
+          </div>
+        </div>
+        <div class="passiva-efeito" ${ea} data-field="passivas/${i}/efeito">${p.efeito||'Descreva o efeito da passiva...'}</div>
+      </div>`).join('')}
+    </div>
+    ${ismine ? `<button class="btn-add-passiva" data-slot="${slot}">＋ Adicionar Passiva</button>` : ''}`;
+
+  // — domínios —
+  const secDominios = !isRestricao ? `
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="dominio-box simples">
+        <div class="dominio-top">
+          <div class="dominio-title">🛡️ Domínio Simples</div>
+          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+            <span class="tecnica-custo" ${ea} data-field="dominioSimples/custo">${dominioSimples.custo||'— EA'}</span>
+            ${ismine ? `<button class="btn-usar-habilidade"
+              data-nome="Domínio Simples"
+              data-custo="${(dominioSimples.custo||'').replace(/"/g,'&quot;')}"
+              data-custo-num="${parseCustoEA(dominioSimples.custo)}"
+              data-efeito="${(dominioSimples.efeito||'').replace(/"/g,'&quot;')}"
+              data-desc="${(dominioSimples.desc||'').replace(/"/g,'&quot;')}">⚡ Usar</button>` : ''}
+          </div>
+        </div>
+        <div class="dominio-desc" ${ea} data-field="dominioSimples/desc">${dominioSimples.desc||'Descreva a barreira de domínio simples do seu personagem...'}</div>
+        <div class="dominio-efeito" ${ea} data-field="dominioSimples/efeito">${dominioSimples.efeito||'Descreva os efeitos do domínio simples...'}</div>
+      </div>
+      <div class="dominio-box expansao">
+        <div class="dominio-top">
+          <div class="dominio-title">💀 Expansão de Domínio</div>
+          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+            <span class="tecnica-custo" ${ea} data-field="dominioExpansao/custo">${dominioExpansao.custo||'— EA'}</span>
+            ${ismine ? `<button class="btn-usar-habilidade"
+              data-nome="Expansão de Domínio"
+              data-custo="${(dominioExpansao.custo||'').replace(/"/g,'&quot;')}"
+              data-custo-num="${parseCustoEA(dominioExpansao.custo)}"
+              data-efeito="${(dominioExpansao.efeito||'').replace(/"/g,'&quot;')}"
+              data-desc="${(dominioExpansao.desc||'').replace(/"/g,'&quot;')}">⚡ Usar</button>` : ''}
+          </div>
+        </div>
+        <div class="dominio-desc" ${ea} data-field="dominioExpansao/desc">${dominioExpansao.desc||'Descreva a expansão de domínio do seu personagem...'}</div>
+        <div class="dominio-efeito" ${ea} data-field="dominioExpansao/efeito">${dominioExpansao.efeito||'Descreva os efeitos da expansão de domínio...'}</div>
+      </div>
+    </div>` : '';
+
+  // — inventário —
+  const secInventario = `
+    <div class="inventario-list" id="inv-${slot}">
+      ${inventarioHTML}
+    </div>
+    ${ismine ? `<button class="btn-add-item" data-slot="${slot}">＋ Adicionar item</button>` : ''}`;
+
+  // ── Montar aba Habilidades por classe ──
+  let tabHabilidades = '';
+  if (isLutador) {
+    tabHabilidades =
+      acord('⚔️ Arsenal', 'arsenal', secArsenal, true) +
+      acord('💪 Técnicas de Reforço', 'reforco', secReforco, true) +
+      acord('✨ Técnicas Inatas', 'inatas', secInatas, true) +
+      acord('🌟 Passivas', 'passivas', secPassivas, true) +
+      acord('💀 Domínios', 'dominios', secDominios, false);
+  } else if (isRestricao) {
+    tabHabilidades =
+      acord('⚔️ Arsenal', 'arsenal', secArsenal, true) +
+      acord('✨ Técnicas Inatas', 'inatas', secInatas, true) +
+      acord('🌟 Passivas', 'passivas', secPassivas, true);
+  } else if (isFala) {
+    tabHabilidades =
+      acord('🗣️ Falas Amaldiçoadas', 'falas', secFalas, true) +
+      acord('✨ Técnicas Inatas', 'inatas', secInatas, true) +
+      acord('🌟 Passivas', 'passivas', secPassivas, true) +
+      acord('💀 Domínios', 'dominios', secDominios, false);
+  } else if (isShikigami) {
+    tabHabilidades =
+      acord('🐉 Shikigami', 'shikigami', secShikigami, true) +
+      acord('✨ Técnicas Inatas', 'inatas', secInatas, true) +
+      acord('🌟 Passivas', 'passivas', secPassivas, true) +
+      acord('💀 Domínios', 'dominios', secDominios, false);
+  } else {
+    // Caster (padrão)
+    tabHabilidades =
+      acord('💪 Técnicas de Reforço', 'reforco', secReforco, true) +
+      acord('✨ Técnicas Inatas', 'inatas', secInatas, true) +
+      acord('📖 Feitiços', 'feiticos', secFeiticos, true) +
+      acord('🌟 Passivas', 'passivas', secPassivas, true) +
+      acord('💀 Domínios', 'dominios', secDominios, false);
+  }
+
+  const tabKey = `jk_tab_${sessaoId}_${slot}`;
+  const tabAtiva = localStorage.getItem(tabKey) || 'combate';
+
   card.innerHTML = `
-    ${dominioEsteSlot ? dominioBannerHTML : ''}
+    ${dominioBannerHTML}
     <div class="card-header">
       <div ${avatarEditable} data-slot="${slot}" title="${ismine?'Clique para alterar avatar':''}">
         ${avatarSrc}
@@ -3952,219 +4295,26 @@ function criarCard(slot, d, isNpc) {
       ${delNpcBtnHTML}
     </div>
 
-    <div class="card-body">
+    <div class="card-tabs-nav">
+      <button class="card-tab-btn ${tabAtiva==='combate'?'active':''}" data-tab="combate">⚔️ Combate</button>
+      <button class="card-tab-btn ${tabAtiva==='habilidades'?'active':''}" data-tab="habilidades">✨ Habilidades</button>
+      <button class="card-tab-btn ${tabAtiva==='geral'?'active':''}" data-tab="geral">🎒 Geral</button>
+    </div>
 
-      <div>
-        <div class="section-label">Recursos</div>
-        <div class="resource-bars">
-          <div class="resource-row">
-            <span class="resource-label pv">PV</span>
-            <div class="bar-track"><div class="bar-fill pv" style="width:${pvPct}%"></div></div>
-            <div class="resource-inputs">
-              <input class="num-input" type="number" data-field="pv"    value="${d.pv}"    min="0" max="${d.pvMax}"  ${ismine?'':'disabled'}>
-              <span class="num-sep">/</span>
-              <input class="num-input" type="number" data-field="pvMax" value="${d.pvMax}" min="0" ${ismine?'':'disabled'}>
-            </div>
-          </div>
-          <div class="resource-row">
-            <span class="resource-label pvt">PVT</span>
-            <div class="bar-track"><div class="bar-fill pvt" style="width:${pvtPct}%"></div></div>
-            <div class="resource-inputs">
-              <input class="num-input" type="number" data-field="pvt"    value="${d.pvt}"     min="0" max="${d.pvtMax||99}" ${ismine?'':'disabled'}>
-              <span class="num-sep">/</span>
-              <input class="num-input" type="number" data-field="pvtMax" value="${d.pvtMax||0}" min="0" ${ismine?'':'disabled'}>
-            </div>
-          </div>
-          ${!isRestricao ? `
-          <div class="resource-row">
-            <span class="resource-label ea">EA</span>
-            <div class="bar-track"><div class="bar-fill ea" style="width:${eaPct}%"></div></div>
-            <div class="resource-inputs">
-              <input class="num-input" type="number" data-field="ea"    value="${d.ea}"    min="0" max="${d.eaMax}"  ${ismine?'':'disabled'}>
-              <span class="num-sep">/</span>
-              <input class="num-input" type="number" data-field="eaMax" value="${d.eaMax}" min="0" ${ismine?'':'disabled'}>
-            </div>
-          </div>` : ''}
-        </div>
-      </div>
+    <div class="card-tab-panel ${tabAtiva==='combate'?'active':''}" data-panel="combate">
+      ${acord('❤️ Recursos', 'recursos', secRecursos, true)}
+      ${acord('📊 Status', 'status', secStatus, true)}
+      ${acord('🎯 Atributos', 'atributos', secAtributos, true)}
+    </div>
 
-      <div>
-        <div class="section-label">Status</div>
-        <div class="status-grid">
-          <div class="status-box"><span class="s-label">Deslocamento</span><span class="s-val" ${ea} data-field="deslocamento">${d.deslocamento??0}m</span></div>
-          <div class="status-box"><span class="s-label">CA</span><span class="s-val" ${ea} data-field="ca">${d.ca??0}</span></div>
-          <div class="status-box"><span class="s-label">Grau</span><span class="s-val" style="font-size:13px" ${ea} data-field="grau2">${d.grau||'3'}</span></div>
-        </div>
-      </div>
+    <div class="card-tab-panel ${tabAtiva==='habilidades'?'active':''}" data-panel="habilidades">
+      ${tabHabilidades}
+    </div>
 
-      <div>
-        <div class="section-label">Atributos</div>
-        <div class="attrs-grid">
-          ${['for','dex','con','int','wis','cha'].map(a=>`
-            <div class="attr-box clicavel" data-attr="${a}" data-val="${d[a]??0}" title="Clique para rolar ${a.toUpperCase()} (1d20 ${Math.floor(((d[a]??0)-10)/2)>=0?'+':''}${Math.floor(((d[a]??0)-10)/2)})">
-              <div class="attr-abbr">${a.toUpperCase()}</div>
-              <span class="attr-val" ${ea} data-field="${a}">${d[a]??0}</span>
-              <div class="attr-mod">${mod(d[a]??0)}</div>
-            </div>`).join('')}
-        </div>
-        ${(isMeuCard || (modoMestre && isNpc)) ? `
-        <button class="btn-iniciativa" onclick="rolarIniciativa('${slot}', ${d.dex??0})">
-          🎲 Iniciativa &nbsp;<small style="opacity:0.65;font-size:10px;">(1d20 ${dexStr})</small>
-        </button>` : `
-        <div style="margin-top:8px;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;text-align:center;font-size:10px;color:var(--text2);">
-          ⚔️ Iniciativa DEX ${dexStr}
-        </div>`}
-        <button class="btn-recolher" data-slot="${slot}">
-          <span class="recolher-icon">▲</span> <span class="recolher-txt">Recolher Detalhes</span>
-        </button>
-      </div>
-
-      <div class="card-detalhes" id="detalhes-${slot}">
-      <div class="card-detalhes-inner">
-
-      ${temArsenal ? `
-      <div>
-        <div class="section-label">⚔️ Arsenal</div>
-        <div class="arsenal-list" id="arsenal-${slot}">
-          ${arsenal.map((a,i) => renderArmaCard(a, i, ismine, ea)).join('')}
-        </div>
-        ${ismine ? `<button class="btn-add-arma">＋ Adicionar Arma</button>` : ''}
-      </div>` : ''}
-
-      ${isShikigami ? `
-      <div>
-        <div class="section-label">🐉 Shikigami</div>
-        <div class="shikigami-list" id="shikigamis-${slot}">
-          ${shikigamis.map((sk,i) => renderShikigamiCard(sk, i, ismine, ea)).join('')}
-        </div>
-        ${ismine ? `<button class="btn-add-shikigami">＋ Adicionar Shikigami</button>` : ''}
-      </div>` : ''}
-
-      ${isFala ? `
-      <div>
-        <div class="section-label">🗣️ Falas Amaldiçoadas</div>
-        <div class="falas-list" id="falasAmal-${slot}">
-          ${falasAmal.map((f,i) => renderFalaCard(f, i, ismine, ea)).join('')}
-        </div>
-        ${ismine && falasAmal.length < 5 ? `<button class="btn-add-fala">＋ Adicionar Fala (${falasAmal.length}/5)</button>` : ''}
-      </div>` : ''}
-
-      ${!isRestricao && !isFala ? `
-      <div>
-        <div class="section-label">Técnicas de Reforço</div>
-        <div class="tecnicas-list">
-          ${tecnicasReforcoFixed.map(t => `
-          <div class="tecnica-item">
-            <div class="tecnica-top">
-              <span class="tecnica-nome">${t.nome}</span>
-              <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
-                <span class="tecnica-custo">${t.custo}</span>
-                ${ismine ? `<button class="btn-usar-habilidade"
-                  data-nome="${t.nome}"
-                  data-custo="${t.custo}"
-                  data-custo-num="${parseCustoEA(t.custo)}"
-                  data-efeito="${t.efeito.replace(/"/g,'&quot;')}"
-                  data-desc="${t.desc.replace(/"/g,'&quot;')}">⚡ Usar</button>` : ''}
-              </div>
-            </div>
-            <span class="tecnica-efeito">${t.efeito}</span>
-            <span class="tecnica-desc">${t.desc}</span>
-          </div>`).join('')}
-        </div>
-      </div>` : ''}
-
-      ${!isRestricao ? `
-      <div>
-        <div class="section-label">Técnicas Inatas</div>
-        <div class="tecnicas-list" id="tecnicasInatas-${slot}">
-          ${tecnicasInatas.map((t,i)=>renderTecnicaEditavel('tecnicasInatas', t, i, ismine, ea)).join('')}
-        </div>
-        ${ismine ? `<button class="btn-add-tecnica" data-campo="tecnicasInatas">＋ Adicionar Técnica Inata</button>` : ''}
-      </div>
-
-      <div>
-        <div class="section-label">Feitiços</div>
-        <div class="tecnicas-list" id="feiticos-${slot}">
-          ${feiticos.map((t,i)=>renderTecnicaEditavel('feiticos', t, i, ismine, ea)).join('')}
-        </div>
-        ${ismine ? `<button class="btn-add-tecnica" data-campo="feiticos">＋ Adicionar Feitiço</button>` : ''}
-      </div>` : ''}
-
-      <div>
-        <div class="section-label">Passiva${passivas.length > 1 ? 's' : ''}</div>
-        <div class="passivas-list" id="passivas-${slot}">
-          ${passivas.map((p, i) => `
-          <div class="passiva-box passiva-item" data-idx="${i}">
-            ${ismine && passivas.length > 1 ? `<button class="btn-del-passiva" data-idx="${i}" title="Remover passiva">✕</button>` : ''}
-            <div class="passiva-top">
-              <div class="passiva-title" ${ea} data-field="passivas/${i}/nome">${p.nome||'Nome da Passiva'}</div>
-              <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
-                <span class="tecnica-custo" ${ea} data-field="passivas/${i}/custo">${p.custo||'— EA'}</span>
-                ${ismine ? `<button class="btn-usar-habilidade"
-                  data-nome="${(p.nome||'Passiva').replace(/"/g,'&quot;')}"
-                  data-custo="${(p.custo||'').replace(/"/g,'&quot;')}"
-                  data-custo-num="${parseCustoEA(p.custo)}"
-                  data-efeito="${(p.efeito||'').replace(/"/g,'&quot;')}"
-                  data-desc="">⚡ Usar</button>` : ''}
-              </div>
-            </div>
-            <div class="passiva-efeito" ${ea} data-field="passivas/${i}/efeito">${p.efeito||'Descreva o efeito da passiva...'}</div>
-          </div>`).join('')}
-        </div>
-        ${ismine ? `<button class="btn-add-passiva" data-slot="${slot}">＋ Adicionar Passiva</button>` : ''}
-      </div>
-
-      <div>
-        <div class="section-label">Inventário</div>
-        <div class="inventario-list" id="inv-${slot}">
-          ${inventarioHTML}
-        </div>
-        ${ismine ? `<button class="btn-add-item" data-slot="${slot}">＋ Adicionar item</button>` : ''}
-      </div>
-
-      ${!isRestricao ? `
-      <div>
-        <div class="section-label">Barreiras &amp; Domínios</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div class="dominio-box simples">
-            <div class="dominio-top">
-              <div class="dominio-title">🛡️ Domínio Simples</div>
-              <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
-                <span class="tecnica-custo" ${ea} data-field="dominioSimples/custo">${dominioSimples.custo||'— EA'}</span>
-                ${ismine ? `<button class="btn-usar-habilidade"
-                  data-nome="Domínio Simples"
-                  data-custo="${(dominioSimples.custo||'').replace(/"/g,'&quot;')}"
-                  data-custo-num="${parseCustoEA(dominioSimples.custo)}"
-                  data-efeito="${(dominioSimples.efeito||'').replace(/"/g,'&quot;')}"
-                  data-desc="${(dominioSimples.desc||'').replace(/"/g,'&quot;')}">⚡ Usar</button>` : ''}
-              </div>
-            </div>
-            <div class="dominio-desc" ${ea} data-field="dominioSimples/desc">${dominioSimples.desc||'Descreva a barreira de domínio simples do seu personagem...'}</div>
-            <div class="dominio-efeito" ${ea} data-field="dominioSimples/efeito">${dominioSimples.efeito||'Descreva os efeitos do domínio simples...'}</div>
-          </div>
-          <div class="dominio-box expansao">
-            <div class="dominio-top">
-              <div class="dominio-title">💀 Expansão de Domínio</div>
-              <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
-                <span class="tecnica-custo" ${ea} data-field="dominioExpansao/custo">${dominioExpansao.custo||'— EA'}</span>
-                ${ismine ? `<button class="btn-usar-habilidade"
-                  data-nome="Expansão de Domínio"
-                  data-custo="${(dominioExpansao.custo||'').replace(/"/g,'&quot;')}"
-                  data-custo-num="${parseCustoEA(dominioExpansao.custo)}"
-                  data-efeito="${(dominioExpansao.efeito||'').replace(/"/g,'&quot;')}"
-                  data-desc="${(dominioExpansao.desc||'').replace(/"/g,'&quot;')}">⚡ Usar</button>` : ''}
-              </div>
-            </div>
-            <div class="dominio-desc" ${ea} data-field="dominioExpansao/desc">${dominioExpansao.desc||'Descreva a expansão de domínio do seu personagem...'}</div>
-            <div class="dominio-efeito" ${ea} data-field="dominioExpansao/efeito">${dominioExpansao.efeito||'Descreva os efeitos da expansão de domínio...'}</div>
-          </div>
-        </div>
-      </div>` : ''}
-
-      </div><!-- fim card-detalhes-inner -->
-      </div><!-- fim card-detalhes -->
-
-    </div>`;
+    <div class="card-tab-panel ${tabAtiva==='geral'?'active':''}" data-panel="geral">
+      ${acord('🎒 Inventário', 'inventario', secInventario, true)}
+    </div>
+  `;
 
   // Clique em atributo para rolar — apenas na própria ficha (ou mestre em NPC)
   if (isMeuCard || (modoMestre && isNpc)) {
@@ -4581,31 +4731,26 @@ function criarCard(slot, d, isNpc) {
     });
   });
 
-  // Botão recolher/expandir detalhes — funciona em QUALQUER ficha (própria,
-  // de outro jogador, ou NPC), de forma 100% local: estado salvo apenas no
-  // localStorage de quem clicou, nunca sincronizado pelo Firebase.
-  const btnRecolher = card.querySelector('.btn-recolher');
-  const detalhesDiv = card.querySelector('.card-detalhes');
-  if (btnRecolher && detalhesDiv) {
-    const chaveStorage = `jk_recolhido_${sessaoId}_${isNpc ? 'npc' : 'pc'}_${slot}`;
-
-    // Restaurar estado salvo localmente
-    const estadoSalvo = localStorage.getItem(chaveStorage);
-    if (estadoSalvo === 'sim') {
-      detalhesDiv.classList.add('recolhido');
-      btnRecolher.querySelector('.recolher-icon').textContent = '▼';
-      btnRecolher.querySelector('.recolher-txt').textContent  = 'Ver Detalhes';
-    }
-
-    btnRecolher.addEventListener('click', () => {
-      const recolhido = detalhesDiv.classList.toggle('recolhido');
-      const icon = btnRecolher.querySelector('.recolher-icon');
-      const txt  = btnRecolher.querySelector('.recolher-txt');
-      icon.textContent = recolhido ? '▼' : '▲';
-      txt.textContent  = recolhido ? 'Ver Detalhes' : 'Recolher Detalhes';
-      localStorage.setItem(chaveStorage, recolhido ? 'sim' : 'nao');
+  // ── Abas ──
+  card.querySelectorAll('.card-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      card.querySelectorAll('.card-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+      card.querySelectorAll('.card-tab-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === tab));
+      localStorage.setItem(`jk_tab_${sessaoId}_${slot}`, tab);
     });
-  }
+  });
+
+  // ── Acordeões (toggle open/fechado, persiste localmente) ──
+  card.querySelectorAll('.acordeao').forEach(ac => {
+    const id = ac.dataset.acord;
+    const header = ac.querySelector('.acordeao-header');
+    if (!header) return;
+    header.addEventListener('click', () => {
+      ac.classList.toggle('open');
+      localStorage.setItem(`jk_acord_${sessaoId}_${slot}_${id}`, ac.classList.contains('open') ? 'sim' : 'nao');
+    });
+  });
 
   return card;
 }
