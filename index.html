@@ -147,45 +147,158 @@
   .menu-dropdown-item:hover { background: var(--bg3); color: var(--text); }
   .menu-dropdown-item.active { color: var(--blue); background: var(--blue-glow); }
 
-  /* ── SELECT SCREEN ── */
+  /* ── SELECT SCREEN (tela inicial) ── */
   .player-select-screen {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 60px 20px;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 18% 12%, rgba(168,85,247,0.18), transparent 42%),
+      radial-gradient(circle at 88% 82%, rgba(74,158,255,0.13), transparent 48%),
+      linear-gradient(160deg, #0a0a0f 0%, #0d0d17 45%, #09090e 100%);
+  }
+  .player-select-screen::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(168,85,247,0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(168,85,247,0.055) 1px, transparent 1px);
+    background-size: 42px 42px;
+    -webkit-mask-image: radial-gradient(circle at 50% 38%, black 0%, transparent 68%);
+    mask-image: radial-gradient(circle at 50% 38%, black 0%, transparent 68%);
+    z-index: 0;
+    pointer-events: none;
+  }
+  .player-select-screen::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 38%, transparent 30%, rgba(0,0,0,0.65) 100%);
+    z-index: 0;
+    pointer-events: none;
+  }
+  .select-kanji-bg {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    font-family: 'Cinzel', serif;
+    font-size: min(38vw, 380px);
+    line-height: 1;
+    color: rgba(168,85,247,0.05);
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .select-embers { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .select-ember {
+    position: absolute;
+    bottom: -16px;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--purple);
+    box-shadow: 0 0 9px var(--purple), 0 0 2px #fff;
+    opacity: 0;
+    animation: emberFloat 10s linear infinite;
+  }
+  .select-ember.gold { background: var(--gold); box-shadow: 0 0 9px var(--gold), 0 0 2px #fff; }
+  @keyframes emberFloat {
+    0%   { opacity: 0;   transform: translate(0,0); }
+    12%  { opacity: .85; }
+    85%  { opacity: .35; }
+    100% { opacity: 0;   transform: translate(var(--drift, 24px), -112vh); }
+  }
+  .select-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 28px;
-    padding: 40px 20px;
+    width: 100%;
+  }
+  .select-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .select-emblem {
+    font-size: 26px;
+    color: var(--purple);
+    text-shadow: 0 0 16px var(--purple), 0 0 34px rgba(168,85,247,0.45);
+    animation: emblemPulse 3s ease-in-out infinite;
+  }
+  @keyframes emblemPulse {
+    0%,100% { opacity: .75; transform: scale(1); }
+    50%     { opacity: 1;   transform: scale(1.1); }
   }
   .player-select-title {
     font-family: 'Cinzel', serif;
-    font-size: 26px;
-    color: var(--gold);
+    font-size: 28px;
     letter-spacing: 4px;
     text-align: center;
+    background: linear-gradient(100deg, var(--gold), #fff6da 35%, var(--purple) 75%, var(--gold));
+    background-size: 250% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 26px rgba(168,85,247,0.3);
+    animation: titleShine 7s ease-in-out infinite;
+  }
+  @keyframes titleShine {
+    0%,100% { background-position: 0% 50%; }
+    50%     { background-position: 100% 50%; }
   }
   .player-select-subtitle {
     color: var(--text2);
     text-align: center;
-    margin-top: -18px;
-    font-size: 13px;
+    font-size: 12px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
+  .player-select-subtitle::before,
+  .player-select-subtitle::after {
+    content: '';
+    width: 32px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border2));
+  }
+  .player-select-subtitle::after { background: linear-gradient(90deg, var(--border2), transparent); }
   .player-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 14px;
     max-width: 680px;
     width: 100%;
+    position: relative;
+    z-index: 1;
   }
   .player-card {
-    background: var(--bg2);
+    background: linear-gradient(160deg, rgba(26,26,40,0.92), rgba(15,15,22,0.95));
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 22px;
+    padding: 24px 18px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
   }
+  .player-card::before {
+    content: '';
+    position: absolute; top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(168,85,247,0.12), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .player-card:hover::before { opacity: 1; }
   .player-card:hover { border-color: var(--purple); box-shadow: 0 0 18px var(--purple-glow); transform: translateY(-2px); }
   .player-card.locked { border-color: rgba(255,74,74,0.3); opacity: 0.85; }
   .player-card.locked:hover { border-color: var(--red); box-shadow: 0 0 14px rgba(255,74,74,0.15); transform: none; }
@@ -205,42 +318,55 @@
     transition: all 0.2s;
   }
   .btn-delete-ficha:hover { background: var(--red); color: white; }
-  .player-card .slot-name { font-family: 'Cinzel', serif; font-size: 14px; color: var(--text); margin-bottom: 5px; }
-  .player-card .slot-status { font-size: 11px; color: var(--text2); }
+  .player-card .slot-name { font-family: 'Cinzel', serif; font-size: 14px; color: var(--text); margin-bottom: 5px; position: relative; z-index: 1; }
+  .player-card .slot-status { font-size: 11px; color: var(--text2); position: relative; z-index: 1; }
   .player-card.occupied .slot-status { color: var(--online); }
   .session-id-box {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px 22px;
+    background: linear-gradient(150deg, rgba(26,26,40,0.92), rgba(14,14,21,0.92));
+    border: 1px solid rgba(168,85,247,0.22);
+    border-radius: 14px;
+    padding: 24px 26px;
     text-align: center;
     max-width: 380px;
     width: 100%;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 16px 38px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03);
   }
-  .session-id-box label { font-size: 11px; color: var(--text2); display: block; margin-bottom: 8px; letter-spacing: 1px; }
+  .session-id-box label {
+    font-size: 11px; color: var(--text2);
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin-bottom: 10px; letter-spacing: 1.5px;
+  }
+  .session-id-box label::before { content: '◆'; color: var(--purple); font-size: 9px; }
   .session-id-box input {
     width: 100%;
-    background: var(--bg3);
+    background: rgba(8,8,14,0.7);
     border: 1px solid var(--border2);
-    border-radius: 6px;
-    padding: 10px 14px;
+    border-radius: 8px;
+    padding: 12px 14px;
     color: var(--text);
-    font-size: 14px;
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
     outline: none;
     text-align: center;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .session-id-box input:focus { border-color: var(--purple); }
+  .session-id-box input::placeholder { color: var(--text2); letter-spacing: 1px; font-family: 'Inter', sans-serif; }
+  .session-id-box input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(168,85,247,0.18); }
 
   /* ── SESSÕES RECENTES (lembradas neste dispositivo) ── */
   .recent-sessions-box {
     max-width: 680px;
     width: 100%;
+    position: relative;
+    z-index: 1;
   }
   .recent-sessions-label {
     font-size: 11px;
     color: var(--text2);
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     text-align: center;
     margin-bottom: 10px;
   }
@@ -251,7 +377,7 @@
   }
   .recent-session-card {
     position: relative;
-    background: var(--bg2);
+    background: linear-gradient(150deg, rgba(26,26,40,0.9), rgba(15,15,22,0.92));
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 16px 18px;
@@ -280,20 +406,23 @@
   }
   .recent-session-forget:hover { background: var(--red); color: white; }
   .btn-enter {
-    background: var(--purple);
+    background: linear-gradient(135deg, var(--purple), #7c3aed);
     color: white;
     border: none;
-    border-radius: 6px;
-    padding: 11px 28px;
+    border-radius: 8px;
+    padding: 13px 28px;
+    font-family: 'Cinzel', serif;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    margin-top: 10px;
+    margin-top: 14px;
     width: 100%;
-    transition: opacity 0.2s;
-    letter-spacing: 1px;
+    transition: all 0.2s;
+    letter-spacing: 1.5px;
+    box-shadow: 0 8px 22px rgba(168,85,247,0.35);
   }
-  .btn-enter:hover { opacity: 0.85; }
+  .btn-enter:hover { transform: translateY(-1px); box-shadow: 0 10px 26px rgba(168,85,247,0.5); filter: brightness(1.08); }
+  .btn-enter:active { transform: translateY(0); }
 
   /* ── MAIN LAYOUT ── */
   .main-layout { display: none; }
@@ -2206,20 +2335,37 @@
 
 <!-- SELECT SCREEN -->
 <div class="player-select-screen" id="selectScreen">
-  <div>
-    <h1 class="player-select-title">✦ JUJUTSU KAISEN RPG ✦</h1>
-    <p class="player-select-subtitle">Fichas de Personagem — Sessão Colaborativa</p>
+  <div class="select-kanji-bg" aria-hidden="true">呪術</div>
+  <div class="select-embers" aria-hidden="true">
+    <span class="select-ember"      style="left:6%;  animation-delay:0s;   --drift:18px"></span>
+    <span class="select-ember gold" style="left:14%; animation-delay:2.4s; --drift:-22px"></span>
+    <span class="select-ember"      style="left:24%; animation-delay:5.1s; --drift:14px"></span>
+    <span class="select-ember"      style="left:36%; animation-delay:1.2s; --drift:-16px"></span>
+    <span class="select-ember gold" style="left:48%; animation-delay:6.3s; --drift:20px"></span>
+    <span class="select-ember"      style="left:58%; animation-delay:3.6s; --drift:-12px"></span>
+    <span class="select-ember"      style="left:68%; animation-delay:0.6s; --drift:24px"></span>
+    <span class="select-ember gold" style="left:78%; animation-delay:4.8s; --drift:-18px"></span>
+    <span class="select-ember"      style="left:86%; animation-delay:2.1s; --drift:16px"></span>
+    <span class="select-ember"      style="left:94%; animation-delay:7.2s; --drift:-20px"></span>
   </div>
-  <div class="recent-sessions-box" id="recentSessionsBox" style="display:none">
-    <p class="recent-sessions-label">SESSÕES RECENTES NESTE DISPOSITIVO</p>
-    <div class="recent-sessions-grid" id="recentSessionsGrid"></div>
+
+  <div class="select-content">
+    <div class="select-header">
+      <div class="select-emblem" aria-hidden="true">⦿</div>
+      <h1 class="player-select-title">✦ JUJUTSU KAISEN RPG ✦</h1>
+      <p class="player-select-subtitle">Fichas de Personagem — Sessão Colaborativa</p>
+    </div>
+    <div class="recent-sessions-box" id="recentSessionsBox" style="display:none">
+      <p class="recent-sessions-label">SESSÕES RECENTES NESTE DISPOSITIVO</p>
+      <div class="recent-sessions-grid" id="recentSessionsGrid"></div>
+    </div>
+    <div class="session-id-box">
+      <label>CÓDIGO DA SESSÃO</label>
+      <input type="text" id="sessionInput" placeholder="Ex: SESSAO01" maxlength="20">
+      <button class="btn-enter" onclick="entrarSessao()">ENTRAR NA SESSÃO</button>
+    </div>
+    <div id="playerGrid" class="player-grid" style="display:none"></div>
   </div>
-  <div class="session-id-box">
-    <label>CÓDIGO DA SESSÃO</label>
-    <input type="text" id="sessionInput" placeholder="Ex: SESSAO01" maxlength="20">
-    <button class="btn-enter" onclick="entrarSessao()">ENTRAR NA SESSÃO</button>
-  </div>
-  <div id="playerGrid" class="player-grid" style="display:none"></div>
 </div>
 
 <!-- HEADER -->
