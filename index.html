@@ -4062,12 +4062,21 @@ function renderDominioZona(cellSize, cols, rows) {
 
   const tokensAtuais = mapaData.tokens || {};
 
-  Object.entries(tokensAtuais).forEach(([id, tk]) => {
-    if (!tk.slot) return;
-    if (!dominiosAtivos[tk.slot]) return;
+  // Coletar slots com domínio ativo (usando posição de origem fixa salva no Firebase)
+  const slotsComDominio = Object.entries(dominiosAtivos)
+    .filter(([, v]) => v && typeof v === 'object' && 'col' in v)
+    .map(([slot, origem]) => ({ slot, col: origem.col, row: origem.row }));
 
-    const col = tk.col ?? 0;
-    const row = tk.row ?? 0;
+  // Suporte legado: se o valor for apenas `true` (ativado antes dessa versão), usa posição do token
+  Object.entries(dominiosAtivos).forEach(([slot, v]) => {
+    if (v === true) {
+      const tk = Object.values(tokensAtuais).find(t => t.slot === slot);
+      if (tk) slotsComDominio.push({ slot, col: tk.col ?? 0, row: tk.row ?? 0 });
+    }
+  });
+
+  slotsComDominio.forEach(({ slot, col, row }) => {
+    if (!dominiosAtivos[slot]) return;
     const raio = 3; // raio em células (cobre 3 células ao redor = 7x7 aproximado)
 
     // Cor baseada no personagem (usa roxo padrão do domínio)
@@ -4141,7 +4150,7 @@ function renderDominioZona(cellSize, cols, rows) {
     });
 
     // Label "DOMÍNIO" no centro da zona
-    const fichaSlot = fichasData[tk.slot] || fichasNpcData[tk.slot];
+    const fichaSlot = fichasData[slot] || fichasNpcData[slot];
     const nomeDom = fichaSlot?.nome ? fichaSlot.nome : 'Domínio';
     const cx = (col + 0.5) * cellSize;
     const cy = (row - raio - 0.3) * cellSize;
@@ -5584,7 +5593,10 @@ function criarCard(slot, d, isNpc) {
           showToast(`EA insuficiente! Necessário: ${Math.ceil(eaMax * 0.8)} de ${eaMax} EA (80%)`, 'error');
           return;
         }
-        set(ref(db, `sessoes/${sessaoId}/dominiosAtivos/${slotAlvo}`), true);
+        // Salvar posição atual do token como origem fixa do domínio
+        const tokenAlvo = Object.values(mapaData.tokens || {}).find(t => t.slot === slotAlvo);
+        const origemDominio = tokenAlvo ? { col: tokenAlvo.col ?? 0, row: tokenAlvo.row ?? 0 } : { col: 0, row: 0 };
+        set(ref(db, `sessoes/${sessaoId}/dominiosAtivos/${slotAlvo}`), origemDominio);
         const nomeFicha = fichaAlvo?.nome || slotAlvo;
         enviarSistema(`💀 Domínio de ${nomeFicha} ativado!`);
       }
