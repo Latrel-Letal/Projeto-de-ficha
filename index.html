@@ -2415,6 +2415,37 @@
     border-radius:20px; font-size:10px; color:#a070ff;
   }
 
+  /* ── DADO D20 FLUTUANTE ── */
+  .dado-d20-float {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 400;
+    width: 58px;
+    height: 58px;
+    cursor: pointer;
+    filter: drop-shadow(0 4px 16px rgba(168,85,247,0.55));
+    transition: transform 0.15s, filter 0.15s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .dado-d20-float:hover {
+    transform: scale(1.12) rotate(-6deg);
+    filter: drop-shadow(0 6px 22px rgba(168,85,247,0.85));
+  }
+  .dado-d20-float:active { transform: scale(0.93) rotate(4deg); }
+  .dado-d20-float.rolando {
+    animation: dadoSpin 0.45s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes dadoSpin {
+    0%   { transform: rotate(0deg)   scale(1); }
+    30%  { transform: rotate(120deg) scale(1.18); }
+    70%  { transform: rotate(280deg) scale(0.9); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+  /* empurra o dado pra cima quando o bardo está ativo */
+  body.bardo-ativo .dado-d20-float { bottom: 92px; }
+
   /* partículas de sombra flutuantes */
   .gabriel-overlay .g-particle {
     position:absolute; border-radius:50%;
@@ -2661,6 +2692,35 @@
     <iframe id="bardoIframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
   </div>
 </div>
+
+<!-- DADO D20 FLUTUANTE -->
+<svg class="dado-d20-float" id="dadoD20Float" onclick="rolarD20Rapido()" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" title="Rolar 1d20">
+  <defs>
+    <linearGradient id="d20grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <filter id="d20glow">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Corpo do d20 -->
+  <polygon points="50,4 96,28 96,72 50,96 4,72 4,28" fill="url(#d20grad)" stroke="#e9d5ff" stroke-width="2.5" filter="url(#d20glow)"/>
+  <!-- Triângulo superior esquerdo -->
+  <line x1="50" y1="4"  x2="4"  y2="28" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+  <line x1="50" y1="4"  x2="96" y2="28" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+  <line x1="4"  y1="28" x2="50" y2="48" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+  <line x1="96" y1="28" x2="50" y2="48" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+  <line x1="4"  y1="28" x2="4"  y2="72" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+  <line x1="96" y1="28" x2="96" y2="72" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+  <line x1="4"  y1="72" x2="50" y2="52" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+  <line x1="96" y1="72" x2="50" y2="52" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+  <line x1="4"  y1="72" x2="50" y2="96" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+  <line x1="96" y1="72" x2="50" y2="96" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+  <!-- Texto "20" -->
+  <text x="50" y="58" text-anchor="middle" fill="white" font-family="Cinzel, serif" font-size="22" font-weight="700" opacity="0.95">20</text>
+</svg>
 
 <div class="toast" id="toast"></div>
 
@@ -6000,6 +6060,21 @@ function abrirMenuCondicao(slot, condicoesRaw, isNpc) {
     salvar(slot, 'condicoes', novas, isNpc);
   }
 }
+
+/* ══════════════════════════════════════
+   DADO D20 RÁPIDO
+══════════════════════════════════════ */
+window.rolarD20Rapido = function() {
+  if (!sessaoId) { showToast('Entre em uma sessão primeiro.', 'error'); return; }
+  const btn = document.getElementById('dadoD20Float');
+  if (btn) {
+    btn.classList.remove('rolando');
+    void btn.offsetWidth; // reflow para reiniciar animação
+    btn.classList.add('rolando');
+    setTimeout(() => btn.classList.remove('rolando'), 460);
+  }
+  publicarRolagem(1, 20, 0, '🎯 Ataque', 'roll');
+};
 
 function salvar(slot, field, value, isNpc) {
   // Firebase ignora arrays vazios; gravar null para limpar o nó
