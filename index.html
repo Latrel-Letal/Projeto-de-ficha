@@ -4503,28 +4503,38 @@ window.limparFormas = function() {
 
 // ── Interação de desenho no canvas ──
 function iniciarInteracaoFormas() {
-  const canvas = document.getElementById('mapaCanvas');
-  if (!canvas) return;
-  let desenhando = false;
-  let inicio = null;
-  let previewEl = null;
+  // Usar o viewport como alvo estável (não o canvas que pode ser re-renderizado)
+  const vp = document.getElementById('mapaViewport');
+  if (!vp) return;
+
+  function getCanvas() { return document.getElementById('mapaCanvas'); }
 
   function getCellSize() {
     const cols = mapaData.cols || 20;
-    const vp = document.getElementById('mapaViewport');
-    const larg = Math.max((vp?.clientWidth || 600) - 40, 280);
+    const vpEl = document.getElementById('mapaViewport');
+    const larg = Math.max((vpEl?.clientWidth || 600) - 40, 280);
     let cs = Math.floor(larg / cols);
     return Math.max(20, Math.min(70, cs));
   }
 
-  canvas.addEventListener('pointerdown', e => {
+  let desenhando = false;
+  let inicio = null;
+  let previewEl = null;
+
+  vp.addEventListener('pointerdown', e => {
     if (modoFormaAtual === 'sel') return;
-    if (e.target.classList.contains('mapa-token') || e.target.closest('.mapa-token')) return;
+    // Só age se o clique for dentro do canvas
+    const canvas = getCanvas();
+    if (!canvas) return;
+    if (!canvas.contains(e.target) && e.target !== canvas) return;
+    if (e.target.classList.contains('mapa-token') || e.target.closest?.('.mapa-token')) return;
     if (e.target.classList.contains('mapa-token-remove')) return;
     e.preventDefault();
     e.stopPropagation();
 
     const cs = getCellSize();
+    const canvas = getCanvas();
+    if (!canvas) return;
     const pos = canvasColRow(e, canvas, cs);
     desenhando = true;
     inicio = pos;
@@ -4565,9 +4575,11 @@ function iniciarInteracaoFormas() {
     svg.appendChild(previewEl);
   });
 
-  canvas.addEventListener('pointermove', e => {
+  vp.addEventListener('pointermove', e => {
     if (!desenhando || !inicio || !previewEl) return;
     const cs = getCellSize();
+    const canvas = getCanvas();
+    if (!canvas) return;
     const pos = canvasColRow(e, canvas, cs);
     const dc = pos.col - inicio.col;
     const dr = pos.row - inicio.row;
@@ -4607,6 +4619,8 @@ function iniciarInteracaoFormas() {
     if (previewEl) { previewEl.remove(); previewEl = null; }
 
     const cs = getCellSize();
+    const canvas = getCanvas();
+    if (!canvas) return;
     const pos = canvasColRow(e, canvas, cs);
     const dc = pos.col - inicio.col;
     const dr = pos.row - inicio.row;
@@ -4640,8 +4654,8 @@ function iniciarInteracaoFormas() {
     inicio = null;
   }
 
-  canvas.addEventListener('pointerup',     finalizarDesenho);
-  canvas.addEventListener('pointercancel', finalizarDesenho);
+  vp.addEventListener('pointerup',     finalizarDesenho);
+  vp.addEventListener('pointercancel', finalizarDesenho);
 }
 
 // Inicializar interação quando o mapa for exibido
