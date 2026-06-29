@@ -1311,60 +1311,101 @@
   }
 
   /* ══════════════════════════════════════
-     BARDO — BARRA DE MÚSICA NO RODAPÉ
+     BARDO — MINI-PLAYER FLUTUANTE
   ══════════════════════════════════════ */
-  #bardoBar {
+  .bardo-fab {
     position: fixed;
-    bottom: 0; left: 0; right: 0;
+    bottom: 28px;
+    left: 28px;
     z-index: 500;
-    background: var(--bg2);
-    border-top: 1px solid var(--border);
-    display: none;
-    flex-direction: column;
-    box-shadow: 0 -4px 24px rgba(0,0,0,0.5);
-  }
-  #bardoBar.visible { display: flex; }
-
-  .bardo-top {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f0d878, var(--gold));
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 16px;
-    flex-wrap: wrap;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 4px 16px rgba(240,192,64,0.45);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .bardo-fab:hover { transform: scale(1.1); box-shadow: 0 6px 22px rgba(240,192,64,0.7); }
+  .bardo-fab:active { transform: scale(0.93); }
+  .bardo-fab-icon { font-size: 21px; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3)); }
+  .bardo-fab.tocando { animation: bardoFabPulse 1.8s ease-in-out infinite; }
+  @keyframes bardoFabPulse {
+    0%,100% { box-shadow: 0 4px 16px rgba(240,192,64,0.45), 0 0 0 0 rgba(240,192,64,0.45); }
+    50%     { box-shadow: 0 4px 16px rgba(240,192,64,0.45), 0 0 0 9px rgba(240,192,64,0.15); }
+  }
+
+  .bardo-panel {
+    position: fixed;
+    bottom: 90px;
+    left: 28px;
+    z-index: 500;
+    width: 280px;
+    max-width: calc(100vw - 40px);
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 16px 38px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+    pointer-events: none;
+    transform-origin: bottom left;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+  .bardo-panel.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+  .bardo-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
   }
   .bardo-logo {
     font-family: 'Cinzel', serif;
-    font-size: 13px;
+    font-size: 12px;
     color: var(--gold);
     letter-spacing: 2px;
     white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
   }
+  .bardo-panel-close {
+    background: none;
+    border: none;
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+    padding: 2px 4px;
+  }
+  .bardo-panel-close:hover { color: var(--text); }
   .bardo-now-playing {
     font-size: 11px;
     color: var(--text2);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 220px;
-    flex-shrink: 1;
+    padding: 8px 12px 0;
   }
   .bardo-now-playing span { color: var(--text); }
-  .bardo-input-wrap {
-    display: flex;
-    gap: 6px;
-    flex: 1;
-    min-width: 180px;
-  }
+  .bardo-input-wrap { padding: 8px 12px 0; }
   .bardo-input {
-    flex: 1;
+    width: 100%;
+    box-sizing: border-box;
     background: var(--bg3);
     border: 1px solid var(--border2);
     border-radius: 7px;
-    padding: 6px 12px;
+    padding: 6px 10px;
     color: var(--text);
     font-size: 12px;
     outline: none;
@@ -1372,10 +1413,16 @@
   }
   .bardo-input:focus { border-color: var(--gold); }
   .bardo-input::placeholder { color: var(--text2); }
+  .bardo-panel-actions {
+    display: flex;
+    gap: 6px;
+    padding: 8px 12px;
+    flex-wrap: wrap;
+  }
   .bardo-btn {
     border: 1px solid var(--border2);
     border-radius: 7px;
-    padding: 6px 12px;
+    padding: 6px 10px;
     font-size: 11px;
     font-weight: 700;
     cursor: pointer;
@@ -1404,10 +1451,9 @@
     border-top: 1px solid var(--border);
   }
 
-  /* empurrar conteúdo para cima quando o bardo está ativo */
-  body.bardo-ativo .main-layout,
-  body.bardo-ativo .player-select-screen {
-    padding-bottom: 60px;
+  @media (max-width: 640px) {
+    .bardo-fab { left: 16px; bottom: 16px; }
+    .bardo-panel { left: 16px; bottom: 78px; }
   }
 
   /* ── INVENTÁRIO ── */
@@ -2415,26 +2461,23 @@
     border-radius:20px; font-size:10px; color:#a070ff;
   }
 
-  /* ── DADO D20 FLUTUANTE ── */
-  .dado-d20-float {
-    position: fixed;
-    bottom: 28px;
-    right: 28px;
-    z-index: 400;
-    width: 58px;
-    height: 58px;
+  /* ── DADO D20 (botão compacto ao lado do chat) ── */
+  .dado-d20-mini {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
     cursor: pointer;
-    filter: drop-shadow(0 4px 16px rgba(168,85,247,0.55));
+    filter: drop-shadow(0 2px 6px rgba(168,85,247,0.45));
     transition: transform 0.15s, filter 0.15s;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
   }
-  .dado-d20-float:hover {
+  .dado-d20-mini:hover {
     transform: scale(1.12) rotate(-6deg);
-    filter: drop-shadow(0 6px 22px rgba(168,85,247,0.85));
+    filter: drop-shadow(0 3px 10px rgba(168,85,247,0.8));
   }
-  .dado-d20-float:active { transform: scale(0.93) rotate(4deg); }
-  .dado-d20-float.rolando {
+  .dado-d20-mini:active { transform: scale(0.93) rotate(4deg); }
+  .dado-d20-mini.rolando {
     animation: dadoSpin 0.45s cubic-bezier(.4,0,.2,1);
   }
   @keyframes dadoSpin {
@@ -2443,8 +2486,6 @@
     70%  { transform: rotate(280deg) scale(0.9); }
     100% { transform: rotate(360deg) scale(1); }
   }
-  /* empurra o dado pra cima quando o bardo está ativo */
-  body.bardo-ativo .dado-d20-float { bottom: 92px; }
 
   /* partículas de sombra flutuantes */
   .gabriel-overlay .g-particle {
@@ -2645,6 +2686,33 @@
     <div class="chat-input-area">
       <textarea class="chat-input" id="chatInput" placeholder="Mensagem..." rows="1"
         onkeydown="chatKeydown(event)"></textarea>
+      <svg class="dado-d20-mini" id="dadoD20Float" onclick="rolarD20Rapido()" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" title="Rolar 1d20">
+        <defs>
+          <linearGradient id="d20grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stop-color="#c084fc"/>
+            <stop offset="100%" stop-color="#7c3aed"/>
+          </linearGradient>
+          <filter id="d20glow">
+            <feGaussianBlur stdDeviation="2.5" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- Corpo do d20 -->
+        <polygon points="50,4 96,28 96,72 50,96 4,72 4,28" fill="url(#d20grad)" stroke="#e9d5ff" stroke-width="2.5" filter="url(#d20glow)"/>
+        <!-- Triângulo superior esquerdo -->
+        <line x1="50" y1="4"  x2="4"  y2="28" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+        <line x1="50" y1="4"  x2="96" y2="28" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+        <line x1="4"  y1="28" x2="50" y2="48" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+        <line x1="96" y1="28" x2="50" y2="48" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+        <line x1="4"  y1="28" x2="4"  y2="72" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+        <line x1="96" y1="28" x2="96" y2="72" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+        <line x1="4"  y1="72" x2="50" y2="52" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+        <line x1="96" y1="72" x2="50" y2="52" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+        <line x1="4"  y1="72" x2="50" y2="96" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+        <line x1="96" y1="72" x2="50" y2="96" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+        <!-- Texto "20" -->
+        <text x="50" y="58" text-anchor="middle" fill="white" font-family="Cinzel, serif" font-size="22" font-weight="700" opacity="0.95">20</text>
+      </svg>
       <button class="chat-send-btn" onclick="enviarMensagem()">↑</button>
     </div>
   </div>
@@ -2676,51 +2744,29 @@
   <img id="imagemLightboxImg" src="" alt="">
 </div>
 
-<!-- BARDO — PLAYER DE MÚSICA -->
-<div id="bardoBar">
-  <div class="bardo-top">
-    <div class="bardo-logo">🎵 BARDO</div>
-    <div class="bardo-now-playing" id="bardoNowPlaying">Nenhuma música tocando</div>
-    <div class="bardo-input-wrap">
-      <input class="bardo-input" id="bardoInput" type="text" placeholder="Cole um link do YouTube..." onkeydown="if(event.key==='Enter') bardoTocar()" />
-      <button class="bardo-btn play" onclick="bardoTocar()">▶ Tocar</button>
-      <button class="bardo-btn stop" onclick="bardoParar()">■ Parar</button>
-      <button class="bardo-btn toggle-player" onclick="bardoTogglePlayer()">▼ Player</button>
-    </div>
+<!-- BARDO — MINI-PLAYER FLUTUANTE -->
+<div id="bardoFab" class="bardo-fab" onclick="bardoToggleFab()" title="Música (Bardo)">
+  <span class="bardo-fab-icon">🎵</span>
+</div>
+
+<div id="bardoPanel" class="bardo-panel">
+  <div class="bardo-panel-header">
+    <span class="bardo-logo">🎵 BARDO</span>
+    <button class="bardo-panel-close" onclick="bardoToggleFab()" title="Fechar">✕</button>
+  </div>
+  <div class="bardo-now-playing" id="bardoNowPlaying">Nenhuma música tocando</div>
+  <div class="bardo-input-wrap">
+    <input class="bardo-input" id="bardoInput" type="text" placeholder="Cole um link do YouTube..." onkeydown="if(event.key==='Enter') bardoTocar()" />
+  </div>
+  <div class="bardo-panel-actions">
+    <button class="bardo-btn play" onclick="bardoTocar()">▶ Tocar</button>
+    <button class="bardo-btn stop" onclick="bardoParar()">■ Parar</button>
+    <button class="bardo-btn toggle-player" onclick="bardoTogglePlayer()">▼ Player</button>
   </div>
   <div class="bardo-player-wrap" id="bardoPlayerWrap">
     <iframe id="bardoIframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
   </div>
 </div>
-
-<!-- DADO D20 FLUTUANTE -->
-<svg class="dado-d20-float" id="dadoD20Float" onclick="rolarD20Rapido()" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" title="Rolar 1d20">
-  <defs>
-    <linearGradient id="d20grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%"   stop-color="#c084fc"/>
-      <stop offset="100%" stop-color="#7c3aed"/>
-    </linearGradient>
-    <filter id="d20glow">
-      <feGaussianBlur stdDeviation="2.5" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>
-  <!-- Corpo do d20 -->
-  <polygon points="50,4 96,28 96,72 50,96 4,72 4,28" fill="url(#d20grad)" stroke="#e9d5ff" stroke-width="2.5" filter="url(#d20glow)"/>
-  <!-- Triângulo superior esquerdo -->
-  <line x1="50" y1="4"  x2="4"  y2="28" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-  <line x1="50" y1="4"  x2="96" y2="28" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-  <line x1="4"  y1="28" x2="50" y2="48" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
-  <line x1="96" y1="28" x2="50" y2="48" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
-  <line x1="4"  y1="28" x2="4"  y2="72" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
-  <line x1="96" y1="28" x2="96" y2="72" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
-  <line x1="4"  y1="72" x2="50" y2="52" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
-  <line x1="96" y1="72" x2="50" y2="52" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
-  <line x1="4"  y1="72" x2="50" y2="96" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-  <line x1="96" y1="72" x2="50" y2="96" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-  <!-- Texto "20" -->
-  <text x="50" y="58" text-anchor="middle" fill="white" font-family="Cinzel, serif" font-size="22" font-weight="700" opacity="0.95">20</text>
-</svg>
 
 <div class="toast" id="toast"></div>
 
@@ -2825,20 +2871,17 @@ function bardoExtrairVideoId(url) {
 }
 
 function bardoAtualizarUI(data) {
-  const bar = document.getElementById('bardoBar');
+  const fab = document.getElementById('bardoFab');
   const nowPlaying = document.getElementById('bardoNowPlaying');
   const iframe = document.getElementById('bardoIframe');
-
-  // Bardo sempre visível após entrar na sessão
-  bar.classList.add('visible');
-  document.body.classList.add('bardo-ativo');
 
   if (!data || !data.videoId) {
     iframe.src = '';
     nowPlaying.innerHTML = 'Nenhuma música tocando';
+    fab.classList.remove('tocando');
     return;
   }
-  document.body.classList.add('bardo-ativo');
+  fab.classList.add('tocando');
   nowPlaying.innerHTML = `♪ <span>${data.titulo || 'YouTube'}</span> — por ${data.quem || '?'}`;
 
   const embedUrl = `https://www.youtube.com/embed/${data.videoId}?autoplay=1&rel=0`;
@@ -2846,6 +2889,11 @@ function bardoAtualizarUI(data) {
     iframe.src = embedUrl;
   }
 }
+
+window.bardoToggleFab = function() {
+  document.getElementById('bardoPanel').classList.toggle('open');
+};
+
 
 window.bardoTocar = function() {
   const input = document.getElementById('bardoInput').value.trim();
