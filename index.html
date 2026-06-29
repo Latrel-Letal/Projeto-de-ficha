@@ -2745,7 +2745,7 @@
 </div>
 
 <!-- BARDO — MINI-PLAYER FLUTUANTE -->
-<div id="bardoFab" class="bardo-fab" onclick="bardoToggleFab()" title="Música (Bardo)">
+<div id="bardoFab" class="bardo-fab" onclick="bardoToggleFab()" title="Música (Bardo)" style="display:none">
   <span class="bardo-fab-icon">🎵</span>
 </div>
 
@@ -3258,6 +3258,7 @@ function iniciarApp() {
   document.getElementById('mainLayout').classList.add('visible');
   document.getElementById('sessionLabel').textContent = 'Sessão: '+sessaoId;
   document.getElementById('mySlotLabel').textContent = '[ '+meuNome+' ]';
+  document.getElementById('bardoFab').style.display = 'flex';
 
   if (modoMestre) {
     document.getElementById('btnMestre').classList.add('active');
