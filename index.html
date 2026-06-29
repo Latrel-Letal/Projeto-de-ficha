@@ -1311,104 +1311,177 @@
   }
 
   /* ══════════════════════════════════════
-     BARDO — BARRA DE MÚSICA NO RODAPÉ
+     BARDO — WIDGET FLUTUANTE
   ══════════════════════════════════════ */
+
+  /* Botão de acesso rápido — ícone musical fixo */
+  #bardoTrigger {
+    position: fixed;
+    bottom: 28px;
+    left: 28px;
+    z-index: 510;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1a1200, #0e0900);
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    font-size: 22px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(240,192,64,0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #bardoTrigger.visible { display: flex; }
+  #bardoTrigger:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 24px rgba(240,192,64,0.55);
+  }
+  #bardoTrigger.tocando {
+    animation: bardoPulse 2s ease-in-out infinite;
+  }
+  @keyframes bardoPulse {
+    0%,100% { box-shadow: 0 4px 18px rgba(240,192,64,0.35); }
+    50%     { box-shadow: 0 4px 28px rgba(240,192,64,0.75), 0 0 0 6px rgba(240,192,64,0.12); }
+  }
+
+  /* Painel expandido do bardo */
   #bardoBar {
     position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: 500;
-    background: var(--bg2);
-    border-top: 1px solid var(--border);
+    bottom: 88px;
+    left: 20px;
+    z-index: 509;
+    width: 320px;
+    max-width: calc(100vw - 40px);
+    background: linear-gradient(150deg, rgba(22,16,4,0.97), rgba(14,10,2,0.98));
+    border: 1px solid rgba(240,192,64,0.35);
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.65), 0 0 0 1px rgba(240,192,64,0.08);
     display: none;
     flex-direction: column;
-    box-shadow: 0 -4px 24px rgba(0,0,0,0.5);
+    overflow: hidden;
+    transform: translateY(12px) scale(0.97);
+    opacity: 0;
+    transition: transform 0.22s cubic-bezier(0.4,0,0.2,1), opacity 0.22s ease;
+    pointer-events: none;
   }
-  #bardoBar.visible { display: flex; }
+  #bardoBar.visible {
+    display: flex;
+    pointer-events: all;
+  }
+  #bardoBar.aberto {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
 
-  .bardo-top {
+  /* Cabeçalho do painel */
+  .bardo-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 16px;
-    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 12px 14px 8px;
+    border-bottom: 1px solid rgba(240,192,64,0.15);
   }
   .bardo-logo {
     font-family: 'Cinzel', serif;
-    font-size: 13px;
+    font-size: 12px;
     color: var(--gold);
     letter-spacing: 2px;
-    white-space: nowrap;
     display: flex;
     align-items: center;
     gap: 6px;
-    flex-shrink: 0;
   }
+  .bardo-header-close {
+    background: transparent;
+    border: none;
+    color: var(--text2);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 5px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .bardo-header-close:hover { color: var(--text); background: rgba(255,255,255,0.07); }
+
+  /* Now playing */
   .bardo-now-playing {
     font-size: 11px;
     color: var(--text2);
+    padding: 8px 14px 4px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 220px;
-    flex-shrink: 1;
   }
-  .bardo-now-playing span { color: var(--text); }
+  .bardo-now-playing span { color: var(--gold); }
+
+  /* Input de URL */
   .bardo-input-wrap {
     display: flex;
     gap: 6px;
-    flex: 1;
-    min-width: 180px;
+    padding: 8px 14px;
   }
   .bardo-input {
     flex: 1;
-    background: var(--bg3);
-    border: 1px solid var(--border2);
-    border-radius: 7px;
-    padding: 6px 12px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(240,192,64,0.22);
+    border-radius: 8px;
+    padding: 7px 10px;
     color: var(--text);
-    font-size: 12px;
+    font-size: 11px;
     outline: none;
     transition: border-color 0.2s;
   }
   .bardo-input:focus { border-color: var(--gold); }
-  .bardo-input::placeholder { color: var(--text2); }
+  .bardo-input::placeholder { color: var(--text2); font-size: 10px; }
+
+  /* Botões de controle */
+  .bardo-controls {
+    display: flex;
+    gap: 6px;
+    padding: 0 14px 12px;
+  }
   .bardo-btn {
-    border: 1px solid var(--border2);
-    border-radius: 7px;
-    padding: 6px 12px;
+    flex: 1;
+    border-radius: 8px;
+    padding: 7px 6px;
     font-size: 11px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.18s;
     background: transparent;
     white-space: nowrap;
+    border: 1px solid var(--border2);
+    color: var(--text2);
   }
-  .bardo-btn.play { border-color: var(--gold); color: var(--gold); }
-  .bardo-btn.play:hover { background: var(--gold); color: #0a0a0f; }
-  .bardo-btn.stop { border-color: var(--red); color: var(--red); }
-  .bardo-btn.stop:hover { background: var(--red); color: white; }
-  .bardo-btn.toggle-player { border-color: var(--border2); color: var(--text2); font-size: 10px; padding: 5px 9px; }
+  .bardo-btn.play  { border-color: var(--gold); color: var(--gold); }
+  .bardo-btn.play:hover  { background: var(--gold); color: #0a0a0f; }
+  .bardo-btn.stop  { border-color: rgba(255,74,74,0.5); color: var(--red); }
+  .bardo-btn.stop:hover  { background: var(--red); color: white; }
+  .bardo-btn.toggle-player { font-size: 10px; }
   .bardo-btn.toggle-player:hover { border-color: var(--blue); color: var(--blue); }
 
+  /* Player iframe */
   .bardo-player-wrap {
     overflow: hidden;
-    transition: max-height 0.35s ease;
     max-height: 0;
+    transition: max-height 0.35s ease;
   }
-  .bardo-player-wrap.open { max-height: 200px; }
+  .bardo-player-wrap.open { max-height: 180px; }
   .bardo-player-wrap iframe {
     display: block;
     width: 100%;
-    height: 190px;
+    height: 175px;
     border: none;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid rgba(240,192,64,0.12);
   }
 
-  /* empurrar conteúdo para cima quando o bardo está ativo */
+  /* sem padding-bottom — o widget não ocupa espaço no rodapé */
   body.bardo-ativo .main-layout,
-  body.bardo-ativo .player-select-screen {
-    padding-bottom: 60px;
-  }
+  body.bardo-ativo .player-select-screen { padding-bottom: 0; }
 
   /* ── INVENTÁRIO ── */
   .inventario-list { display: flex; flex-direction: column; gap: 5px; }
@@ -2415,37 +2488,6 @@
     border-radius:20px; font-size:10px; color:#a070ff;
   }
 
-  /* ── DADO D20 FLUTUANTE ── */
-  .dado-d20-float {
-    position: fixed;
-    bottom: 28px;
-    right: 28px;
-    z-index: 400;
-    width: 58px;
-    height: 58px;
-    cursor: pointer;
-    filter: drop-shadow(0 4px 16px rgba(168,85,247,0.55));
-    transition: transform 0.15s, filter 0.15s;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .dado-d20-float:hover {
-    transform: scale(1.12) rotate(-6deg);
-    filter: drop-shadow(0 6px 22px rgba(168,85,247,0.85));
-  }
-  .dado-d20-float:active { transform: scale(0.93) rotate(4deg); }
-  .dado-d20-float.rolando {
-    animation: dadoSpin 0.45s cubic-bezier(.4,0,.2,1);
-  }
-  @keyframes dadoSpin {
-    0%   { transform: rotate(0deg)   scale(1); }
-    30%  { transform: rotate(120deg) scale(1.18); }
-    70%  { transform: rotate(280deg) scale(0.9); }
-    100% { transform: rotate(360deg) scale(1); }
-  }
-  /* empurra o dado pra cima quando o bardo está ativo */
-  body.bardo-ativo .dado-d20-float { bottom: 92px; }
-
   /* partículas de sombra flutuantes */
   .gabriel-overlay .g-particle {
     position:absolute; border-radius:50%;
@@ -2692,35 +2734,6 @@
     <iframe id="bardoIframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
   </div>
 </div>
-
-<!-- DADO D20 FLUTUANTE -->
-<svg class="dado-d20-float" id="dadoD20Float" onclick="rolarD20Rapido()" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" title="Rolar 1d20">
-  <defs>
-    <linearGradient id="d20grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%"   stop-color="#c084fc"/>
-      <stop offset="100%" stop-color="#7c3aed"/>
-    </linearGradient>
-    <filter id="d20glow">
-      <feGaussianBlur stdDeviation="2.5" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>
-  <!-- Corpo do d20 -->
-  <polygon points="50,4 96,28 96,72 50,96 4,72 4,28" fill="url(#d20grad)" stroke="#e9d5ff" stroke-width="2.5" filter="url(#d20glow)"/>
-  <!-- Triângulo superior esquerdo -->
-  <line x1="50" y1="4"  x2="4"  y2="28" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-  <line x1="50" y1="4"  x2="96" y2="28" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-  <line x1="4"  y1="28" x2="50" y2="48" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
-  <line x1="96" y1="28" x2="50" y2="48" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
-  <line x1="4"  y1="28" x2="4"  y2="72" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
-  <line x1="96" y1="28" x2="96" y2="72" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
-  <line x1="4"  y1="72" x2="50" y2="52" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
-  <line x1="96" y1="72" x2="50" y2="52" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
-  <line x1="4"  y1="72" x2="50" y2="96" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-  <line x1="96" y1="72" x2="50" y2="96" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-  <!-- Texto "20" -->
-  <text x="50" y="58" text-anchor="middle" fill="white" font-family="Cinzel, serif" font-size="22" font-weight="700" opacity="0.95">20</text>
-</svg>
 
 <div class="toast" id="toast"></div>
 
@@ -6060,21 +6073,6 @@ function abrirMenuCondicao(slot, condicoesRaw, isNpc) {
     salvar(slot, 'condicoes', novas, isNpc);
   }
 }
-
-/* ══════════════════════════════════════
-   DADO D20 RÁPIDO
-══════════════════════════════════════ */
-window.rolarD20Rapido = function() {
-  if (!sessaoId) { showToast('Entre em uma sessão primeiro.', 'error'); return; }
-  const btn = document.getElementById('dadoD20Float');
-  if (btn) {
-    btn.classList.remove('rolando');
-    void btn.offsetWidth; // reflow para reiniciar animação
-    btn.classList.add('rolando');
-    setTimeout(() => btn.classList.remove('rolando'), 460);
-  }
-  publicarRolagem(1, 20, 0, '🎯 Ataque', 'roll');
-};
 
 function salvar(slot, field, value, isNpc) {
   // Firebase ignora arrays vazios; gravar null para limpar o nó
