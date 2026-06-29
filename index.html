@@ -4494,7 +4494,14 @@ function renderFormasMapa() {
 
 function salvarForma(forma) {
   if (!sessaoId) return;
-  push(ref(db, `sessoes/${sessaoId}/mapaFormas`), forma);
+  // Optimistic update: mostra a forma imediatamente sem esperar o Firebase
+  const tempId = '_temp_' + Date.now();
+  formasData[tempId] = forma;
+  renderFormasMapa();
+  push(ref(db, `sessoes/${sessaoId}/mapaFormas`), forma).then(() => {
+    // O listener onValue vai substituir com o ID real
+    delete formasData[tempId];
+  });
 }
 
 window.limparFormas = function() {
