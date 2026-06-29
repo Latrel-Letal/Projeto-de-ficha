@@ -5576,9 +5576,16 @@ function criarCard(slot, d, isNpc) {
         const nomeFicha = getFicha(slotAlvo)?.nome || slotAlvo;
         enviarSistema(`💀 Domínio de ${nomeFicha} encerrado.`);
       } else {
-        // Ligar
+        // Ligar — verificar EA mínima (80% da eaMax)
+        const fichaAlvo = getFicha(slotAlvo);
+        const ea    = Number(fichaAlvo?.ea    ?? 0);
+        const eaMax = Number(fichaAlvo?.eaMax ?? 0);
+        if (eaMax > 0 && ea < eaMax * 0.8) {
+          showToast(`EA insuficiente! Necessário: ${Math.ceil(eaMax * 0.8)} de ${eaMax} EA (80%)`, 'error');
+          return;
+        }
         set(ref(db, `sessoes/${sessaoId}/dominiosAtivos/${slotAlvo}`), true);
-        const nomeFicha = getFicha(slotAlvo)?.nome || slotAlvo;
+        const nomeFicha = fichaAlvo?.nome || slotAlvo;
         enviarSistema(`💀 Domínio de ${nomeFicha} ativado!`);
       }
     });
