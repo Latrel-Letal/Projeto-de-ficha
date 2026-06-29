@@ -4296,12 +4296,14 @@ function setModoForma(modo) {
   const canvas = document.getElementById('mapaCanvas');
   if (canvas) canvas.style.cursor = modo === 'sel' ? 'default' : 'crosshair';
 }
+window.setModoForma = setModoForma;
 
 function setCorForma(cor, el) {
   corFormaAtual = cor;
   document.querySelectorAll('.cor-swatch').forEach(s => s.classList.remove('ativa'));
   if (el) el.classList.add('ativa');
 }
+window.setCorForma = setCorForma;
 
 function getOpacidade() {
   const sl = document.getElementById('formaOpacidade');
@@ -4533,8 +4535,6 @@ function iniciarInteracaoFormas() {
     e.stopPropagation();
 
     const cs = getCellSize();
-    const canvas = getCanvas();
-    if (!canvas) return;
     const pos = canvasColRow(e, canvas, cs);
     desenhando = true;
     inicio = pos;
