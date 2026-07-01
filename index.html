@@ -5302,8 +5302,8 @@ function criarCard(slot, d, isNpc) {
     </div>
     ${ismine ? `<button class="btn-add-tecnica" data-campo="tecnicasInatas">＋ Adicionar Técnica Inata</button>` : ''}` : '';
 
-  // — feitiços (só caster) —
-  const secFeiticos = (!isRestricao && !isLutador && !isShikigami && !isFala) ? `
+  // — feitiços (Caster e Lutador) —
+  const secFeiticos = (!isRestricao && !isShikigami && !isFala) ? `
     <div class="tecnicas-list" id="feiticos-${slot}">
       ${feiticos.map((t,i)=>renderTecnicaEditavel('feiticos', t, i, ismine, ea)).join('')}
     </div>
@@ -5383,12 +5383,12 @@ function criarCard(slot, d, isNpc) {
       acord('⚔️ Arsenal', 'arsenal', secArsenal, true) +
       acord('💪 Técnicas de Reforço', 'reforco', secReforco, true) +
       acord('✨ Técnicas Inatas', 'inatas', secInatas, true) +
+      acord('📖 Feitiços', 'feiticos', secFeiticos, true) +
       acord('🌟 Passivas', 'passivas', secPassivas, true) +
       acord('💀 Domínios', 'dominios', secDominios, false);
   } else if (isRestricao) {
     tabHabilidades =
       acord('⚔️ Arsenal', 'arsenal', secArsenal, true) +
-      acord('✨ Técnicas Inatas', 'inatas', secInatas, true) +
       acord('🌟 Passivas', 'passivas', secPassivas, true);
   } else if (isFala) {
     tabHabilidades =
