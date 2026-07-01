@@ -2046,6 +2046,14 @@
     .mapa-toolbar { padding: 8px 10px; }
     .mapa-toolbar input[type="text"] { width: 140px; }
     .mobile-only-menu-item { display: flex; }
+
+    /* Dropdown do menu não pode vazar pra fora da tela */
+    .menu-dropdown {
+      left: 0;
+      right: auto;
+      min-width: 210px;
+      max-width: calc(100vw - 40px);
+    }
   }
 
   /* ══════════════════════════════════════
