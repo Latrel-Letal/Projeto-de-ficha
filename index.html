@@ -3358,6 +3358,36 @@ function limparEstadoDoSlot(slot) {
   remove(ref(db, `sessoes/${sessaoId}/iniciativa/${slot.replace(/\s+/g,'_')}`));
 }
 
+// Rede de segurança: caso um domínio tenha ficado "preso" ativo no Firebase
+// de uma ficha que já foi excluída (ex: fichas antigas de antes dessa
+// correção, ou alguma falha de rede na hora de excluir), este cleanup
+// automático remove qualquer dominiosAtivos/dominiosSimplesAtivos cujo
+// slot não corresponda a nenhuma ficha (de jogador ou NPC) existente.
+// Só o Mestre executa a limpeza (é quem tem visão completa de fichas +
+// NPCs) para evitar que um jogador comum apague um domínio de NPC que
+// ele simplesmente não enxerga.
+let __limpandoDominiosOrfaos = false;
+function limparDominiosOrfaos() {
+  if (!modoMestre || !sessaoId || __limpandoDominiosOrfaos) return;
+  __limpandoDominiosOrfaos = true;
+  setTimeout(() => {
+    try {
+      Object.keys(dominiosAtivos || {}).forEach(slot => {
+        if (!fichasData[slot] && !fichasNpcData[slot]) {
+          remove(ref(db, `sessoes/${sessaoId}/dominiosAtivos/${slot}`));
+        }
+      });
+      Object.keys(dominiosSimplesAtivos || {}).forEach(slot => {
+        if (!fichasData[slot] && !fichasNpcData[slot]) {
+          remove(ref(db, `sessoes/${sessaoId}/dominiosSimplesAtivos/${slot}`));
+        }
+      });
+    } finally {
+      __limpandoDominiosOrfaos = false;
+    }
+  }, 400); // pequeno atraso para não disparar limpeza antes de todos os dados chegarem
+}
+
 window.excluirFicha = function(id, nome) {
   if (!confirm(`Excluir a ficha de "${nome||'Personagem'}"? Esta ação não pode ser desfeita.`)) return;
   remove(ref(db, `sessoes/${sessaoId}/fichas/${id}`))
@@ -3393,6 +3423,7 @@ function iniciarApp() {
       const nomeAtual = fichasData[meuSlot]?.nome || meuNome;
       document.getElementById('mySlotLabel').textContent = '[ '+nomeAtual+' ]';
     }
+    limparDominiosOrfaos();
   });
 
   // Chat em tempo real
@@ -3440,12 +3471,14 @@ function iniciarApp() {
     dominiosAtivos = snap.val() || {};
     renderFichas();
     renderMapa();
+    limparDominiosOrfaos();
   });
 
   // Domínios Simples ativos em tempo real
   onValue(ref(db, `sessoes/${sessaoId}/dominiosSimplesAtivos`), snap => {
     dominiosSimplesAtivos = snap.val() || {};
     renderFichas();
+    limparDominiosOrfaos();
   });
 
   // Mensagem de entrada
@@ -3541,6 +3574,7 @@ function ativarListenerNpc() {
     fichasNpcData = snap.val() || {};
     renderFichas();
     renderMapa();
+    limparDominiosOrfaos();
   });
 }
 function desativarListenerNpc() {
@@ -4313,13 +4347,15 @@ function renderDominioZona(cellSize, cols, rows) {
   const tokensAtuais = mapaData.tokens || {};
 
   // Coletar slots com domínio ativo (usando posição de origem fixa salva no Firebase)
+  // Ignora slots cuja ficha (jogador ou NPC) já não existe mais — evita que
+  // um domínio fique "preso" no mapa depois que a ficha que o ativou foi excluída.
   const slotsComDominio = Object.entries(dominiosAtivos)
-    .filter(([, v]) => v && typeof v === 'object' && 'col' in v)
+    .filter(([slot, v]) => v && typeof v === 'object' && 'col' in v && !!getFicha(slot))
     .map(([slot, origem]) => ({ slot, col: origem.col, row: origem.row }));
 
   // Suporte legado: se o valor for apenas `true` (ativado antes dessa versão), usa posição do token
   Object.entries(dominiosAtivos).forEach(([slot, v]) => {
-    if (v === true) {
+    if (v === true && !!getFicha(slot)) {
       const tk = Object.values(tokensAtuais).find(t => t.slot === slot);
       if (tk) slotsComDominio.push({ slot, col: tk.col ?? 0, row: tk.row ?? 0 });
     }
@@ -4483,8 +4519,8 @@ function renderMapa() {
     const morto = pvAtual !== null && pvAtual <= 0;
     el.classList.toggle('is-morto', morto);
 
-    // Domínio ativo no token
-    const tokenDominioAtivo = tk.slot ? !!dominiosAtivos[tk.slot] : false;
+    // Domínio ativo no token (só considera se a ficha do slot ainda existe)
+    const tokenDominioAtivo = tk.slot ? (!!dominiosAtivos[tk.slot] && !!getFicha(tk.slot)) : false;
     el.classList.toggle('dominio-ativo', tokenDominioAtivo);
 
     const circle = el.querySelector('.mapa-token-circle');
@@ -6041,14 +6077,36 @@ function renderGruposDados() {
       <input type="number" value="${g.qty}" min="1" max="20" data-idx="${i}" data-type="qty" style="width:44px">
       <span class="grupo-dado-sep">d</span>
       <input type="number" value="${g.sides}" min="2" max="100" data-idx="${i}" data-type="sides" style="width:54px">
-      <span class="grupo-dado-label">= ${g.qty}d${g.sides}</span>
+      <span class="grupo-dado-label" data-label-idx="${i}">= ${g.qty}d${g.sides}</span>
       ${gruposDadosAtual.length > 1 ? `<button class="btn-rem-grupo" data-idx="${i}" title="Remover">✕</button>` : ''}
     `;
     row.querySelectorAll('input').forEach(inp => {
+      // Durante a digitação: só atualiza o modelo/label, sem recriar o DOM
+      // (recriar a cada tecla fazia o campo "resetar" e impedia apagar/editar
+      // um número, sobrando só as setinhas para mudar o valor).
       inp.addEventListener('input', () => {
         const idx2 = parseInt(inp.dataset.idx);
-        gruposDadosAtual[idx2][inp.dataset.type] = Math.max(inp.min||1, Math.min(inp.max||100, parseInt(inp.value)||1));
-        renderGruposDados();
+        const raw = inp.value;
+        if (raw === '') return; // deixa o campo vazio enquanto o usuário digita
+        const val = parseInt(raw, 10);
+        if (isNaN(val)) return;
+        gruposDadosAtual[idx2][inp.dataset.type] = val;
+        const label = container.querySelector(`[data-label-idx="${idx2}"]`);
+        if (label) label.textContent = `= ${gruposDadosAtual[idx2].qty}d${gruposDadosAtual[idx2].sides}`;
+      });
+      // Só aplica o clamp (min/max) e normaliza o campo quando o usuário
+      // termina de editar (perde o foco), sem atrapalhar a digitação.
+      inp.addEventListener('blur', () => {
+        const idx2 = parseInt(inp.dataset.idx);
+        const min = parseInt(inp.min, 10) || 1;
+        const max = parseInt(inp.max, 10) || 100;
+        let val = parseInt(inp.value, 10);
+        if (isNaN(val)) val = min;
+        val = Math.max(min, Math.min(max, val));
+        gruposDadosAtual[idx2][inp.dataset.type] = val;
+        inp.value = val;
+        const label = container.querySelector(`[data-label-idx="${idx2}"]`);
+        if (label) label.textContent = `= ${gruposDadosAtual[idx2].qty}d${gruposDadosAtual[idx2].sides}`;
       });
     });
     const remBtn = row.querySelector('.btn-rem-grupo');
