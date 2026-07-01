@@ -24,6 +24,7 @@
     --text2:       #8888aa;
     --online:      #22c55e;
     --radius:      10px;
+    --header-h:    53px;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -2010,10 +2011,13 @@
 
     .right-panel {
       position: fixed;
-      inset: 53px 0 0 0;
+      top: var(--header-h);
+      left: 0;
+      right: 0;
+      bottom: 0;
       width: 100%;
       max-width: 100%;
-      height: calc(100vh - 53px);
+      height: calc(100vh - var(--header-h));
       z-index: 220;
       border-left: none;
       border-top: none;
@@ -2025,10 +2029,13 @@
     .bardo-fab { display: none !important; }
     .bardo-panel {
       position: fixed;
-      inset: 53px 0 0 0;
+      top: var(--header-h);
+      left: 0;
+      right: 0;
+      bottom: 0;
       width: 100%;
       max-width: 100%;
-      height: calc(100vh - 53px);
+      height: calc(100vh - var(--header-h));
       border-radius: 0;
       z-index: 220;
       opacity: 1;
@@ -2853,6 +2860,7 @@ let meuUid     = null;
 let authPronto = false;
 let fichasData = {};
 let modoMestre = false;
+let modoAdminSelecao = false;
 let turnoAtual = 0;
 let turnoNumero = 1;
 let mapaData = {};
@@ -3163,17 +3171,21 @@ function renderSelecaoPersonagens(dados) {
       <div class="slot-status">● ${ficha.linhagem||'—'} · ${ficha.grau||'—'}</div>
       <div style="display:flex;gap:5px;justify-content:center;margin-top:10px;flex-wrap:wrap">
         ${souDono ? `
-        <button class="btn-edit-ficha" type="button" data-acao="editar">✏️ Editar</button>
-        <button class="btn-delete-ficha" type="button" data-acao="excluir">🗑 Excluir</button>` : ''}
+        <button class="btn-edit-ficha" type="button" data-acao="editar">✏️ Editar</button>` : ''}
         ${temDono && !souDono ? `<button class="btn-edit-ficha" type="button" data-acao="pin">🔑 Recuperar com PIN</button>` : ''}
+        ${souDono || modoAdminSelecao ? `<button class="btn-delete-ficha" type="button" data-acao="excluir">🗑 Excluir</button>` : ''}
       </div>
     `;
-    if (souDono) {
+    if (souDono || modoAdminSelecao) {
       c.querySelector('[data-acao="excluir"]').addEventListener('click', e => { e.stopPropagation(); excluirFicha(id, ficha.nome); });
+    }
+    if (souDono) {
       c.querySelector('[data-acao="editar"]').addEventListener('click', e => { e.stopPropagation(); abrirEditarPersonagem(id, ficha); });
       c.addEventListener('click', () => escolherPersonagem(id, ficha));
     } else if (temDono) {
-      c.querySelector('[data-acao="pin"]').addEventListener('click', e => { e.stopPropagation(); reivindicarComPin(id, ficha); });
+      if (!modoAdminSelecao) {
+        c.querySelector('[data-acao="pin"]').addEventListener('click', e => { e.stopPropagation(); reivindicarComPin(id, ficha); });
+      }
       c.addEventListener('click', () => showToast('🔒 Esse personagem pertence a outro jogador. Toque em "Recuperar com PIN" se for seu.', ''));
     } else {
       c.addEventListener('click', () => escolherPersonagem(id, ficha));
@@ -3193,6 +3205,37 @@ function renderSelecaoPersonagens(dados) {
   mestre.innerHTML = `<div class="slot-name" style="color:var(--gold)">👁 Entrar como Mestre</div><div class="slot-status">Controle total da sessão</div>`;
   mestre.onclick = () => entrarComoMestre();
   grid.appendChild(mestre);
+
+  const admin = document.createElement('div');
+  admin.className = 'player-card new-card';
+  admin.style.cssText = 'border-color:rgba(255,74,74,0.4);';
+  admin.innerHTML = modoAdminSelecao
+    ? `<div class="slot-name" style="color:var(--red)">🔓 Modo Administrador ativo</div><div class="slot-status">Toque para desativar</div>`
+    : `<div class="slot-name" style="color:var(--red)">🗑️ Modo Administrador</div><div class="slot-status">Excluir fichas de qualquer jogador</div>`;
+  admin.onclick = () => ativarModoAdminSelecao();
+  grid.appendChild(admin);
+}
+
+async function ativarModoAdminSelecao() {
+  if (modoAdminSelecao) {
+    modoAdminSelecao = false;
+    showToast('Modo administrador desativado.', '');
+    carregarSelecaoPersonagens();
+    return;
+  }
+  const senha = prompt('🔒 Senha do Mestre (mesma senha de "Entrar como Mestre"):');
+  if (senha === null) return;
+  await aguardarAuth();
+  try {
+    await set(ref(db, `sessoes/${sessaoId}/_seguranca/mestrePinTentativa`), senha);
+    await set(ref(db, `sessoes/${sessaoId}/_seguranca/mestres/${meuUid}`), true);
+  } catch (e) {
+    showToast('Senha incorreta.', 'error');
+    return;
+  }
+  modoAdminSelecao = true;
+  showToast('Modo administrador ativado — você pode excluir qualquer ficha.', 'success');
+  carregarSelecaoPersonagens();
 }
 
 function abrirCriarPersonagem() {
@@ -3404,6 +3447,26 @@ function iniciarApp() {
 /* ══════════════════════════════════════
    MENU LATERAL — ABAS (FICHAS / MAPA / CHAT DE IMAGENS)
 ══════════════════════════════════════ */
+/* ══════════════════════════════════════
+   ALTURA REAL DO HEADER (mobile)
+   O header quebra linha em telas estreitas e sua altura varia
+   (sessão, contagem online, etc). Mantemos --header-h em dia pra
+   que as abas em tela cheia (Chat/Música) nunca cubram o menu.
+══════════════════════════════════════ */
+(function() {
+  const header = document.getElementById('appHeader');
+  if (!header) return;
+  const atualizar = () => {
+    document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+  };
+  if ('ResizeObserver' in window) {
+    new ResizeObserver(atualizar).observe(header);
+  } else {
+    window.addEventListener('resize', atualizar);
+  }
+  atualizar();
+})();
+
 const ABA_LABELS = { fichas: '📋 Fichas', mapa: '🗺️ Mapa', imagens: '🖼️ Imagens', chat: '💬 Chat', musica: '🎵 Música' };
 
 window.toggleMenuPaginas = function() {
@@ -4983,6 +5046,7 @@ function criarCard(slot, d, isNpc) {
   const badgeClass = isNpc ? 'npc' : (isMeuCard ? '' : (modoMestre ? '' : 'other'));
   const dupNpcBtnHTML = isNpc ? `<button class="btn-dup-npc-card" title="Duplicar esta ficha de NPC">📑 Duplicar</button>` : '';
   const delNpcBtnHTML = isNpc ? `<button class="btn-del-npc-card" title="Remover este NPC da sessão">🗑️ Remover NPC</button>` : '';
+  const delPlayerBtnHTML = (modoMestre && !isNpc && !isMeuCard) ? `<button class="btn-del-npc-card btn-del-ficha-card" title="Excluir permanentemente esta ficha">🗑️ Excluir Ficha</button>` : '';
 
   // Condições HTML
   const COND_INFO = {
@@ -5331,6 +5395,7 @@ function criarCard(slot, d, isNpc) {
       <span class="player-badge ${badgeClass}">${badgeLabel}</span>
       ${dupNpcBtnHTML}
       ${delNpcBtnHTML}
+      ${delPlayerBtnHTML}
     </div>
 
     <div class="card-tabs-nav">
@@ -5535,13 +5600,27 @@ function criarCard(slot, d, isNpc) {
     });
 
     // Remover ficha de NPC inteira (somente Mestre)
-    const delNpcBtn = card.querySelector('.btn-del-npc-card');
+    const delNpcBtn = card.querySelector('.btn-del-npc-card:not(.btn-del-ficha-card)');
     if (delNpcBtn) {
       delNpcBtn.addEventListener('click', e => {
         e.stopPropagation();
         if (confirm(`Remover permanentemente o NPC "${d.nome}"? Esta ação não pode ser desfeita.`)) {
           remove(ref(db, `sessoes/${sessaoId}/fichasNpc/${slot}`));
           showToast('NPC removido.', '');
+        }
+      });
+    }
+
+    // Excluir ficha de jogador (somente Mestre) — remove permanentemente,
+    // liberando o slot para que outro personagem possa ser criado.
+    const delPlayerBtn = card.querySelector('.btn-del-ficha-card');
+    if (delPlayerBtn) {
+      delPlayerBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        if (confirm(`Excluir permanentemente a ficha de "${d.nome||'Personagem'}"? Esta ação não pode ser desfeita e o jogador perderá acesso a ela.`)) {
+          remove(ref(db, `sessoes/${sessaoId}/fichas/${slot}`))
+            .then(() => showToast('Ficha excluída pelo Mestre.', 'success'))
+            .catch(() => showToast('Erro ao excluir ficha. Verifique as permissões do Mestre no banco de dados.', 'error'));
         }
       });
     }
