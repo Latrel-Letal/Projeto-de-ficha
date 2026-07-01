@@ -3347,10 +3347,21 @@ async function reivindicarComPin(id, ficha) {
   }
 }
 
+// Limpa qualquer estado "órfão" ligado a um slot de ficha excluída
+// (domínio ativo, token no mapa, entrada na iniciativa) — evita que
+// coisas como "domínio ativado" fiquem presas depois que a ficha some.
+function limparEstadoDoSlot(slot) {
+  if (!sessaoId || !slot) return;
+  remove(ref(db, `sessoes/${sessaoId}/dominiosAtivos/${slot}`));
+  remove(ref(db, `sessoes/${sessaoId}/dominiosSimplesAtivos/${slot}`));
+  remove(ref(db, `sessoes/${sessaoId}/mapa/tokens/${slot}`));
+  remove(ref(db, `sessoes/${sessaoId}/iniciativa/${slot.replace(/\s+/g,'_')}`));
+}
+
 window.excluirFicha = function(id, nome) {
   if (!confirm(`Excluir a ficha de "${nome||'Personagem'}"? Esta ação não pode ser desfeita.`)) return;
   remove(ref(db, `sessoes/${sessaoId}/fichas/${id}`))
-    .then(() => { showToast('Ficha excluída.','success'); carregarSelecaoPersonagens(); })
+    .then(() => { limparEstadoDoSlot(id); showToast('Ficha excluída.','success'); carregarSelecaoPersonagens(); })
     .catch(() => showToast('Erro ao excluir ficha','error'));
 };
 
@@ -5619,7 +5630,7 @@ function criarCard(slot, d, isNpc) {
         e.stopPropagation();
         if (confirm(`Excluir permanentemente a ficha de "${d.nome||'Personagem'}"? Esta ação não pode ser desfeita e o jogador perderá acesso a ela.`)) {
           remove(ref(db, `sessoes/${sessaoId}/fichas/${slot}`))
-            .then(() => showToast('Ficha excluída pelo Mestre.', 'success'))
+            .then(() => { limparEstadoDoSlot(slot); showToast('Ficha excluída pelo Mestre.', 'success'); })
             .catch(() => showToast('Erro ao excluir ficha. Verifique as permissões do Mestre no banco de dados.', 'error'));
         }
       });
