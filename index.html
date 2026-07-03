@@ -1476,6 +1476,95 @@
     .bardo-panel { left: 16px; bottom: 78px; }
   }
 
+  /* ══════════════════════════════════════
+     FICHA FLUTUANTE — ACESSO RÁPIDO NO MAPA
+  ══════════════════════════════════════ */
+  .ficha-drawer-fab {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 400;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #b177f5, var(--purple));
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 4px 16px rgba(168,85,247,0.5);
+    transition: transform 0.15s, box-shadow 0.15s;
+    font-size: 22px;
+  }
+  .ficha-drawer-fab:hover { transform: scale(1.1); box-shadow: 0 6px 22px rgba(168,85,247,0.75); }
+  .ficha-drawer-fab:active { transform: scale(0.93); }
+
+  .ficha-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 480;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(2px);
+    display: flex;
+    justify-content: flex-end;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .ficha-drawer-overlay.show { opacity: 1; pointer-events: all; }
+  .ficha-drawer {
+    width: min(430px, 94vw);
+    height: 100%;
+    background: var(--bg1, #0a0a12);
+    border-left: 1px solid var(--border2);
+    box-shadow: -14px 0 40px rgba(0,0,0,0.55);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(.2,.9,.3,1);
+  }
+  .ficha-drawer-overlay.show .ficha-drawer { transform: translateX(0); }
+  .ficha-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    flex: 0 0 auto;
+  }
+  .ficha-drawer-header span {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    color: var(--text);
+    letter-spacing: 1px;
+  }
+  .ficha-drawer-close {
+    background: none;
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 5px 9px;
+    transition: all 0.15s;
+  }
+  .ficha-drawer-close:hover { color: var(--text); border-color: var(--red); }
+  .ficha-drawer-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 16px;
+  }
+  .ficha-drawer-body .ficha-card { width: 100%; max-width: none; }
+  @media (max-width: 640px) {
+    .ficha-drawer-fab { right: 16px; bottom: 16px; }
+    .ficha-drawer { width: 100vw; }
+  }
+
   /* ── INVENTÁRIO ── */
   .inventario-list { display: flex; flex-direction: column; gap: 5px; }
   .inventario-item {
@@ -2920,6 +3009,18 @@
   </div>
 </div>
 
+<!-- FICHA FLUTUANTE — ACESSO RÁPIDO NO MAPA -->
+<button class="ficha-drawer-fab" id="fichaDrawerFab" onclick="toggleFichaDrawer()" title="Minha Ficha">📋</button>
+<div class="ficha-drawer-overlay" id="fichaDrawerOverlay" onclick="fecharFichaDrawerSeFora(event)">
+  <div class="ficha-drawer">
+    <div class="ficha-drawer-header">
+      <span>📋 Minha Ficha</span>
+      <button class="ficha-drawer-close" onclick="toggleFichaDrawer(false)">✕ Fechar</button>
+    </div>
+    <div class="ficha-drawer-body" id="fichaDrawerBody"></div>
+  </div>
+</div>
+
 <!-- MODAL DADOS COMPOSTOS -->
 <div class="modal-overlay composto" id="diceCompostoModal" onclick="fecharCompostoSeFora(event)">
   <div class="modal-box">
@@ -3713,6 +3814,50 @@ window.mudarAba = function(aba) {
     }
     setModoForma('sel');
   }, 60);
+
+  if (aba !== 'mapa') toggleFichaDrawer(false);
+  atualizarFichaDrawerFabVisibilidade();
+};
+
+/* ══════════════════════════════════════
+   FICHA FLUTUANTE — ACESSO RÁPIDO NO MAPA
+   Permite abrir/editar a própria ficha sem sair da aba Mapa.
+══════════════════════════════════════ */
+function atualizarFichaDrawerFabVisibilidade() {
+  const fab = document.getElementById('fichaDrawerFab');
+  if (!fab) return;
+  const mapaArea = document.getElementById('mapaArea');
+  const areaMapaVisivel = mapaArea && !mapaArea.classList.contains('collapsed');
+  const temFichaPropria = meuSlot && meuSlot !== '__mestre__' && !!fichasData[meuSlot];
+  fab.style.display = (areaMapaVisivel && temFichaPropria) ? 'flex' : 'none';
+}
+
+function renderFichaDrawer() {
+  const body = document.getElementById('fichaDrawerBody');
+  if (!body) return;
+  body.innerHTML = '';
+  const d = fichasData[meuSlot];
+  if (meuSlot && d) {
+    body.appendChild(criarCard(meuSlot, d, false));
+  } else {
+    body.innerHTML = '<div style="padding:24px 8px;color:var(--text2);text-align:center;">Ficha não encontrada.</div>';
+  }
+}
+
+window.toggleFichaDrawer = function(forcarAberto) {
+  const overlay = document.getElementById('fichaDrawerOverlay');
+  if (!overlay) return;
+  const abrir = typeof forcarAberto === 'boolean' ? forcarAberto : !overlay.classList.contains('show');
+  if (abrir) {
+    renderFichaDrawer();
+    overlay.classList.add('show');
+  } else {
+    overlay.classList.remove('show');
+  }
+};
+
+window.fecharFichaDrawerSeFora = function(ev) {
+  if (ev.target.id === 'fichaDrawerOverlay') toggleFichaDrawer(false);
 };
 
 /* ══════════════════════════════════════
@@ -5324,6 +5469,11 @@ function renderFichas() {
   });
   // Re-aplicar destaque de turno
   if (window.__iniciativaCache) renderIniciativa(window.__iniciativaCache);
+
+  // Mantém a ficha flutuante (usada na aba Mapa) sincronizada
+  atualizarFichaDrawerFabVisibilidade();
+  const drawerOverlay = document.getElementById('fichaDrawerOverlay');
+  if (drawerOverlay && drawerOverlay.classList.contains('show')) renderFichaDrawer();
 }
 
 function criarCard(slot, d, isNpc) {
