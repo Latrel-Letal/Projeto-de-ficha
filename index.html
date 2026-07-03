@@ -1261,7 +1261,6 @@
     padding: 5px 18px; font-size: 10px; color: var(--purple);
     font-weight: 700; letter-spacing: 1px;
     display: flex; align-items: center; justify-content: space-between; gap: 6px;
-    flex-wrap: wrap;
   }
   .dominio-ativo-banner .dom-blink { animation: blink 1.4s infinite; }
   .btn-dominio-toggle,
@@ -2204,7 +2203,7 @@
   }
 
   /* ══════════════════════════════════════
-     CONFRONTO DE DOMÍNIOS — modal "cabo de guerra"
+     ANIMAÇÃO — CHOQUE DE DOMÍNIOS
   ══════════════════════════════════════ */
   .confronto-overlay {
     position: fixed;
@@ -2216,156 +2215,133 @@
     overflow: hidden;
     background: #000;
     opacity: 0;
-    animation: confFade 4.3s ease forwards;
+    animation: cfFade 5.4s ease forwards;
     pointer-events: none;
   }
-  @keyframes confFade {
+  @keyframes cfFade {
     0%   { opacity: 0; }
-    8%   { opacity: 1; }
+    6%   { opacity: 1; }
     88%  { opacity: 1; }
     100% { opacity: 0; }
   }
-  .confronto-overlay .confronto-vignette {
-    position: absolute; inset: 0;
-    background: radial-gradient(circle at center, rgba(35,5,10,0.45) 0%, rgba(0,0,0,0.96) 78%);
+  .confronto-overlay .cf-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(30,5,15,0.35) 0%, rgba(0,0,0,0.96) 78%);
   }
-  .confronto-overlay .confronto-content {
+  .confronto-overlay .cf-flash {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(255,80,80,0.85) 0%, rgba(168,85,247,0.5) 45%, rgba(0,0,0,0) 70%);
+    opacity: 0;
+    animation: cfFlash 0.6s ease-out 0.05s forwards;
+  }
+  @keyframes cfFlash {
+    0%   { opacity: 0; }
+    30%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  .confronto-overlay .cf-content {
     position: relative;
     z-index: 2;
     text-align: center;
     width: min(92vw, 620px);
   }
-  .confronto-overlay .confronto-kanji {
+  .confronto-overlay .cf-kanji {
     font-family: 'Cinzel', serif;
-    font-size: 18px;
-    letter-spacing: 8px;
+    font-size: 20px;
+    letter-spacing: 9px;
     color: var(--red);
-    text-shadow: 0 0 18px rgba(255,74,74,0.7);
+    text-shadow: 0 0 18px rgba(255,74,74,0.8);
     opacity: 0;
-    animation: domKanjiIn 0.5s ease-out 0.15s forwards;
-    margin-bottom: 4px;
+    animation: domKanjiIn 0.5s ease-out 0.25s forwards;
+    margin-bottom: 6px;
   }
-  .confronto-overlay .confronto-title {
+  .confronto-overlay .cf-title {
     font-family: 'Cinzel', serif;
     font-weight: 700;
-    font-size: clamp(20px, 4.6vw, 34px);
-    color: #f5eaff;
-    text-shadow: 0 0 20px rgba(255,74,74,0.7), 0 0 46px rgba(168,85,247,0.5);
+    font-size: clamp(22px, 5vw, 40px);
+    color: #fff0f0;
+    text-shadow: 0 0 25px rgba(255,74,74,0.9), 0 0 50px rgba(168,85,247,0.5);
     opacity: 0;
-    animation: domTitleImpact 0.55s cubic-bezier(.2,1.4,.4,1) 0.3s forwards;
+    transform: scale(1.3);
+    animation: domTitleImpact 0.55s cubic-bezier(.2,1.4,.4,1) 0.4s forwards;
     margin-bottom: 22px;
   }
-  .confronto-overlay .confronto-vs-row {
+  .confronto-overlay .cf-arena {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 22px;
+    gap: 14px;
     opacity: 0;
-    animation: domSubIn 0.5s ease 0.5s forwards;
+    animation: cfArenaIn 0.5s ease 0.7s forwards;
   }
-  .confronto-overlay .confronto-lado { min-width: 140px; }
-  .confronto-overlay .confronto-nome {
+  @keyframes cfArenaIn {
+    0%   { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  .confronto-overlay .cf-side { flex: 1; min-width: 0; }
+  .confronto-overlay .cf-name {
     font-family: 'Cinzel', serif;
-    font-size: clamp(13px, 2.6vw, 18px);
+    font-size: clamp(12px, 2.6vw, 16px);
     color: var(--text);
-    letter-spacing: 1px;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .confronto-overlay .confronto-lado.esquerdo .confronto-nome { color: var(--gold); }
-  .confronto-overlay .confronto-lado.direito  .confronto-nome { color: var(--text2); }
-  .confronto-overlay .confronto-poder {
-    font-size: clamp(24px, 5vw, 38px);
-    font-weight: 700;
-    margin-top: 2px;
-  }
-  .confronto-overlay .confronto-lado.esquerdo .confronto-poder { color: var(--gold); text-shadow: 0 0 16px rgba(240,192,64,0.6); }
-  .confronto-overlay .confronto-lado.direito  .confronto-poder { color: var(--red); text-shadow: 0 0 16px rgba(255,74,74,0.5); }
-  .confronto-overlay .confronto-vs {
+  .confronto-overlay .cf-vs {
     font-family: 'Cinzel', serif;
     font-size: 15px;
-    color: var(--purple);
+    color: var(--text2);
     letter-spacing: 2px;
+    flex: 0 0 auto;
   }
-  .confronto-overlay .confronto-corda-track {
+  .confronto-overlay .cf-bar-track {
     position: relative;
-    margin: 26px auto 0;
-    width: 82%;
-    height: 10px;
-    border-radius: 6px;
-    background: rgba(255,74,74,0.25);
-    border: 1px solid var(--border2);
+    height: 14px;
+    border-radius: 7px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
     overflow: hidden;
-    opacity: 0;
-    animation: domSubIn 0.5s ease 0.75s forwards;
   }
-  .confronto-overlay .confronto-corda-fill {
-    height: 100%;
-    width: 50%;
-    background: linear-gradient(90deg, var(--gold), #ffd766);
-    box-shadow: 0 0 14px rgba(240,192,64,0.7);
-    transition: width 1.6s cubic-bezier(.3,.8,.4,1);
+  .confronto-overlay .cf-bar {
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    width: 0%;
+    border-radius: 7px;
+    transition: width 1.5s cubic-bezier(.16,.84,.44,1);
   }
-  .confronto-overlay.resolvendo .confronto-corda-fill { width: var(--pct-final, 50%); }
-  .confronto-overlay .confronto-corda-no {
-    position: absolute; top: 50%; left: 50%;
-    width: 16px; height: 16px;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 0 12px 4px rgba(255,255,255,0.6);
-    transform: translate(-50%,-50%);
-    transition: left 1.6s cubic-bezier(.3,.8,.4,1);
+  .confronto-overlay .cf-bar-win {
+    background: linear-gradient(90deg, #f0c040, #ff8a4a);
+    box-shadow: 0 0 16px 2px rgba(240,192,64,0.7);
   }
-  .confronto-overlay .confronto-resultado {
-    margin-top: 22px;
-    font-family: 'Cinzel', serif;
-    font-size: clamp(14px, 3vw, 20px);
-    color: var(--gold);
-    text-shadow: 0 0 16px rgba(240,192,64,0.6);
-    opacity: 0;
-    animation: domSubIn 0.5s ease 2.3s forwards;
+  .confronto-overlay .cf-bar-lose {
+    background: linear-gradient(90deg, #8888aa, #ff4a4a);
+    transition: width 1.5s cubic-bezier(.16,.84,.44,1), opacity 0.6s ease 1.9s;
   }
-  .confronto-overlay .confronto-sub {
-    margin-top: 8px;
-    font-size: 10px;
+  .confronto-overlay .cf-side.cf-perdeu .cf-bar-lose { opacity: 0.35; }
+  .confronto-overlay .cf-side.cf-perdeu .cf-name { color: var(--text2); text-decoration: line-through; text-decoration-color: rgba(255,74,74,0.6); }
+  .confronto-overlay .cf-poder {
+    margin-top: 5px;
+    font-size: 11px;
+    color: var(--text2);
+    letter-spacing: 1px;
+  }
+  .confronto-overlay .cf-result {
+    margin-top: 24px;
+    font-size: 13px;
     color: var(--text2);
     letter-spacing: 1px;
     opacity: 0;
-    animation: domSubIn 0.5s ease 2.5s forwards;
+    animation: domSubIn 0.6s ease 2.1s forwards;
   }
-
-  /* Renderização no chat */
-  .confronto-chat-linha {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .confronto-overlay .cf-result b { color: var(--gold); }
+  .confronto-overlay .cf-result-sub {
+    display: block;
+    margin-top: 4px;
     font-size: 11px;
-    padding: 3px 0;
-  }
-  .confronto-chat-nome.vencedor { color: var(--gold); font-weight: 600; }
-  .confronto-chat-nome.perdedor { color: var(--text2); }
-  .confronto-chat-poder { color: var(--text2); font-size: 10px; }
-
-  /* Badge de Poder de Domínio na ficha */
-  .dominio-poder-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--gold);
-    background: rgba(240,192,64,0.12);
-    border: 1px solid rgba(240,192,64,0.4);
-    border-radius: 6px;
-    padding: 3px 8px;
-    margin-left: auto;
-    cursor: help;
-  }
-
-  /* Condição "Atingido Certamente" — marca de derrota no confronto */
-  .condicao-tag.cond-atingido-certamente {
-    background: rgba(255,74,74,0.16);
-    border-color: rgba(255,74,74,0.55);
-    color: #ffb3b3;
-    animation: blink 1.8s infinite;
+    color: var(--red);
   }
 
   /* ══════════════════════════════════════
@@ -2999,7 +2975,7 @@
 <!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getDatabase, ref, set, get, push, onValue, remove, runTransaction }
+import { getDatabase, ref, set, get, push, onValue, remove }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
 import { getAuth, signInAnonymously, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
@@ -3039,7 +3015,8 @@ let formaPreview    = null; // elemento SVG de preview
 let dominiosSimplesAtivos = {}; // { slot: true } sincronizado pelo Firebase (Domínio Simples)
 let unsubFichasNpc = null;
 let dominioAnimUltimoTs = Date.now();
-let confrontoAnimUltimoTs = Date.now(); // dedupe da animação de confronto de domínios (via chat)
+let confrontoAnimUltimoTs = Date.now();
+let __confrontosProcessados = new Set(); // chaves "slot:ts__slot:ts" já resolvidas nesta sessão do navegador
 
 /* ══════════════════════════════════════
    AUTENTICAÇÃO ANÔNIMA (necessária pra Firebase Rules)
@@ -3200,148 +3177,6 @@ function dominioSimplesDefault() {
 }
 function dominioExpansaoDefault() {
   return { custo:'— EA', desc:'Descreva a expansão de domínio do seu personagem...', efeito:'Descreva os efeitos da expansão de domínio...' };
-}
-
-/* ══════════════════════════════════════
-   PODER DE DOMÍNIO — usado na disputa (confronto) automática
-   Fórmula: EA investido (energia atual) + soma dos custos EA das
-   técnicas inatas + bônus de Grau + bônus de Nível.
-   Sem aleatoriedade: puramente determinístico a partir da ficha.
-══════════════════════════════════════ */
-function calcularPoderDominio(slot) {
-  const ficha = getFicha(slot);
-  if (!ficha) return { total:0, eaInvestido:0, somaTecnicas:0, grauBonus:0, nivelBonus:0, nome: slot };
-
-  const eaInvestido = Number(ficha.ea) || 0; // energia amaldiçoada canalizada no momento da disputa
-
-  const tecnicasInatas = Array.isArray(ficha.tecnicasInatas)
-    ? ficha.tecnicasInatas
-    : Object.values(ficha.tecnicasInatas || {});
-  const somaTecnicas = tecnicasInatas.reduce((acc, t) => acc + parseCustoEA(t?.custo), 0);
-
-  // Grau: quanto "menor" o grau (Especial > 1 > 2 > 3 > 4), maior o poder.
-  const GRAU_PONTOS = { 'especial':6, '1':4, '2':3, '3':2, '4':1 };
-  const grauTxt = String(ficha.grau || '').toLowerCase();
-  let grauNum = 0;
-  Object.keys(GRAU_PONTOS).forEach(k => { if (grauTxt.includes(k)) grauNum = Math.max(grauNum, GRAU_PONTOS[k]); });
-  const grauBonus = grauNum * 10;
-
-  const nivelMatch = String(ficha.nivel || '').match(/(\d+)/);
-  const nivelNum = nivelMatch ? parseInt(nivelMatch[1]) : 0;
-  const nivelBonus = nivelNum * 2;
-
-  const total = eaInvestido + somaTecnicas + grauBonus + nivelBonus;
-  return { total, eaInvestido, somaTecnicas, grauBonus, nivelBonus, nome: ficha.nome || slot };
-}
-
-/* ══════════════════════════════════════
-   CONFRONTO DE DOMÍNIOS
-   Detecta automaticamente quando 2+ domínios (Expansão de Domínio)
-   estão ativos ao mesmo tempo, calcula o Poder de Domínio de cada um
-   (sem rolagem de dados) e resolve a disputa: o maior Poder vence.
-══════════════════════════════════════ */
-function detectarConfrontoDominios() {
-  // Só o Mestre possui acesso às fichas de NPC (fichasNpcData), então só o Mestre
-  // tem os dados completos para calcular o Poder de Domínio com segurança.
-  // Rodar isso no client de um jogador comum excluiria erroneamente qualquer
-  // domínio de NPC do cálculo (getFicha retornaria null para o NPC).
-  if (!sessaoId || !modoMestre) return;
-  const slotsAtivos = Object.entries(dominiosAtivos)
-    .filter(([slot, v]) => v && !!getFicha(slot))
-    .map(([slot]) => slot);
-  if (slotsAtivos.length < 2) return;
-
-  // Calcula o Poder de cada domínio ativo e pega os dois maiores para a disputa
-  const poderes = slotsAtivos
-    .map(slot => ({ slot, poder: calcularPoderDominio(slot) }))
-    .sort((a, b) => b.poder.total - a.poder.total);
-  const [a, b] = poderes;
-  const pairKey = [a.slot, b.slot].sort().join('__');
-
-  // Trava distribuída: só um cliente conectado assume a resolução dessa disputa,
-  // evitando narração duplicada no chat e efeitos de derrota aplicados 2x.
-  runTransaction(ref(db, `sessoes/${sessaoId}/confrontosResolvidos/${pairKey}`), atual => {
-    if (atual) return; // já em resolução por outro cliente — aborta
-    return { ts: Date.now() };
-  }).then(res => {
-    if (!res.committed) return;
-    resolverConfrontoDominio(a, b, pairKey);
-  }).catch(() => {});
-}
-
-function resolverConfrontoDominio(a, b, pairKey) {
-  const vencedor = a.poder.total >= b.poder.total ? a : b;
-  const perdedor = vencedor === a ? b : a;
-
-  // Publica a disputa no chat — narra o confronto e dispara a animação
-  // de "cabo de guerra" em todos os clientes conectados (via renderChat).
-  push(ref(db, `sessoes/${sessaoId}/chat`), {
-    type: 'confronto-dominio',
-    slotVencedor: vencedor.slot, nomeVencedor: vencedor.poder.nome, poderVencedor: vencedor.poder.total,
-    slotPerdedor: perdedor.slot, nomePerdedor: perdedor.poder.nome, poderPerdedor: perdedor.poder.total,
-    detalhesVencedor: vencedor.poder,
-    detalhesPerdedor: perdedor.poder,
-    ts: Date.now()
-  });
-
-  // Efeitos de derrota — sincronizados com o fim da animação de cabo de guerra
-  setTimeout(() => {
-    remove(ref(db, `sessoes/${sessaoId}/dominiosAtivos/${perdedor.slot}`));
-
-    const fichaPerdedor = getFicha(perdedor.slot);
-    if (fichaPerdedor) {
-      const isNpcPerdedor = !fichasData[perdedor.slot] && !!fichasNpcData[perdedor.slot];
-      const condicoesAtuais = Array.isArray(fichaPerdedor.condicoes)
-        ? fichaPerdedor.condicoes
-        : Object.values(fichaPerdedor.condicoes || {});
-      if (!condicoesAtuais.includes('atingido-certamente')) {
-        salvar(perdedor.slot, 'condicoes', [...condicoesAtuais, 'atingido-certamente'], isNpcPerdedor);
-      }
-    }
-    enviarSistema(`⚫ O domínio de ${perdedor.poder.nome} colapsou! ${perdedor.poder.nome} está Atingido Certamente.`);
-  }, 4200);
-
-  // Libera a trava depois de um tempo, permitindo uma nova disputa futura
-  // entre os mesmos dois personagens (caso ativem domínio novamente depois).
-  setTimeout(() => remove(ref(db, `sessoes/${sessaoId}/confrontosResolvidos/${pairKey}`)), 7000);
-}
-
-// Gera o HTML de animação "cabo de guerra" do confronto de domínios
-function tocarAnimacaoConfronto(msg) {
-  const overlay = document.createElement('div');
-  overlay.className = 'confronto-overlay';
-
-  const totalPoder = Math.max(1, (msg.poderVencedor||0) + (msg.poderPerdedor||0));
-  const pctVencedor = Math.round((msg.poderVencedor / totalPoder) * 100);
-
-  overlay.innerHTML = `
-    <div class="confronto-vignette"></div>
-    <div class="confronto-content">
-      <div class="confronto-kanji">領域相剋</div>
-      <div class="confronto-title">CONFRONTO DE DOMÍNIOS</div>
-      <div class="confronto-vs-row">
-        <div class="confronto-lado esquerdo">
-          <div class="confronto-nome">${esc(msg.nomeVencedor)}</div>
-          <div class="confronto-poder">${msg.poderVencedor}</div>
-        </div>
-        <div class="confronto-vs">VS</div>
-        <div class="confronto-lado direito">
-          <div class="confronto-nome">${esc(msg.nomePerdedor)}</div>
-          <div class="confronto-poder">${msg.poderPerdedor}</div>
-        </div>
-      </div>
-      <div class="confronto-corda-track">
-        <div class="confronto-corda-fill" style="width:${pctVencedor}%"></div>
-        <div class="confronto-corda-no"></div>
-      </div>
-      <div class="confronto-resultado">💀 ${esc(msg.nomeVencedor)} vence o confronto!</div>
-      <div class="confronto-sub">Poder de Domínio: EA investido + Técnicas Inatas + Grau + Nível</div>
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-  setTimeout(() => overlay.classList.add('resolvendo'), 1700);
-  setTimeout(() => overlay.remove(), 4300);
 }
 function fichaDefault(nome) {
   return { nome:nome, linhagem:'Linhagem Técnica', grau:'Grau 3', nivel:'Nível 01', afiliacao:'Instituto',
@@ -3780,7 +3615,16 @@ function iniciarApp() {
     renderFichas();
     renderMapa();
     limparDominiosOrfaos();
-    detectarConfrontoDominios();
+    verificarConfrontoDominios();
+  });
+
+  // Choque de Domínios — evento em tempo real (dispara a animação para todos)
+  onValue(ref(db, `sessoes/${sessaoId}/confrontoDominio`), snap => {
+    const c = snap.val();
+    if (c && (c.ts||0) > confrontoAnimUltimoTs) {
+      confrontoAnimUltimoTs = c.ts;
+      tocarAnimacaoConfronto(c);
+    }
   });
 
   // Domínios Simples ativos em tempo real
@@ -4210,6 +4054,155 @@ function tocarAnimacaoGabriel(charName) {
 }
 
 /* ══════════════════════════════════════
+   DISPUTA DE DOMÍNIOS (CHOQUE)
+   Quando dois domínios ficam ativos ao mesmo tempo, o de maior
+   "Poder de Domínio" prevalece: o outro colapsa e seu dono fica
+   marcado como "Atingido Certamente".
+══════════════════════════════════════ */
+
+// Fórmula do Poder de Domínio — ajuste os pesos livremente se quiser recalibrar:
+//  • EA investido na expansão (mesmos 80% do EA atual cobrados na ativação)
+//  • 30% do EA máximo (capacidade amaldiçoada total do feiticeiro)
+//  • Nível do personagem × 3
+//  • Maior modificador mental (INT ou WIS) × 2
+function calcularPoderDominio(ficha) {
+  if (!ficha) return 0;
+  const eaAtual = Number(ficha.ea) || 0;
+  const eaMax   = Number(ficha.eaMax) || 0;
+  const m = String(ficha.nivel || '').match(/\d+/);
+  const nivelNum = m ? parseInt(m[0], 10) : 1;
+  const intMod = Math.floor((Number(ficha.int || 10) - 10) / 2);
+  const wisMod = Math.floor((Number(ficha.wis || 10) - 10) / 2);
+  const modMental = Math.max(intMod, wisMod);
+
+  const custoExpansao = Math.floor(eaAtual * 0.8);
+  const poder = custoExpansao + Math.round(eaMax * 0.3) + (nivelNum * 3) + (modMental * 2);
+  return Math.max(1, poder);
+}
+
+// Chamado toda vez que dominiosAtivos muda. Se houver 2+ domínios ativos
+// simultaneamente, resolve o confronto entre os dois mais recentes.
+// Só o Mestre resolve (evita que dois clientes escrevam o resultado ao
+// mesmo tempo), seguindo o mesmo princípio de limparDominiosOrfaos().
+function verificarConfrontoDominios() {
+  if (!modoMestre || !sessaoId) return;
+
+  const entradas = Object.entries(dominiosAtivos || {})
+    .filter(([slot, d]) => d && typeof d === 'object' && !!getFicha(slot))
+    .map(([slot, data]) => ({ slot, data }))
+    .sort((a, b) => (b.data.ts || 0) - (a.data.ts || 0));
+
+  if (entradas.length < 2) return;
+
+  const [a, b] = entradas; // os dois domínios ativos mais recentes
+  const chave = `${a.slot}:${a.data.ts || 0}__${b.slot}:${b.data.ts || 0}`;
+  if (__confrontosProcessados.has(chave)) return;
+  __confrontosProcessados.add(chave);
+
+  resolverConfrontoDominios(a, b);
+}
+
+function resolverConfrontoDominios(a, b) {
+  const fichaA = getFicha(a.slot);
+  const fichaB = getFicha(b.slot);
+  if (!fichaA || !fichaB) return;
+
+  const poderA = typeof a.data.poder === 'number' ? a.data.poder : calcularPoderDominio(fichaA);
+  const poderB = typeof b.data.poder === 'number' ? b.data.poder : calcularPoderDominio(fichaB);
+
+  let vencedor, perdedor;
+  if (poderA === poderB) {
+    // Empate: vence quem expandiu primeiro
+    if ((a.data.ts || 0) <= (b.data.ts || 0)) { vencedor = a; perdedor = b; }
+    else { vencedor = b; perdedor = a; }
+  } else if (poderA > poderB) { vencedor = a; perdedor = b; }
+  else { vencedor = b; perdedor = a; }
+
+  const poderVencedor = vencedor === a ? poderA : poderB;
+  const poderPerdedor = perdedor === a ? poderA : poderB;
+  const fichaVencedor = getFicha(vencedor.slot);
+  const fichaPerdedor = getFicha(perdedor.slot);
+  const nomeVencedor = fichaVencedor?.nome || vencedor.slot;
+  const nomePerdedor = fichaPerdedor?.nome || perdedor.slot;
+
+  // Publica o resultado — dispara a animação em todos os clientes conectados
+  set(ref(db, `sessoes/${sessaoId}/confrontoDominio`), {
+    nomeVencedor, nomePerdedor,
+    poderVencedor, poderPerdedor,
+    ts: Date.now()
+  });
+
+  // Colapsa o domínio perdedor
+  remove(ref(db, `sessoes/${sessaoId}/dominiosAtivos/${perdedor.slot}`));
+
+  // Marca o perdedor como "Atingido Certamente"
+  const isNpcPerdedor = !!fichasNpcData[perdedor.slot];
+  const condsAtuais = Array.isArray(fichaPerdedor.condicoes) ? fichaPerdedor.condicoes : Object.values(fichaPerdedor.condicoes || {});
+  if (!condsAtuais.includes('atingido-certamente')) {
+    salvar(perdedor.slot, 'condicoes', [...condsAtuais, 'atingido-certamente'], isNpcPerdedor);
+  }
+
+  enviarSistema(`💥 Choque de Domínios: o Domínio de ${nomeVencedor} (Poder ${poderVencedor}) supera o de ${nomePerdedor} (Poder ${poderPerdedor})! O domínio de ${nomePerdedor} colapsa e ${nomePerdedor} fica Atingido Certamente.`);
+}
+
+// Overlay cinematográfico do confronto — toca para todos os clientes conectados
+function tocarAnimacaoConfronto(c) {
+  const total = (c.poderVencedor || 0) + (c.poderPerdedor || 0);
+  const pctVencedor = total > 0 ? Math.round((c.poderVencedor / total) * 100) : 50;
+  const pctPerdedor = 100 - pctVencedor;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'confronto-overlay';
+  overlay.innerHTML = `
+    <div class="cf-vignette"></div>
+    <div class="cf-flash"></div>
+    <div class="cf-content">
+      <div class="cf-kanji">領域相殺</div>
+      <div class="cf-title">CHOQUE DE DOMÍNIOS</div>
+      <div class="cf-arena">
+        <div class="cf-side cf-vencedor">
+          <div class="cf-name">${esc(c.nomeVencedor||'???')}</div>
+          <div class="cf-bar-track"><div class="cf-bar cf-bar-win" data-pct="${pctVencedor}"></div></div>
+          <div class="cf-poder">Poder ${c.poderVencedor ?? '?'}</div>
+        </div>
+        <div class="cf-vs">VS</div>
+        <div class="cf-side cf-perdedor">
+          <div class="cf-name">${esc(c.nomePerdedor||'???')}</div>
+          <div class="cf-bar-track"><div class="cf-bar cf-bar-lose" data-pct="${pctPerdedor}"></div></div>
+          <div class="cf-poder">Poder ${c.poderPerdedor ?? '?'}</div>
+        </div>
+      </div>
+      <div class="cf-result">💀 O Domínio de <b>${esc(c.nomeVencedor||'???')}</b> prevalece!
+        <span class="cf-result-sub">${esc(c.nomePerdedor||'???')} fica Atingido Certamente.</span>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // Dispara o preenchimento das barras (precisa de um frame para a transição CSS funcionar)
+  requestAnimationFrame(() => {
+    const barWin  = overlay.querySelector('.cf-bar-win');
+    const barLose = overlay.querySelector('.cf-bar-lose');
+    if (barWin)  barWin.style.width  = barWin.dataset.pct + '%';
+    if (barLose) barLose.style.width = barLose.dataset.pct + '%';
+  });
+
+  // Marca visualmente o lado perdedor após o preenchimento das barras
+  setTimeout(() => {
+    const ladoPerdedor = overlay.querySelector('.cf-perdedor');
+    if (ladoPerdedor) ladoPerdedor.classList.add('cf-perdeu');
+  }, 1600);
+
+  try {
+    const audio = new Audio('data:audio/mp3;base64,' + GABRIEL_AUDIO_B64);
+    audio.volume = 0.7;
+    audio.play().catch(() => {});
+  } catch(e) {}
+
+  setTimeout(() => overlay.remove(), 5500);
+}
+
+/* ══════════════════════════════════════
    CHAT
 ══════════════════════════════════════ */
 function renderChat(msgs) {
@@ -4222,10 +4215,6 @@ function renderChat(msgs) {
     if (msg.type === 'habilidade' && msg.habilidadeNome === 'Expansão de Domínio' && (msg.ts||0) > dominioAnimUltimoTs) {
       dominioAnimUltimoTs = msg.ts;
       tocarAnimacaoDominio(msg.charName);
-    }
-    if (msg.type === 'confronto-dominio' && (msg.ts||0) > confrontoAnimUltimoTs) {
-      confrontoAnimUltimoTs = msg.ts;
-      tocarAnimacaoConfronto(msg);
     }
   });
 
@@ -4262,22 +4251,6 @@ function renderChat(msgs) {
         ${msg.habilidadeCusto ? `<div class="habilidade-custo">💙 Custo: ${esc(msg.habilidadeCusto)}</div>` : ''}
         ${eaInfo}
         ${rollPart}
-      `;
-    } else if (msg.type === 'confronto-dominio') {
-      div.innerHTML = `
-        <div class="chat-msg-header">
-          <span class="chat-msg-author" style="color:var(--purple)">⚔️ Confronto de Domínios</span>
-          <span class="chat-msg-time">${hora}</span>
-        </div>
-        <div class="confronto-chat-linha">
-          <span class="confronto-chat-nome vencedor">👑 ${esc(msg.nomeVencedor)}</span>
-          <span class="confronto-chat-poder">Poder ${msg.poderVencedor}</span>
-        </div>
-        <div class="confronto-chat-linha">
-          <span class="confronto-chat-nome perdedor">💀 ${esc(msg.nomePerdedor)}</span>
-          <span class="confronto-chat-poder">Poder ${msg.poderPerdedor}</span>
-        </div>
-        <div class="habilidade-desc">${esc(msg.nomeVencedor)} venceu a disputa de domínios e ${esc(msg.nomePerdedor)} foi Atingido Certamente.</div>
       `;
     } else if (msg.type === 'roll-composto') {
       const ac = msg.slot === meuSlot ? 'mine' : 'other';
@@ -4675,25 +4648,22 @@ function renderDominioZona(cellSize, cols, rows) {
 
   const tokensAtuais = mapaData.tokens || {};
 
-  // Coletar slots com domínio ativo (usando posição de origem fixa salva no Firebase).
-  // Importante: NÃO exigir getFicha(slot) aqui — jogadores comuns não têm acesso às
-  // fichas de NPC (fichasNpcData só é sincronizada para o Mestre), então exigir a
-  // ficha completa escondia a zona de domínios de NPC do mapa dos jogadores.
-  // A limpeza de domínios "órfãos" (ficha excluída) já é feita à parte, de forma
-  // segura, por limparDominiosOrfaos() — que roda só no client do Mestre.
+  // Coletar slots com domínio ativo (usando posição de origem fixa salva no Firebase)
+  // Ignora slots cuja ficha (jogador ou NPC) já não existe mais — evita que
+  // um domínio fique "preso" no mapa depois que a ficha que o ativou foi excluída.
   const slotsComDominio = Object.entries(dominiosAtivos)
-    .filter(([slot, v]) => v && typeof v === 'object' && 'col' in v)
-    .map(([slot, origem]) => ({ slot, col: origem.col, row: origem.row, nome: origem.nome }));
+    .filter(([slot, v]) => v && typeof v === 'object' && 'col' in v && !!getFicha(slot))
+    .map(([slot, origem]) => ({ slot, col: origem.col, row: origem.row }));
 
   // Suporte legado: se o valor for apenas `true` (ativado antes dessa versão), usa posição do token
   Object.entries(dominiosAtivos).forEach(([slot, v]) => {
-    if (v === true) {
+    if (v === true && !!getFicha(slot)) {
       const tk = Object.values(tokensAtuais).find(t => t.slot === slot);
-      if (tk) slotsComDominio.push({ slot, col: tk.col ?? 0, row: tk.row ?? 0, nome: tk.nome });
+      if (tk) slotsComDominio.push({ slot, col: tk.col ?? 0, row: tk.row ?? 0 });
     }
   });
 
-  slotsComDominio.forEach(({ slot, col, row, nome }) => {
+  slotsComDominio.forEach(({ slot, col, row }) => {
     if (!dominiosAtivos[slot]) return;
     const raio = 3; // raio em células (cobre 3 células ao redor = 7x7 aproximado)
 
@@ -4769,7 +4739,7 @@ function renderDominioZona(cellSize, cols, rows) {
 
     // Label "DOMÍNIO" no centro da zona
     const fichaSlot = fichasData[slot] || fichasNpcData[slot];
-    const nomeDom = nome || fichaSlot?.nome || 'Domínio';
+    const nomeDom = fichaSlot?.nome ? fichaSlot.nome : 'Domínio';
     const cx = (col + 0.5) * cellSize;
     const cy = (row - raio - 0.3) * cellSize;
     if (cy > 0) {
@@ -4851,8 +4821,8 @@ function renderMapa() {
     const morto = pvAtual !== null && pvAtual <= 0;
     el.classList.toggle('is-morto', morto);
 
-    // Domínio ativo no token — não depende de getFicha (jogadores não veem ficha de NPC)
-    const tokenDominioAtivo = tk.slot ? !!dominiosAtivos[tk.slot] : false;
+    // Domínio ativo no token (só considera se a ficha do slot ainda existe)
+    const tokenDominioAtivo = tk.slot ? (!!dominiosAtivos[tk.slot] && !!getFicha(tk.slot)) : false;
     el.classList.toggle('dominio-ativo', tokenDominioAtivo);
 
     const circle = el.querySelector('.mapa-token-circle');
@@ -5439,7 +5409,7 @@ function criarCard(slot, d, isNpc) {
     'barreira-corporal': { icon:'🛡️', label:'Barreira Corporal' },
     'passo-amaldicado':  { icon:'💨', label:'Passo Amaldiçoado' },
     'fortalecimento':    { icon:'⚡', label:'Fortalecimento' },
-    'atingido-certamente': { icon:'💀', label:'Atingido Certamente' },
+    'atingido-certamente': { icon:'🎯', label:'Atingido Certamente' },
   };
   const condicoesHTML = condicoes.map(c => {
     const info = COND_INFO[c] || { icon:'⚠️', label: c };
@@ -5477,11 +5447,9 @@ function criarCard(slot, d, isNpc) {
       ${ismine ? `<button class="btn-dominio-simples-toggle desligar" data-slot="${slot}">✕ Encerrar</button>` : ''}
     </div>` : '';
 
-  const poderDominioEsteSlot = dominioEsteSlot ? calcularPoderDominio(slot) : null;
   const bannerExpansaoHTML = dominioEsteSlot ? `
     <div class="dominio-ativo-banner">
       <span><span class="dom-blink">◆</span> DOMÍNIO ATIVO</span>
-      <span class="dominio-poder-badge" title="Poder de Domínio = EA investido (${poderDominioEsteSlot.eaInvestido}) + Técnicas Inatas (${poderDominioEsteSlot.somaTecnicas}) + Grau (${poderDominioEsteSlot.grauBonus}) + Nível (${poderDominioEsteSlot.nivelBonus})">⚔️ Poder ${poderDominioEsteSlot.total}</span>
       ${ismine ? `<button class="btn-dominio-toggle desligar" data-slot="${slot}">✕ Encerrar</button>` : ''}
     </div>` : '';
 
@@ -6230,17 +6198,18 @@ function criarCard(slot, d, isNpc) {
           showToast(`EA insuficiente! Necessário: ${Math.ceil(eaMax * 0.8)} de ${eaMax} EA (80%)`, 'error');
           return;
         }
-        // Salvar posição atual do token como origem fixa do domínio.
-        // O nome vai junto (não é segredo — a cúpula do domínio é visível a todos
-        // na ficção), assim jogadores conseguem renderizar a zona de um domínio de
-        // NPC no mapa mesmo sem ter acesso à ficha completa do NPC (fichasNpcData
-        // só é sincronizada para o Mestre).
+        // Salvar posição atual do token como origem fixa do domínio,
+        // junto com o Poder de Domínio (usado em caso de Choque de Domínios)
+        // e o instante da ativação (usado para detectar o confronto).
         const tokenAlvo = Object.values(mapaData.tokens || {}).find(t => t.slot === slotAlvo);
-        const nomeFicha = fichaAlvo?.nome || slotAlvo;
-        const origemDominio = tokenAlvo
-          ? { col: tokenAlvo.col ?? 0, row: tokenAlvo.row ?? 0, nome: nomeFicha }
-          : { col: 0, row: 0, nome: nomeFicha };
+        const origemDominio = {
+          col: tokenAlvo ? (tokenAlvo.col ?? 0) : 0,
+          row: tokenAlvo ? (tokenAlvo.row ?? 0) : 0,
+          poder: calcularPoderDominio(fichaAlvo),
+          ts: Date.now()
+        };
         set(ref(db, `sessoes/${sessaoId}/dominiosAtivos/${slotAlvo}`), origemDominio);
+        const nomeFicha = fichaAlvo?.nome || slotAlvo;
         enviarSistema(`💀 Domínio de ${nomeFicha} ativado!`);
       }
     });
@@ -6639,7 +6608,7 @@ function renderTecnicaEditavel(campo, t, idx, ismine, ea) {
 
 function abrirMenuCondicao(slot, condicoesRaw, isNpc) {
   const condicoesAtuais = Array.isArray(condicoesRaw) ? condicoesRaw : Object.values(condicoesRaw || {});
-  const CONDS_STATUS  = ['sangrando','atordoado','envenenado','amedrontado','paralisado','invisivel'];
+  const CONDS_STATUS  = ['sangrando','atordoado','envenenado','amedrontado','paralisado','invisivel','atingido-certamente'];
   const CONDS_REFORCO = ['reforco-punhos','barreira-corporal','passo-amaldicado','fortalecimento'];
   const LABELS = {
     'sangrando':'🦸 Sangrando','atordoado':'💫 Atordoado','envenenado':'☠️ Envenenado',
