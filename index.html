@@ -1261,6 +1261,7 @@
     padding: 5px 18px; font-size: 10px; color: var(--purple);
     font-weight: 700; letter-spacing: 1px;
     display: flex; align-items: center; justify-content: space-between; gap: 6px;
+    flex-wrap: wrap;
   }
   .dominio-ativo-banner .dom-blink { animation: blink 1.4s infinite; }
   .btn-dominio-toggle,
@@ -5431,6 +5432,7 @@ function criarCard(slot, d, isNpc) {
     'barreira-corporal': { icon:'🛡️', label:'Barreira Corporal' },
     'passo-amaldicado':  { icon:'💨', label:'Passo Amaldiçoado' },
     'fortalecimento':    { icon:'⚡', label:'Fortalecimento' },
+    'atingido-certamente': { icon:'💀', label:'Atingido Certamente' },
   };
   const condicoesHTML = condicoes.map(c => {
     const info = COND_INFO[c] || { icon:'⚠️', label: c };
@@ -5468,9 +5470,11 @@ function criarCard(slot, d, isNpc) {
       ${ismine ? `<button class="btn-dominio-simples-toggle desligar" data-slot="${slot}">✕ Encerrar</button>` : ''}
     </div>` : '';
 
+  const poderDominioEsteSlot = dominioEsteSlot ? calcularPoderDominio(slot) : null;
   const bannerExpansaoHTML = dominioEsteSlot ? `
     <div class="dominio-ativo-banner">
       <span><span class="dom-blink">◆</span> DOMÍNIO ATIVO</span>
+      <span class="dominio-poder-badge" title="Poder de Domínio = EA investido (${poderDominioEsteSlot.eaInvestido}) + Técnicas Inatas (${poderDominioEsteSlot.somaTecnicas}) + Grau (${poderDominioEsteSlot.grauBonus}) + Nível (${poderDominioEsteSlot.nivelBonus})">⚔️ Poder ${poderDominioEsteSlot.total}</span>
       ${ismine ? `<button class="btn-dominio-toggle desligar" data-slot="${slot}">✕ Encerrar</button>` : ''}
     </div>` : '';
 
