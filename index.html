@@ -1345,12 +1345,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
+    cursor: grab;
+    touch-action: none;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     box-shadow: 0 4px 16px rgba(240,192,64,0.45);
     transition: transform 0.15s, box-shadow 0.15s;
   }
+  .bardo-fab:active { cursor: grabbing; }
   .bardo-fab:hover { transform: scale(1.1); box-shadow: 0 6px 22px rgba(240,192,64,0.7); }
   .bardo-fab:active { transform: scale(0.93); }
   .bardo-fab-icon { font-size: 21px; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3)); }
@@ -1492,7 +1494,8 @@
     display: none;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
+    cursor: grab;
+    touch-action: none;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     box-shadow: 0 4px 16px rgba(168,85,247,0.5);
@@ -1500,6 +1503,7 @@
     font-size: 22px;
   }
   .ficha-drawer-fab:hover { transform: scale(1.1); box-shadow: 0 6px 22px rgba(168,85,247,0.75); }
+  .ficha-drawer-fab:active { transform: scale(0.93); cursor: grabbing; }
   .ficha-drawer-fab:active { transform: scale(0.93); }
 
   .ficha-drawer-overlay {
@@ -3197,6 +3201,8 @@ function bardoAtualizarUI(data) {
 }
 
 window.bardoToggleFab = function() {
+  const fab = document.getElementById('bardoFab');
+  if (fab && fab.dataset.dragged === '1') return;
   document.getElementById('bardoPanel').classList.toggle('open');
 };
 
@@ -3845,6 +3851,8 @@ function renderFichaDrawer() {
 }
 
 window.toggleFichaDrawer = function(forcarAberto) {
+  const fab = document.getElementById('fichaDrawerFab');
+  if (typeof forcarAberto !== 'boolean' && fab && fab.dataset.dragged === '1') return;
   const overlay = document.getElementById('fichaDrawerOverlay');
   if (!overlay) return;
   const abrir = typeof forcarAberto === 'boolean' ? forcarAberto : !overlay.classList.contains('show');
@@ -3859,6 +3867,96 @@ window.toggleFichaDrawer = function(forcarAberto) {
 window.fecharFichaDrawerSeFora = function(ev) {
   if (ev.target.id === 'fichaDrawerOverlay') toggleFichaDrawer(false);
 };
+
+/* ══════════════════════════════════════
+   BOTÕES FLUTUANTES ARRASTÁVEIS
+   Permite reposicionar o Bardo (🎵) e a Ficha Rápida (📋)
+   pra qualquer canto da tela. Posição salva por navegador
+   (localStorage), já que é preferência de UI de cada jogador.
+══════════════════════════════════════ */
+function tornarArrastavel(el, storageKey) {
+  if (!el || el.__arrastavelIniciado) return;
+  el.__arrastavelIniciado = true;
+
+  function aplicarPosicao(left, top) {
+    const maxLeft = window.innerWidth  - el.offsetWidth  - 4;
+    const maxTop  = window.innerHeight - el.offsetHeight - 4;
+    left = Math.max(4, Math.min(left, Math.max(4, maxLeft)));
+    top  = Math.max(4, Math.min(top,  Math.max(4, maxTop)));
+    el.style.left   = left + 'px';
+    el.style.top    = top  + 'px';
+    el.style.right  = 'auto';
+    el.style.bottom = 'auto';
+  }
+
+  // Restaura posição salva (se houver e ainda couber na tela atual)
+  try {
+    const salvo = JSON.parse(localStorage.getItem(storageKey) || 'null');
+    if (salvo && typeof salvo.left === 'number' && typeof salvo.top === 'number') {
+      aplicarPosicao(salvo.left, salvo.top);
+    }
+  } catch(e) {}
+
+  let arrastando = false, moveu = false, offX = 0, offY = 0;
+
+  function onDown(x, y) {
+    const rect = el.getBoundingClientRect();
+    offX = x - rect.left;
+    offY = y - rect.top;
+    arrastando = true;
+    moveu = false;
+    el.style.transition = 'none';
+  }
+  function onMove(x, y) {
+    if (!arrastando) return;
+    const novoLeft = x - offX;
+    const novoTop  = y - offY;
+    const rect = el.getBoundingClientRect();
+    if (!moveu && (Math.abs(novoLeft - rect.left) > 3 || Math.abs(novoTop - rect.top) > 3)) moveu = true;
+    if (moveu) aplicarPosicao(novoLeft, novoTop);
+  }
+  function onUp() {
+    if (!arrastando) return;
+    arrastando = false;
+    el.style.transition = '';
+    if (moveu) {
+      const rect = el.getBoundingClientRect();
+      try { localStorage.setItem(storageKey, JSON.stringify({ left: rect.left, top: rect.top })); } catch(e) {}
+      // Marca que houve arraste pra o próximo "click" (disparado logo após
+      // o mouseup/touchend) ser ignorado pelas funções de toggle
+      el.dataset.dragged = '1';
+      setTimeout(() => { delete el.dataset.dragged; }, 80);
+    }
+  }
+
+  el.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    onDown(e.clientX, e.clientY);
+  });
+  window.addEventListener('mousemove', e => onMove(e.clientX, e.clientY));
+  window.addEventListener('mouseup', onUp);
+
+  el.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    onDown(t.clientX, t.clientY);
+  }, { passive: true });
+  window.addEventListener('touchmove', e => {
+    if (!arrastando) return;
+    const t = e.touches[0];
+    onMove(t.clientX, t.clientY);
+  }, { passive: true });
+  window.addEventListener('touchend', onUp);
+
+  // Reencaixa na tela se a janela for redimensionada (ex: virar o celular)
+  window.addEventListener('resize', () => {
+    if (el.style.left === '' ) return; // ainda na posição padrão (CSS)
+    const rect = el.getBoundingClientRect();
+    aplicarPosicao(rect.left, rect.top);
+  });
+}
+
+tornarArrastavel(document.getElementById('bardoFab'), 'posBardoFab');
+tornarArrastavel(document.getElementById('fichaDrawerFab'), 'posFichaDrawerFab');
 
 /* ══════════════════════════════════════
    FICHAS DE NPC (visíveis apenas ao Mestre)
@@ -5545,7 +5643,6 @@ function criarCard(slot, d, isNpc) {
   const badgeClass = isNpc ? 'npc' : (isMeuCard ? '' : (modoMestre ? '' : 'other'));
   const dupNpcBtnHTML = isNpc ? `<button class="btn-dup-npc-card" title="Duplicar esta ficha de NPC">📑 Duplicar</button>` : '';
   const delNpcBtnHTML = isNpc ? `<button class="btn-del-npc-card" title="Remover este NPC da sessão">🗑️ Remover NPC</button>` : '';
-  const delPlayerBtnHTML = (modoMestre && !isNpc && !isMeuCard) ? `<button class="btn-del-npc-card btn-del-ficha-card" title="Excluir permanentemente esta ficha">🗑️ Excluir Ficha</button>` : '';
 
   // Condições HTML
   const COND_INFO = {
@@ -5895,7 +5992,6 @@ function criarCard(slot, d, isNpc) {
       <span class="player-badge ${badgeClass}">${badgeLabel}</span>
       ${dupNpcBtnHTML}
       ${delNpcBtnHTML}
-      ${delPlayerBtnHTML}
     </div>
 
     <div class="card-tabs-nav">
@@ -6100,7 +6196,7 @@ function criarCard(slot, d, isNpc) {
     });
 
     // Remover ficha de NPC inteira (somente Mestre)
-    const delNpcBtn = card.querySelector('.btn-del-npc-card:not(.btn-del-ficha-card)');
+    const delNpcBtn = card.querySelector('.btn-del-npc-card');
     if (delNpcBtn) {
       delNpcBtn.addEventListener('click', e => {
         e.stopPropagation();
@@ -6111,19 +6207,9 @@ function criarCard(slot, d, isNpc) {
       });
     }
 
-    // Excluir ficha de jogador (somente Mestre) — remove permanentemente,
-    // liberando o slot para que outro personagem possa ser criado.
-    const delPlayerBtn = card.querySelector('.btn-del-ficha-card');
-    if (delPlayerBtn) {
-      delPlayerBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        if (confirm(`Excluir permanentemente a ficha de "${d.nome||'Personagem'}"? Esta ação não pode ser desfeita e o jogador perderá acesso a ela.`)) {
-          remove(ref(db, `sessoes/${sessaoId}/fichas/${slot}`))
-            .then(() => { limparEstadoDoSlot(slot); showToast('Ficha excluída pelo Mestre.', 'success'); })
-            .catch(() => showToast('Erro ao excluir ficha. Verifique as permissões do Mestre no banco de dados.', 'error'));
-        }
-      });
-    }
+    // Excluir ficha de jogador: removido propositalmente do modo Mestre
+    // dentro da sessão (histórico: exclusão acidental). Se precisar
+    // remover uma ficha permanentemente, faça diretamente no Firebase.
 
     // Duplicar ficha de NPC inteira (somente Mestre) — agiliza criar vários
     // monstros parecidos (ex: "Goblin 1", "Goblin 2"...)
