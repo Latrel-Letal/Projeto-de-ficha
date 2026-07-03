@@ -2202,6 +2202,170 @@
     100% { opacity: 0; transform: translateY(-100vh) scale(1.2); }
   }
 
+  /* ══════════════════════════════════════
+     CONFRONTO DE DOMÍNIOS — modal "cabo de guerra"
+  ══════════════════════════════════════ */
+  .confronto-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #000;
+    opacity: 0;
+    animation: confFade 4.3s ease forwards;
+    pointer-events: none;
+  }
+  @keyframes confFade {
+    0%   { opacity: 0; }
+    8%   { opacity: 1; }
+    88%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  .confronto-overlay .confronto-vignette {
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at center, rgba(35,5,10,0.45) 0%, rgba(0,0,0,0.96) 78%);
+  }
+  .confronto-overlay .confronto-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    width: min(92vw, 620px);
+  }
+  .confronto-overlay .confronto-kanji {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    letter-spacing: 8px;
+    color: var(--red);
+    text-shadow: 0 0 18px rgba(255,74,74,0.7);
+    opacity: 0;
+    animation: domKanjiIn 0.5s ease-out 0.15s forwards;
+    margin-bottom: 4px;
+  }
+  .confronto-overlay .confronto-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(20px, 4.6vw, 34px);
+    color: #f5eaff;
+    text-shadow: 0 0 20px rgba(255,74,74,0.7), 0 0 46px rgba(168,85,247,0.5);
+    opacity: 0;
+    animation: domTitleImpact 0.55s cubic-bezier(.2,1.4,.4,1) 0.3s forwards;
+    margin-bottom: 22px;
+  }
+  .confronto-overlay .confronto-vs-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    opacity: 0;
+    animation: domSubIn 0.5s ease 0.5s forwards;
+  }
+  .confronto-overlay .confronto-lado { min-width: 140px; }
+  .confronto-overlay .confronto-nome {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(13px, 2.6vw, 18px);
+    color: var(--text);
+    letter-spacing: 1px;
+  }
+  .confronto-overlay .confronto-lado.esquerdo .confronto-nome { color: var(--gold); }
+  .confronto-overlay .confronto-lado.direito  .confronto-nome { color: var(--text2); }
+  .confronto-overlay .confronto-poder {
+    font-size: clamp(24px, 5vw, 38px);
+    font-weight: 700;
+    margin-top: 2px;
+  }
+  .confronto-overlay .confronto-lado.esquerdo .confronto-poder { color: var(--gold); text-shadow: 0 0 16px rgba(240,192,64,0.6); }
+  .confronto-overlay .confronto-lado.direito  .confronto-poder { color: var(--red); text-shadow: 0 0 16px rgba(255,74,74,0.5); }
+  .confronto-overlay .confronto-vs {
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
+    color: var(--purple);
+    letter-spacing: 2px;
+  }
+  .confronto-overlay .confronto-corda-track {
+    position: relative;
+    margin: 26px auto 0;
+    width: 82%;
+    height: 10px;
+    border-radius: 6px;
+    background: rgba(255,74,74,0.25);
+    border: 1px solid var(--border2);
+    overflow: hidden;
+    opacity: 0;
+    animation: domSubIn 0.5s ease 0.75s forwards;
+  }
+  .confronto-overlay .confronto-corda-fill {
+    height: 100%;
+    width: 50%;
+    background: linear-gradient(90deg, var(--gold), #ffd766);
+    box-shadow: 0 0 14px rgba(240,192,64,0.7);
+    transition: width 1.6s cubic-bezier(.3,.8,.4,1);
+  }
+  .confronto-overlay.resolvendo .confronto-corda-fill { width: var(--pct-final, 50%); }
+  .confronto-overlay .confronto-corda-no {
+    position: absolute; top: 50%; left: 50%;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 12px 4px rgba(255,255,255,0.6);
+    transform: translate(-50%,-50%);
+    transition: left 1.6s cubic-bezier(.3,.8,.4,1);
+  }
+  .confronto-overlay .confronto-resultado {
+    margin-top: 22px;
+    font-family: 'Cinzel', serif;
+    font-size: clamp(14px, 3vw, 20px);
+    color: var(--gold);
+    text-shadow: 0 0 16px rgba(240,192,64,0.6);
+    opacity: 0;
+    animation: domSubIn 0.5s ease 2.3s forwards;
+  }
+  .confronto-overlay .confronto-sub {
+    margin-top: 8px;
+    font-size: 10px;
+    color: var(--text2);
+    letter-spacing: 1px;
+    opacity: 0;
+    animation: domSubIn 0.5s ease 2.5s forwards;
+  }
+
+  /* Renderização no chat */
+  .confronto-chat-linha {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    padding: 3px 0;
+  }
+  .confronto-chat-nome.vencedor { color: var(--gold); font-weight: 600; }
+  .confronto-chat-nome.perdedor { color: var(--text2); }
+  .confronto-chat-poder { color: var(--text2); font-size: 10px; }
+
+  /* Badge de Poder de Domínio na ficha */
+  .dominio-poder-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--gold);
+    background: rgba(240,192,64,0.12);
+    border: 1px solid rgba(240,192,64,0.4);
+    border-radius: 6px;
+    padding: 3px 8px;
+    margin-left: auto;
+    cursor: help;
+  }
+
+  /* Condição "Atingido Certamente" — marca de derrota no confronto */
+  .condicao-tag.cond-atingido-certamente {
+    background: rgba(255,74,74,0.16);
+    border-color: rgba(255,74,74,0.55);
+    color: #ffb3b3;
+    animation: blink 1.8s infinite;
+  }
 
   /* ══════════════════════════════════════
      FORMAS NO MAPA
@@ -2834,7 +2998,7 @@
 <!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getDatabase, ref, set, get, push, onValue, remove }
+import { getDatabase, ref, set, get, push, onValue, remove, runTransaction }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
 import { getAuth, signInAnonymously, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
@@ -2874,6 +3038,7 @@ let formaPreview    = null; // elemento SVG de preview
 let dominiosSimplesAtivos = {}; // { slot: true } sincronizado pelo Firebase (Domínio Simples)
 let unsubFichasNpc = null;
 let dominioAnimUltimoTs = Date.now();
+let confrontoAnimUltimoTs = Date.now(); // dedupe da animação de confronto de domínios (via chat)
 
 /* ══════════════════════════════════════
    AUTENTICAÇÃO ANÔNIMA (necessária pra Firebase Rules)
@@ -3034,6 +3199,144 @@ function dominioSimplesDefault() {
 }
 function dominioExpansaoDefault() {
   return { custo:'— EA', desc:'Descreva a expansão de domínio do seu personagem...', efeito:'Descreva os efeitos da expansão de domínio...' };
+}
+
+/* ══════════════════════════════════════
+   PODER DE DOMÍNIO — usado na disputa (confronto) automática
+   Fórmula: EA investido (energia atual) + soma dos custos EA das
+   técnicas inatas + bônus de Grau + bônus de Nível.
+   Sem aleatoriedade: puramente determinístico a partir da ficha.
+══════════════════════════════════════ */
+function calcularPoderDominio(slot) {
+  const ficha = getFicha(slot);
+  if (!ficha) return { total:0, eaInvestido:0, somaTecnicas:0, grauBonus:0, nivelBonus:0, nome: slot };
+
+  const eaInvestido = Number(ficha.ea) || 0; // energia amaldiçoada canalizada no momento da disputa
+
+  const tecnicasInatas = Array.isArray(ficha.tecnicasInatas)
+    ? ficha.tecnicasInatas
+    : Object.values(ficha.tecnicasInatas || {});
+  const somaTecnicas = tecnicasInatas.reduce((acc, t) => acc + parseCustoEA(t?.custo), 0);
+
+  // Grau: quanto "menor" o grau (Especial > 1 > 2 > 3 > 4), maior o poder.
+  const GRAU_PONTOS = { 'especial':6, '1':4, '2':3, '3':2, '4':1 };
+  const grauTxt = String(ficha.grau || '').toLowerCase();
+  let grauNum = 0;
+  Object.keys(GRAU_PONTOS).forEach(k => { if (grauTxt.includes(k)) grauNum = Math.max(grauNum, GRAU_PONTOS[k]); });
+  const grauBonus = grauNum * 10;
+
+  const nivelMatch = String(ficha.nivel || '').match(/(\d+)/);
+  const nivelNum = nivelMatch ? parseInt(nivelMatch[1]) : 0;
+  const nivelBonus = nivelNum * 2;
+
+  const total = eaInvestido + somaTecnicas + grauBonus + nivelBonus;
+  return { total, eaInvestido, somaTecnicas, grauBonus, nivelBonus, nome: ficha.nome || slot };
+}
+
+/* ══════════════════════════════════════
+   CONFRONTO DE DOMÍNIOS
+   Detecta automaticamente quando 2+ domínios (Expansão de Domínio)
+   estão ativos ao mesmo tempo, calcula o Poder de Domínio de cada um
+   (sem rolagem de dados) e resolve a disputa: o maior Poder vence.
+══════════════════════════════════════ */
+function detectarConfrontoDominios() {
+  if (!sessaoId) return;
+  const slotsAtivos = Object.entries(dominiosAtivos)
+    .filter(([slot, v]) => v && !!getFicha(slot))
+    .map(([slot]) => slot);
+  if (slotsAtivos.length < 2) return;
+
+  // Calcula o Poder de cada domínio ativo e pega os dois maiores para a disputa
+  const poderes = slotsAtivos
+    .map(slot => ({ slot, poder: calcularPoderDominio(slot) }))
+    .sort((a, b) => b.poder.total - a.poder.total);
+  const [a, b] = poderes;
+  const pairKey = [a.slot, b.slot].sort().join('__');
+
+  // Trava distribuída: só um cliente conectado assume a resolução dessa disputa,
+  // evitando narração duplicada no chat e efeitos de derrota aplicados 2x.
+  runTransaction(ref(db, `sessoes/${sessaoId}/confrontosResolvidos/${pairKey}`), atual => {
+    if (atual) return; // já em resolução por outro cliente — aborta
+    return { ts: Date.now() };
+  }).then(res => {
+    if (!res.committed) return;
+    resolverConfrontoDominio(a, b, pairKey);
+  }).catch(() => {});
+}
+
+function resolverConfrontoDominio(a, b, pairKey) {
+  const vencedor = a.poder.total >= b.poder.total ? a : b;
+  const perdedor = vencedor === a ? b : a;
+
+  // Publica a disputa no chat — narra o confronto e dispara a animação
+  // de "cabo de guerra" em todos os clientes conectados (via renderChat).
+  push(ref(db, `sessoes/${sessaoId}/chat`), {
+    type: 'confronto-dominio',
+    slotVencedor: vencedor.slot, nomeVencedor: vencedor.poder.nome, poderVencedor: vencedor.poder.total,
+    slotPerdedor: perdedor.slot, nomePerdedor: perdedor.poder.nome, poderPerdedor: perdedor.poder.total,
+    detalhesVencedor: vencedor.poder,
+    detalhesPerdedor: perdedor.poder,
+    ts: Date.now()
+  });
+
+  // Efeitos de derrota — sincronizados com o fim da animação de cabo de guerra
+  setTimeout(() => {
+    remove(ref(db, `sessoes/${sessaoId}/dominiosAtivos/${perdedor.slot}`));
+
+    const fichaPerdedor = getFicha(perdedor.slot);
+    if (fichaPerdedor) {
+      const isNpcPerdedor = !fichasData[perdedor.slot] && !!fichasNpcData[perdedor.slot];
+      const condicoesAtuais = Array.isArray(fichaPerdedor.condicoes)
+        ? fichaPerdedor.condicoes
+        : Object.values(fichaPerdedor.condicoes || {});
+      if (!condicoesAtuais.includes('atingido-certamente')) {
+        salvar(perdedor.slot, 'condicoes', [...condicoesAtuais, 'atingido-certamente'], isNpcPerdedor);
+      }
+    }
+    enviarSistema(`⚫ O domínio de ${perdedor.poder.nome} colapsou! ${perdedor.poder.nome} está Atingido Certamente.`);
+  }, 4200);
+
+  // Libera a trava depois de um tempo, permitindo uma nova disputa futura
+  // entre os mesmos dois personagens (caso ativem domínio novamente depois).
+  setTimeout(() => remove(ref(db, `sessoes/${sessaoId}/confrontosResolvidos/${pairKey}`)), 7000);
+}
+
+// Gera o HTML de animação "cabo de guerra" do confronto de domínios
+function tocarAnimacaoConfronto(msg) {
+  const overlay = document.createElement('div');
+  overlay.className = 'confronto-overlay';
+
+  const totalPoder = Math.max(1, (msg.poderVencedor||0) + (msg.poderPerdedor||0));
+  const pctVencedor = Math.round((msg.poderVencedor / totalPoder) * 100);
+
+  overlay.innerHTML = `
+    <div class="confronto-vignette"></div>
+    <div class="confronto-content">
+      <div class="confronto-kanji">領域相剋</div>
+      <div class="confronto-title">CONFRONTO DE DOMÍNIOS</div>
+      <div class="confronto-vs-row">
+        <div class="confronto-lado esquerdo">
+          <div class="confronto-nome">${esc(msg.nomeVencedor)}</div>
+          <div class="confronto-poder">${msg.poderVencedor}</div>
+        </div>
+        <div class="confronto-vs">VS</div>
+        <div class="confronto-lado direito">
+          <div class="confronto-nome">${esc(msg.nomePerdedor)}</div>
+          <div class="confronto-poder">${msg.poderPerdedor}</div>
+        </div>
+      </div>
+      <div class="confronto-corda-track">
+        <div class="confronto-corda-fill" style="width:${pctVencedor}%"></div>
+        <div class="confronto-corda-no"></div>
+      </div>
+      <div class="confronto-resultado">💀 ${esc(msg.nomeVencedor)} vence o confronto!</div>
+      <div class="confronto-sub">Poder de Domínio: EA investido + Técnicas Inatas + Grau + Nível</div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  setTimeout(() => overlay.classList.add('resolvendo'), 1700);
+  setTimeout(() => overlay.remove(), 4300);
 }
 function fichaDefault(nome) {
   return { nome:nome, linhagem:'Linhagem Técnica', grau:'Grau 3', nivel:'Nível 01', afiliacao:'Instituto',
@@ -3472,6 +3775,7 @@ function iniciarApp() {
     renderFichas();
     renderMapa();
     limparDominiosOrfaos();
+    detectarConfrontoDominios();
   });
 
   // Domínios Simples ativos em tempo real
@@ -3914,6 +4218,10 @@ function renderChat(msgs) {
       dominioAnimUltimoTs = msg.ts;
       tocarAnimacaoDominio(msg.charName);
     }
+    if (msg.type === 'confronto-dominio' && (msg.ts||0) > confrontoAnimUltimoTs) {
+      confrontoAnimUltimoTs = msg.ts;
+      tocarAnimacaoConfronto(msg);
+    }
   });
 
   container.innerHTML = '';
@@ -3949,6 +4257,22 @@ function renderChat(msgs) {
         ${msg.habilidadeCusto ? `<div class="habilidade-custo">💙 Custo: ${esc(msg.habilidadeCusto)}</div>` : ''}
         ${eaInfo}
         ${rollPart}
+      `;
+    } else if (msg.type === 'confronto-dominio') {
+      div.innerHTML = `
+        <div class="chat-msg-header">
+          <span class="chat-msg-author" style="color:var(--purple)">⚔️ Confronto de Domínios</span>
+          <span class="chat-msg-time">${hora}</span>
+        </div>
+        <div class="confronto-chat-linha">
+          <span class="confronto-chat-nome vencedor">👑 ${esc(msg.nomeVencedor)}</span>
+          <span class="confronto-chat-poder">Poder ${msg.poderVencedor}</span>
+        </div>
+        <div class="confronto-chat-linha">
+          <span class="confronto-chat-nome perdedor">💀 ${esc(msg.nomePerdedor)}</span>
+          <span class="confronto-chat-poder">Poder ${msg.poderPerdedor}</span>
+        </div>
+        <div class="habilidade-desc">${esc(msg.nomeVencedor)} venceu a disputa de domínios e ${esc(msg.nomePerdedor)} foi Atingido Certamente.</div>
       `;
     } else if (msg.type === 'roll-composto') {
       const ac = msg.slot === meuSlot ? 'mine' : 'other';
