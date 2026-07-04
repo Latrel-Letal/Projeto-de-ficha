@@ -2938,6 +2938,7 @@
         <div class="menu-dropdown-divider"></div>
         <div class="menu-dropdown-label">Páginas</div>
         <button class="menu-dropdown-item active" id="menuItemFichas" onclick="mudarAba('fichas')">📋 Fichas</button>
+        <button class="menu-dropdown-item mestre" id="menuItemNpcs" style="display:none" onclick="mudarAba('npcs')">👹 NPCs</button>
         <button class="menu-dropdown-item" id="menuItemMapa" onclick="mudarAba('mapa')">🗺️ Mapa</button>
         <button class="menu-dropdown-item" id="menuItemImagens" onclick="mudarAba('imagens')">🖼️ Chat de Imagens</button>
         <button class="menu-dropdown-item mobile-only-menu-item" id="menuItemChat" onclick="mudarAba('chat')">💬 Chat</button>
@@ -2955,6 +2956,12 @@
   <!-- Fichas -->
   <div class="fichas-area" id="fichasArea">
     <div class="fichas-container" id="fichasContainer"></div>
+  </div>
+
+  <!-- Fichas de NPC (visível apenas ao Mestre) -->
+  <div class="fichas-area collapsed" id="npcsArea">
+    <div class="fichas-container" id="npcsContainer"></div>
+    <div class="mapa-empty-state" id="npcsEmptyState" style="display:none">👹 Nenhum NPC criado ainda.<br>Use "Nova Ficha NPC" no menu para criar um.</div>
   </div>
 
   <!-- Mapa de Batalha -->
@@ -3970,7 +3977,7 @@ window.voltarParaInicio = function() {
   atualizar();
 })();
 
-const ABA_LABELS = { fichas: '📋 Fichas', mapa: '🗺️ Mapa', imagens: '🖼️ Imagens', chat: '💬 Chat', musica: '🎵 Música' };
+const ABA_LABELS = { fichas: '📋 Fichas', npcs: '👹 NPCs', mapa: '🗺️ Mapa', imagens: '🖼️ Imagens', chat: '💬 Chat', musica: '🎵 Música' };
 
 window.toggleMenuPaginas = function() {
   document.getElementById('menuPaginasDropdown').classList.toggle('show');
@@ -3983,8 +3990,10 @@ document.addEventListener('click', e => {
 });
 
 window.mudarAba = function(aba) {
+  if (aba === 'npcs' && !modoMestre) { aba = 'fichas'; } // aba exclusiva do Mestre
   const areas = {
     fichas:  document.getElementById('fichasArea'),
+    npcs:    document.getElementById('npcsArea'),
     mapa:    document.getElementById('mapaArea'),
     imagens: document.getElementById('imagensArea'),
     chat:    document.getElementById('rightPanel'),
@@ -3992,6 +4001,7 @@ window.mudarAba = function(aba) {
   };
   const itens = {
     fichas:  document.getElementById('menuItemFichas'),
+    npcs:    document.getElementById('menuItemNpcs'),
     mapa:    document.getElementById('menuItemMapa'),
     imagens: document.getElementById('menuItemImagens'),
     chat:    document.getElementById('menuItemChat'),
@@ -4010,6 +4020,8 @@ window.mudarAba = function(aba) {
 
   document.getElementById('btnMenuPaginas').innerHTML = `☰ ${ABA_LABELS[aba] || 'Páginas'} ▾`;
   document.getElementById('menuPaginasDropdown').classList.remove('show');
+
+  if (aba === 'npcs') renderNpcsTab();
 
   if (aba === 'mapa') setTimeout(() => {
     renderMapa();
@@ -4180,6 +4192,28 @@ function desativarListenerNpc() {
 function atualizarVisibilidadeMestreUI() {
   const btn = document.getElementById('btnAddNpcFicha');
   if (btn) btn.style.display = modoMestre ? 'flex' : 'none';
+  const menuNpcs = document.getElementById('menuItemNpcs');
+  if (menuNpcs) menuNpcs.style.display = modoMestre ? 'block' : 'none';
+  // Se o Mestre desativar o modo estando na aba de NPCs, volta para Fichas
+  if (!modoMestre) {
+    const npcsArea = document.getElementById('npcsArea');
+    if (npcsArea && !npcsArea.classList.contains('collapsed')) mudarAba('fichas');
+  }
+}
+
+// Renderiza a aba exclusiva do Mestre com apenas as fichas de NPC
+function renderNpcsTab() {
+  const container = document.getElementById('npcsContainer');
+  const vazio = document.getElementById('npcsEmptyState');
+  if (!container) return;
+  const ids = Object.keys(fichasNpcData || {});
+  container.innerHTML = '';
+  if (vazio) vazio.style.display = ids.length === 0 ? 'flex' : 'none';
+  ids.forEach(id => {
+    const d = fichasNpcData[id];
+    if (d) container.appendChild(criarCard(id, d, true));
+  });
+  if (window.__iniciativaCache) renderIniciativa(window.__iniciativaCache);
 }
 
 window.criarFichaNpc = async function() {
@@ -6133,6 +6167,9 @@ function renderFichas() {
   atualizarFichaDrawerFabVisibilidade();
   const drawerOverlay = document.getElementById('fichaDrawerOverlay');
   if (drawerOverlay && drawerOverlay.classList.contains('show')) renderFichaDrawer();
+
+  // Mantém a aba exclusiva de NPCs sincronizada (se estiver aberta ou não)
+  if (modoMestre) renderNpcsTab();
 }
 
 function criarCard(slot, d, isNpc) {
