@@ -596,6 +596,44 @@
     background: var(--bg2);
     border-bottom: 1px solid var(--border);
   }
+
+  /* ── ABAS DE MAPA (Escola / Campo de Treino / Hospital etc.) ── */
+  .mapa-abas-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 8px 16px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+  }
+  .mapa-abas-lista {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .aba-mapa-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    border-radius: 7px;
+    padding: 6px 13px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .aba-mapa-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .aba-mapa-btn.ativa {
+    border-color: var(--purple);
+    color: white;
+    background: var(--purple);
+  }
+  .mapa-abas-acoes { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .mapa-toolbar-group { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
   .mapa-toolbar input[type="text"],
   .mapa-toolbar input[type="number"] {
@@ -2921,6 +2959,15 @@
 
   <!-- Mapa de Batalha -->
   <div class="mapa-area collapsed" id="mapaArea">
+    <!-- Abas de mapa (ex: Escola, Campo de Treino, Hospital) -->
+    <div class="mapa-abas-bar" id="mapaAbasBar">
+      <div class="mapa-abas-lista" id="mapaAbasLista"></div>
+      <div class="mapa-abas-acoes" id="mapaAbasAcoesMestre" style="display:none">
+        <button class="btn-mapa primary" onclick="criarNovoMapa()" title="Criar nova aba de mapa">➕ Nova Aba</button>
+        <button class="btn-mapa" onclick="renomearMapaAtual()" title="Renomear aba atual">✏️ Renomear</button>
+        <button class="btn-mapa danger" onclick="apagarMapaAtual()" title="Apagar aba atual">🗑️ Apagar Aba</button>
+      </div>
+    </div>
     <div class="mapa-toolbar" id="mapaToolbarMestre" style="display:none">
       <div class="mapa-toolbar-group">
         <input type="text" id="mapaUrlInput" placeholder="URL da imagem do mapa...">
@@ -3163,10 +3210,12 @@ let modoMestre = false;
 let modoAdminSelecao = false;
 let turnoAtual = 0;
 let turnoNumero = 1;
-let mapaData = {};
+let mapasData = {};   // { mapaId: { nome, imageUrl, cols, rows, escala, grade, tokens:{}, formas:{} } } — sincronizado pelo Firebase
+let mapaAtivoId = null; // id da aba de mapa atualmente exibida (só o Mestre troca; todos veem a mesma)
+let mapaData = {};     // atalho: sempre igual a mapasData[mapaAtivoId] || {} — mantido via sincronizarMapaAtivoLocal()
 let fichasNpcData = {};
 let dominiosAtivos = {}; // { slot: true } sincronizado pelo Firebase
-let formasData = {}; // formas desenhadas no mapa { id: { tipo, col, row, ... } }
+let formasData = {}; // atalho: sempre igual a mapaData.formas || {} — mantido via sincronizarMapaAtivoLocal()
 let modoFormaAtual = 'sel'; // sel | rect | circ | tri | line | text
 let corFormaAtual  = '#a855f7';
 let formaArrastando = null; // { col0, row0 } ao desenhar
@@ -3678,7 +3727,11 @@ function limparEstadoDoSlot(slot) {
   if (!sessaoId || !slot) return;
   remove(ref(db, `sessoes/${sessaoId}/dominiosAtivos/${slot}`));
   remove(ref(db, `sessoes/${sessaoId}/dominiosSimplesAtivos/${slot}`));
-  remove(ref(db, `sessoes/${sessaoId}/mapa/tokens/${slot}`));
+  // Remove o token do slot em TODAS as abas de mapa (não só na ativa),
+  // já que a ficha pode ter deixado um token em outra aba anteriormente.
+  Object.keys(mapasData || {}).forEach(mapaId => {
+    remove(ref(db, `sessoes/${sessaoId}/mapas/${mapaId}/tokens/${slot}`));
+  });
   remove(ref(db, `sessoes/${sessaoId}/iniciativa/${slot.replace(/\s+/g,'_')}`));
 }
 
@@ -3778,16 +3831,22 @@ function iniciarApp() {
     renderIniciativa(window.__iniciativaCache || {});
   }));
 
-  // Mapa de batalha em tempo real
-  __sessaoListeners.push(onValue(ref(db, `sessoes/${sessaoId}/mapa`), snap => {
-    mapaData = snap.val() || {};
+  // Mapas de batalha (abas) em tempo real
+  __sessaoListeners.push(onValue(ref(db, `sessoes/${sessaoId}/mapas`), snap => {
+    mapasData = snap.val() || {};
+    sincronizarMapaAtivoLocal();
     renderMapa();
+    renderAbasMapa();
+    garantirMapaInicial();
   }));
 
-  // Formas no mapa em tempo real
-  __sessaoListeners.push(onValue(ref(db, `sessoes/${sessaoId}/mapaFormas`), snap => {
-    formasData = snap.val() || {};
-    renderFormasMapa();
+  // Aba de mapa atualmente ativa (definida só pelo Mestre, vista por todos)
+  __sessaoListeners.push(onValue(ref(db, `sessoes/${sessaoId}/mapaAtivo`), snap => {
+    mapaAtivoId = snap.val() || null;
+    sincronizarMapaAtivoLocal();
+    renderMapa();
+    renderAbasMapa();
+    garantirMapaInicial();
   }));
 
   // Domínios ativos em tempo real
@@ -3852,8 +3911,11 @@ window.voltarParaInicio = function() {
   modoAdminSelecao = false;
   fichasData = {};
   fichasNpcData = {};
+  mapasData = {};
+  mapaAtivoId = null;
   mapaData = {};
   formasData = {};
+  __mapaInicializado = false;
   dominiosAtivos = {};
   dominiosSimplesAtivos = {};
   turnoAtual = 0;
@@ -3951,6 +4013,7 @@ window.mudarAba = function(aba) {
 
   if (aba === 'mapa') setTimeout(() => {
     renderMapa();
+    renderAbasMapa();
     if (!window.__formasIniciado) {
       iniciarInteracaoFormas();
       window.__formasIniciado = true;
@@ -5045,20 +5108,134 @@ window.rolarIniciativa = function(slot, dexVal) {
 /* ══════════════════════════════════════
    MAPA DE BATALHA
 ══════════════════════════════════════ */
+
+// Mantém mapaData/formasData (usados em todo o resto do código) sempre
+// apontando para a aba de mapa atualmente ativa.
+function sincronizarMapaAtivoLocal() {
+  mapaData = mapasData[mapaAtivoId] || {};
+  formasData = mapaData.formas || {};
+}
+
+// Garante que a sessão sempre tenha uma aba de mapa ativa:
+// 1) se existir um mapa no formato antigo (pré-abas), migra para "Mapa 1";
+// 2) senão, se já existem abas mas nenhuma marcada como ativa, ativa a primeira;
+// 3) senão (sessão totalmente nova), cria a primeira aba do zero.
+// Só o Mestre executa isso, e só uma vez por sessão (flag __mapaInicializado).
+let __mapaInicializado = false;
+async function garantirMapaInicial() {
+  if (!modoMestre || !sessaoId || mapaAtivoId || __mapaInicializado) return;
+  __mapaInicializado = true;
+  try {
+    const snapLegado = await get(ref(db, `sessoes/${sessaoId}/mapa`));
+    const legado = snapLegado.val();
+    if (mapaAtivoId) return; // outra chamada já resolveu enquanto aguardávamos
+    if (legado && Object.keys(mapasData || {}).length === 0) {
+      const snapFormasLegado = await get(ref(db, `sessoes/${sessaoId}/mapaFormas`));
+      const formasLegadas = snapFormasLegado.val();
+      const novoMapa = { ...legado, nome: 'Mapa 1' };
+      if (formasLegadas) novoMapa.formas = formasLegadas;
+      const novaRef = push(ref(db, `sessoes/${sessaoId}/mapas`));
+      await set(novaRef, novoMapa);
+      if (!mapaAtivoId) await set(ref(db, `sessoes/${sessaoId}/mapaAtivo`), novaRef.key);
+      return;
+    }
+    const idsExistentes = Object.keys(mapasData || {});
+    if (idsExistentes.length > 0) {
+      if (!mapaAtivoId) await set(ref(db, `sessoes/${sessaoId}/mapaAtivo`), idsExistentes[0]);
+      return;
+    }
+    const novaRef = push(ref(db, `sessoes/${sessaoId}/mapas`));
+    await set(novaRef, { nome: 'Mapa 1', cols: 20, rows: 14, escala: 1.5, grade: true });
+    if (!mapaAtivoId) await set(ref(db, `sessoes/${sessaoId}/mapaAtivo`), novaRef.key);
+  } catch(e) {
+    __mapaInicializado = false; // permite tentar de novo se algo falhar
+  }
+}
+
+// Renderiza a barra de abas (Escola / Campo de Treino / Hospital etc.)
+function renderAbasMapa() {
+  const lista = document.getElementById('mapaAbasLista');
+  const acoes = document.getElementById('mapaAbasAcoesMestre');
+  if (!lista) return;
+  if (acoes) acoes.style.display = modoMestre ? 'flex' : 'none';
+
+  const entradas = Object.entries(mapasData || {});
+  lista.innerHTML = '';
+  if (entradas.length === 0) {
+    lista.innerHTML = '<span style="font-size:11px;color:var(--text2);font-style:italic">Nenhuma aba de mapa criada ainda.</span>';
+    return;
+  }
+  entradas.forEach(([id, m]) => {
+    const btn = document.createElement('button');
+    btn.className = 'aba-mapa-btn' + (id === mapaAtivoId ? ' ativa' : '');
+    btn.textContent = m?.nome || 'Mapa sem nome';
+    btn.title = modoMestre
+      ? 'Trocar para esta aba'
+      : (id === mapaAtivoId ? 'Aba atual' : 'Apenas o Mestre pode trocar de aba');
+    btn.onclick = () => window.trocarMapa(id);
+    lista.appendChild(btn);
+  });
+}
+
+window.trocarMapa = function(id) {
+  if (!sessaoId) return;
+  if (!modoMestre) { showToast('Apenas o Mestre pode trocar de aba do mapa.', ''); return; }
+  if (id === mapaAtivoId) return;
+  set(ref(db, `sessoes/${sessaoId}/mapaAtivo`), id);
+};
+
+window.criarNovoMapa = function() {
+  if (!modoMestre || !sessaoId) return;
+  const nome = prompt('Nome da nova aba (ex: Escola, Campo de Treino, Hospital):', 'Novo Mapa');
+  if (nome === null) return;
+  const nomeFinal = nome.trim() || 'Novo Mapa';
+  const novaRef = push(ref(db, `sessoes/${sessaoId}/mapas`));
+  set(novaRef, { nome: nomeFinal, cols: 20, rows: 14, escala: 1.5, grade: true })
+    .then(() => set(ref(db, `sessoes/${sessaoId}/mapaAtivo`), novaRef.key));
+  showToast(`Aba "${nomeFinal}" criada.`, 'success');
+};
+
+window.renomearMapaAtual = function() {
+  if (!modoMestre || !sessaoId || !mapaAtivoId) return;
+  const novoNome = prompt('Novo nome para esta aba:', mapaData.nome || '');
+  if (novoNome === null) return;
+  const nomeFinal = novoNome.trim();
+  if (!nomeFinal) { showToast('O nome não pode ficar vazio.', 'error'); return; }
+  set(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/nome`), nomeFinal);
+};
+
+window.apagarMapaAtual = function() {
+  if (!modoMestre || !sessaoId || !mapaAtivoId) return;
+  const nome = mapaData.nome || 'esta aba';
+  const outrosIds = Object.keys(mapasData || {}).filter(id => id !== mapaAtivoId);
+  if (outrosIds.length === 0) {
+    showToast('Não é possível apagar a única aba de mapa. Crie outra antes.', 'error');
+    return;
+  }
+  if (!confirm(`Apagar a aba "${nome}"? Isso remove a imagem, a grade e todos os tokens/formas dela. Esta ação não pode ser desfeita.`)) return;
+  const idParaApagar = mapaAtivoId;
+  const proximoId = outrosIds[0];
+  set(ref(db, `sessoes/${sessaoId}/mapaAtivo`), proximoId).then(() => {
+    remove(ref(db, `sessoes/${sessaoId}/mapas/${idParaApagar}`));
+  });
+};
+
 window.definirMapaUrl = function() {
+  if (!mapaAtivoId) { showToast('Nenhuma aba de mapa selecionada.', 'error'); return; }
   const url = document.getElementById('mapaUrlInput').value.trim();
   if (!url) { showToast('Cole uma URL de imagem.', 'error'); return; }
-  set(ref(db, `sessoes/${sessaoId}/mapa/imageUrl`), url);
+  set(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/imageUrl`), url);
   document.getElementById('mapaUrlInput').value = '';
   showToast('Mapa atualizado!', 'success');
 };
 
 window.definirMapaArquivo = function(e) {
+  if (!mapaAtivoId) { showToast('Nenhuma aba de mapa selecionada.', 'error'); return; }
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = ev => {
-    set(ref(db, `sessoes/${sessaoId}/mapa/imageUrl`), ev.target.result);
+    set(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/imageUrl`), ev.target.result);
     showToast('Mapa atualizado!', 'success');
   };
   reader.readAsDataURL(file);
@@ -5066,13 +5243,14 @@ window.definirMapaArquivo = function(e) {
 };
 
 window.aplicarGradeMapa = function() {
+  if (!mapaAtivoId) { showToast('Nenhuma aba de mapa selecionada.', 'error'); return; }
   const cols = Math.max(4, Math.min(60, parseInt(document.getElementById('mapaCols').value)||20));
   const rows = Math.max(4, Math.min(60, parseInt(document.getElementById('mapaRows').value)||14));
   const escalaEl = document.getElementById('mapaEscala');
   const escala = Math.max(0.1, Math.min(20, parseFloat(escalaEl?.value) || 1.5));
-  set(ref(db, `sessoes/${sessaoId}/mapa/cols`), cols);
-  set(ref(db, `sessoes/${sessaoId}/mapa/rows`), rows);
-  set(ref(db, `sessoes/${sessaoId}/mapa/escala`), escala);
+  set(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/cols`), cols);
+  set(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/rows`), rows);
+  set(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/escala`), escala);
 };
 
 // Metros por quadrado do grid (padrão 1,5m — equivalente a 5ft/quadrado)
@@ -5087,17 +5265,21 @@ function formatarMetros(valor) {
 }
 
 window.toggleGradeVisivel = function() {
+  if (!mapaAtivoId) return;
   const atual = mapaData.grade !== false;
-  set(ref(db, `sessoes/${sessaoId}/mapa/grade`), !atual);
+  set(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/grade`), !atual);
 };
 
 window.limparMapa = function() {
-  if (!confirm('Limpar o mapa e remover todos os tokens? Esta ação não pode ser desfeita.')) return;
-  remove(ref(db, `sessoes/${sessaoId}/mapa`));
+  if (!mapaAtivoId) return;
+  if (!confirm('Limpar esta aba de mapa (imagem, grade e tokens)? O nome da aba é mantido. Esta ação não pode ser desfeita.')) return;
+  const nomeAtual = mapaData.nome || 'Mapa';
+  set(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}`), { nome: nomeAtual, cols: 20, rows: 14, escala: 1.5, grade: true });
 };
 
 window.adicionarMeuToken = function() {
   if (!sessaoId) return;
+  if (!mapaAtivoId) { showToast('Nenhuma aba de mapa selecionada.', 'error'); return; }
   const tokensAtuais = mapaData.tokens || {};
   if (tokensAtuais[meuSlot]) { showToast('Você já tem um token no mapa. Arraste-o para mover.', ''); return; }
   const ficha = fichasData[meuSlot] || {};
@@ -5111,7 +5293,7 @@ window.adicionarMeuToken = function() {
       if (!ocupadas.has(`${c},${r}`)) { col=c; row=r; break busca; }
     }
   }
-  set(ref(db, `sessoes/${sessaoId}/mapa/tokens/${meuSlot}`), {
+  set(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/tokens/${meuSlot}`), {
     tipo: 'pc', slot: meuSlot, nome: ficha.nome || meuNome,
     avatar: ficha.avatar || null, cor: null, col, row
   });
@@ -5119,6 +5301,7 @@ window.adicionarMeuToken = function() {
 
 window.adicionarTokenNpc = function() {
   if (!sessaoId) return;
+  if (!mapaAtivoId) { showToast('Nenhuma aba de mapa selecionada.', 'error'); return; }
   const tokensAtuais = mapaData.tokens || {};
   const npcsComFicha = Object.entries(fichasNpcData || {})
     .filter(([slot]) => !Object.values(tokensAtuais).some(t => t.tipo === 'npc' && t.slot === slot));
@@ -5152,7 +5335,7 @@ function adicionarTokenDeFichaNpc(slot, ficha) {
       if (!ocupadas.has(`${c},${r}`)) { col=c; row=r; break busca; }
     }
   }
-  const novaRef = push(ref(db, `sessoes/${sessaoId}/mapa/tokens`));
+  const novaRef = push(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/tokens`));
   set(novaRef, {
     tipo: 'npc', slot, nome: ficha.nome || 'NPC',
     avatar: ficha.avatar || null, emoji: ficha.avatar ? null : '👹', cor: null, col, row
@@ -5168,7 +5351,7 @@ function adicionarTokenNpcSolto() {
   const cor = cores[Math.floor(Math.random()*cores.length)];
   const cols = mapaData.cols || 20;
   const rows = mapaData.rows || 14;
-  const novaRef = push(ref(db, `sessoes/${sessaoId}/mapa/tokens`));
+  const novaRef = push(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/tokens`));
   set(novaRef, { tipo:'npc', slot:null, nome, emoji, cor, col: Math.floor(cols/2), row: Math.floor(rows/2) });
 }
 
@@ -5394,7 +5577,7 @@ function renderMapa() {
         e.stopPropagation();
         e.preventDefault();
         if (confirm('Remover token "' + tk.nome + '" do mapa?')) {
-          remove(ref(db, 'sessoes/' + sessaoId + '/mapa/tokens/' + id));
+          remove(ref(db, 'sessoes/' + sessaoId + '/mapas/' + mapaAtivoId + '/tokens/' + id));
         }
       });
       el.appendChild(remBtn);
@@ -5633,7 +5816,7 @@ function renderFormaSvgEl(svg, id, forma, cellSize, interativo) {
       g.addEventListener('click', ev => {
         if (modoFormaAtual !== 'sel') return;
         ev.stopPropagation();
-        if (confirm('Remover círculo de área?')) remove(ref(db, `sessoes/${sessaoId}/mapaFormas/${id}`));
+        if (confirm('Remover círculo de área?')) remove(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/formas/${id}`));
       });
     }
     svg.appendChild(g);
@@ -5678,7 +5861,7 @@ function renderFormaSvgEl(svg, id, forma, cellSize, interativo) {
       if (modoFormaAtual !== 'sel') return;
       e.stopPropagation();
       if (confirm(`Remover esta forma (${forma.tipo})?`)) {
-        remove(ref(db, `sessoes/${sessaoId}/mapaFormas/${id}`));
+        remove(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/formas/${id}`));
       }
     });
     el.style.cursor = modoFormaAtual === 'sel' ? 'pointer' : 'crosshair';
@@ -5704,21 +5887,21 @@ function renderFormasMapa() {
 }
 
 function salvarForma(forma) {
-  if (!sessaoId) return;
+  if (!sessaoId || !mapaAtivoId) return;
   // Optimistic update: mostra a forma imediatamente sem esperar o Firebase
   const tempId = '_temp_' + Date.now();
   formasData[tempId] = forma;
   renderFormasMapa();
-  push(ref(db, `sessoes/${sessaoId}/mapaFormas`), forma).then(() => {
+  push(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/formas`), forma).then(() => {
     // O listener onValue vai substituir com o ID real
     delete formasData[tempId];
   });
 }
 
 window.limparFormas = function() {
-  if (!sessaoId) return;
+  if (!sessaoId || !mapaAtivoId) return;
   if (!confirm('Remover todas as formas do mapa?')) return;
-  remove(ref(db, `sessoes/${sessaoId}/mapaFormas`));
+  remove(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/formas`));
 };
 
 // ── Interação de desenho no canvas ──
@@ -5921,8 +6104,8 @@ function ativarDragToken(el, id) {
     let row = Math.round(parseFloat(el.style.top)/cellSize);
     col = Math.max(0, Math.min(cols-1, col));
     row = Math.max(0, Math.min(rows-1, row));
-    set(ref(db, `sessoes/${sessaoId}/mapa/tokens/${id}/col`), col);
-    set(ref(db, `sessoes/${sessaoId}/mapa/tokens/${id}/row`), row);
+    set(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/tokens/${id}/col`), col);
+    set(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/tokens/${id}/row`), row);
   }
   el.addEventListener('pointerup', soltar);
   el.addEventListener('pointercancel', soltar);
