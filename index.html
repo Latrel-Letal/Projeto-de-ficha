@@ -2530,13 +2530,24 @@
     overflow: hidden;
     pointer-events: none;
     opacity: 0;
-    animation: gOverlayFade 8.5s ease forwards;
+    animation: gOverlayFade 6.9s ease forwards, gScreenShake 0.55s ease-in-out 3.7s;
   }
   @keyframes gOverlayFade {
     0%   { opacity: 0; }
-    4%   { opacity: 1; }
-    88%  { opacity: 1; }
+    5%   { opacity: 1; }
+    86%  { opacity: 1; }
     100% { opacity: 0; }
+  }
+  /* tremor de câmera no instante da explosão */
+  @keyframes gScreenShake {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    10% { transform: translate(-10px, 6px) scale(1.015); }
+    22% { transform: translate(12px, -8px) scale(1.02); }
+    36% { transform: translate(-14px, -5px) scale(1.015); }
+    50% { transform: translate(10px, 8px) scale(1.01); }
+    64% { transform: translate(-8px, -6px) scale(1.008); }
+    78% { transform: translate(6px, 4px) scale(1.004); }
+    90% { transform: translate(-3px, 2px) scale(1.001); }
   }
 
   /* fundo de névoa escura que pulsa suavemente */
@@ -2572,7 +2583,7 @@
   .gabriel-overlay .g-tendrils-svg {
     position: absolute; inset: 0; width: 100%; height: 100%;
     z-index: 4; opacity: 0;
-    animation: gTendrilsIn 2s ease 0.8s forwards;
+    animation: gTendrilsIn 1.5s ease 0.5s forwards;
   }
   @keyframes gTendrilsIn {
     0%  { opacity: 0; }
@@ -2585,7 +2596,7 @@
     stroke-linecap: round;
     stroke-dasharray: 600;
     stroke-dashoffset: 600;
-    animation: gTendrilDraw 3s ease forwards;
+    animation: gTendrilDraw 2.2s ease forwards;
   }
   @keyframes gTendrilDraw {
     0%   { stroke-dashoffset: 600; opacity: 0; }
@@ -2605,14 +2616,14 @@
     object-fit: contain;
     opacity: 0;
     filter: brightness(0) drop-shadow(0 0 0px rgba(100,20,255,0));
-    animation: gCharEmerge 2.8s cubic-bezier(0.4, 0, 0.2, 1) 0.6s forwards;
+    animation: gCharEmerge 1.9s cubic-bezier(0.4, 0, 0.2, 1) 0.4s forwards;
   }
   /* personagem emerge das sombras: começa escuro e vai clareando */
   @keyframes gCharEmerge {
-    0%   { opacity: 0;   filter: brightness(0) drop-shadow(0 0 0px rgba(100,20,255,0)); transform: scale(1.04) translateY(12px); }
-    25%  { opacity: 0.3; filter: brightness(0.15) drop-shadow(0 0 20px rgba(80,0,180,0.6)); transform: scale(1.02) translateY(6px); }
-    55%  { opacity: 0.7; filter: brightness(0.5) drop-shadow(0 0 35px rgba(100,20,255,0.8)); transform: scale(1.01) translateY(2px); }
-    100% { opacity: 1;   filter: brightness(1) drop-shadow(0 0 50px rgba(100,20,255,0.7)) drop-shadow(0 0 100px rgba(0,0,0,1)); transform: scale(1) translateY(0); }
+    0%   { opacity: 0;   filter: brightness(0) drop-shadow(0 0 0px rgba(100,20,255,0)); transform: scale(1.06) translateY(14px); }
+    25%  { opacity: 0.35;filter: brightness(0.18) drop-shadow(0 0 25px rgba(80,0,180,0.7)); transform: scale(1.03) translateY(7px); }
+    55%  { opacity: 0.75;filter: brightness(0.55) drop-shadow(0 0 45px rgba(100,20,255,0.9)); transform: scale(1.01) translateY(2px); }
+    100% { opacity: 1;   filter: brightness(1.08) drop-shadow(0 0 65px rgba(120,40,255,0.85)) drop-shadow(0 0 120px rgba(0,0,0,1)); transform: scale(1) translateY(0); }
   }
 
   /* ── NOME DO PERSONAGEM ── */
@@ -2624,7 +2635,7 @@
     -webkit-background-clip: text; background-clip: text;
     text-transform: uppercase; margin-top: -4px;
     opacity: 0;
-    animation: gNameFade 1.2s ease 2.6s forwards;
+    animation: gNameFade 0.9s ease 1.8s forwards;
   }
   @keyframes gNameFade {
     0%   { opacity:0; letter-spacing:20px; }
@@ -2659,7 +2670,7 @@
     background: #000;
     z-index: 14; pointer-events: none;
     opacity: 0;
-    animation: gVeilPulse 2s ease 3.8s forwards;
+    animation: gVeilPulse 1.3s ease 2.6s forwards;
   }
   @keyframes gVeilPulse {
     0%  { opacity: 0; }
@@ -2674,7 +2685,7 @@
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     z-index: 20; opacity: 0;
-    animation: gExplosionIn 0.5s ease 5.2s forwards;
+    animation: gExplosionIn 0.4s ease 3.6s forwards;
   }
   @keyframes gExplosionIn { 0%{opacity:0} 100%{opacity:1} }
 
@@ -2682,24 +2693,39 @@
     position: absolute; top:50%; left:50%;
     width: 8px; height: 8px; margin: -4px 0 0 -4px;
     border-radius: 50%;
-    border: 2px solid rgba(100, 10, 255, 0.95);
-    box-shadow: 0 0 50px 12px rgba(80, 0, 200, 0.7);
+    border: 3px solid rgba(120, 30, 255, 1);
+    box-shadow: 0 0 70px 16px rgba(90, 0, 220, 0.85);
     opacity: 0;
-    animation: gRingExpand 1.6s cubic-bezier(0.05, 0.9, 0.25, 1) 5.3s forwards;
+    animation: gRingExpand 1.3s cubic-bezier(0.05, 0.9, 0.25, 1) 3.65s forwards;
   }
   @keyframes gRingExpand {
-    0%  { width:8px;height:8px;margin:-4px 0 0 -4px;opacity:1;border-width:2px; }
-    65% { opacity:0.5; border-width:1px; }
+    0%  { width:8px;height:8px;margin:-4px 0 0 -4px;opacity:1;border-width:3px; }
+    60% { opacity:0.6; border-width:1.5px; }
     100%{ width:220vmax;height:220vmax;margin:-110vmax 0 0 -110vmax;opacity:0;border-width:0; }
+  }
+  .gabriel-overlay .g-ring2 {
+    position: absolute; top:50%; left:50%;
+    width: 8px; height: 8px; margin: -4px 0 0 -4px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(200, 140, 255, 0.9);
+    opacity: 0;
+    animation: gRingExpand 1.3s cubic-bezier(0.05, 0.9, 0.25, 1) 3.85s forwards;
   }
 
   .gabriel-overlay .g-bflash {
     position: absolute; inset: 0;
-    background: radial-gradient(circle at center, rgba(70,0,200,0.9) 0%, transparent 60%);
+    background: radial-gradient(circle at center, rgba(150,60,255,0.95) 0%, rgba(70,0,200,0.6) 40%, transparent 65%);
     opacity: 0; z-index: 22; pointer-events: none;
-    animation: gBflash 0.5s ease-out 5.3s forwards;
+    animation: gBflash 0.4s ease-out 3.65s forwards;
   }
-  @keyframes gBflash { 0%{opacity:0} 25%{opacity:1} 100%{opacity:0} }
+  @keyframes gBflash { 0%{opacity:0} 30%{opacity:1} 100%{opacity:0} }
+
+  .gabriel-overlay .g-bflash2 {
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.75) 0%, transparent 45%);
+    opacity: 0; z-index: 23; pointer-events: none;
+    animation: gBflash 0.22s ease-out 3.68s forwards;
+  }
 
   /* grid sutil surgindo */
   .gabriel-overlay .g-grid {
@@ -2708,44 +2734,44 @@
       linear-gradient(rgba(70, 0, 130, 0.1) 1px, transparent 1px),
       linear-gradient(90deg, rgba(70, 0, 130, 0.1) 1px, transparent 1px);
     background-size: 55px 55px;
-    animation: gGridIn 1.5s ease 5s forwards;
+    animation: gGridIn 1.1s ease 3.3s forwards;
   }
   @keyframes gGridIn { 0%{opacity:0} 100%{opacity:0.6} }
 
   .gabriel-overlay .g-kanji {
     font-family:'Cinzel',serif; font-size:18px; letter-spacing:10px;
-    color: rgba(130,50,255,0.85);
-    text-shadow: 0 0 25px rgba(100,20,255,0.7);
+    color: rgba(150,70,255,0.9);
+    text-shadow: 0 0 30px rgba(120,30,255,0.85);
     opacity:0; margin-bottom:10px; position:relative; z-index:25;
-    animation: gFadeUp 0.8s ease 5.5s forwards;
+    animation: gFadeUp 0.6s ease 3.85s forwards;
   }
   .gabriel-overlay .g-pre-title {
     font-family:'Cinzel',serif; font-size:13px; letter-spacing:8px;
-    color: #8040ff; text-shadow: 0 0 18px rgba(100,20,255,0.8);
+    color: #9050ff; text-shadow: 0 0 20px rgba(110,20,255,0.9);
     opacity:0; text-transform:uppercase; margin-bottom:6px;
     position:relative; z-index:25;
-    animation: gFadeUp 0.8s ease 5.8s forwards;
+    animation: gFadeUp 0.6s ease 4.05s forwards;
   }
   .gabriel-overlay .g-main-title {
     font-family:'Cinzel',serif;
     font-size: clamp(24px, 5vw, 52px);
-    color: #f0e8ff;
-    text-shadow: 0 0 18px rgba(100,20,255,1), 0 0 55px rgba(80,0,200,0.5);
+    color: #f5edff;
+    text-shadow: 0 0 22px rgba(120,30,255,1), 0 0 65px rgba(90,0,220,0.65), 0 0 110px rgba(140,60,255,0.35);
     opacity:0; line-height:1.1; text-align:center;
     position:relative; z-index:25;
-    animation: gTitleImpact 0.7s cubic-bezier(0.15, 1.4, 0.4, 1) 5.95s forwards;
+    animation: gTitleImpact 0.55s cubic-bezier(0.15, 1.4, 0.4, 1) 4.2s forwards;
   }
   @keyframes gTitleImpact {
-    0%  { opacity:0; transform:scale(1.5); letter-spacing:18px; }
+    0%  { opacity:0; transform:scale(1.6); letter-spacing:20px; }
     100%{ opacity:1; transform:scale(1);   letter-spacing:3px; }
   }
   .gabriel-overlay .g-sub-title {
     font-family:'Cinzel',serif;
     font-size: clamp(12px, 2.5vw, 26px);
-    letter-spacing:5px; color:#b070ff;
-    text-shadow: 0 0 20px rgba(100,20,255,0.7);
+    letter-spacing:5px; color:#c090ff;
+    text-shadow: 0 0 22px rgba(110,20,255,0.8);
     opacity:0; margin-top:8px; position:relative; z-index:25;
-    animation: gFadeUp 0.7s ease 6.5s forwards;
+    animation: gFadeUp 0.55s ease 4.55s forwards;
   }
   @keyframes gFadeUp {
     0%  { opacity:0; transform:translateY(10px); }
@@ -2760,7 +2786,7 @@
     background: rgba(6,0,16,0.9);
     border:1px solid rgba(90,10,220,0.35); border-radius:12px;
     padding:14px 20px; z-index:30; opacity:0;
-    animation: gFadeUp 0.9s ease 7s forwards;
+    animation: gFadeUp 0.7s ease 4.9s forwards;
     text-align:center;
   }
   .gabriel-overlay .g-eff-title {
@@ -4402,10 +4428,10 @@ function tocarAnimacaoGabriel(charName) {
 
   // Partículas
   let particles = '';
-  for (let i = 0; i < 65; i++) {
+  for (let i = 0; i < 70; i++) {
     const left  = Math.random() * 100;
-    const delay = (Math.random() * 6).toFixed(2);
-    const dur   = (3 + Math.random() * 4).toFixed(2);
+    const delay = (Math.random() * 4.5).toFixed(2);
+    const dur   = (2.2 + Math.random() * 3).toFixed(2);
     const size  = (2 + Math.random() * 5).toFixed(1);
     particles += `<div class="g-particle" style="left:${left}%;bottom:-8px;width:${size}px;height:${size}px;animation-duration:${dur}s;animation-delay:${delay}s;"></div>`;
   }
@@ -4445,7 +4471,7 @@ function tocarAnimacaoGabriel(charName) {
     `M ${W},${H*0.8} C ${W*0.8},${H*0.7} ${W*0.65},${H*0.75} ${cx*1.2},${cy*1.05}`,
   ];
   const tendrilPaths = tendrilDefs.map((d,i) =>
-    `<path class="g-tendril-path" d="${d}" style="animation-delay:${0.5+i*0.3}s;stroke-width:${1.5+i%2};"/>`
+    `<path class="g-tendril-path" d="${d}" style="animation-delay:${0.3+i*0.2}s;stroke-width:${1.5+i%2};"/>`
   ).join('');
 
   overlay.innerHTML = `
@@ -4471,7 +4497,9 @@ function tocarAnimacaoGabriel(charName) {
 
     <div class="g-explosion">
       <div class="g-ring"></div>
+      <div class="g-ring2"></div>
       <div class="g-bflash"></div>
+      <div class="g-bflash2"></div>
       <div class="g-kanji">領域展開</div>
       <div class="g-pre-title">Arsenal das</div>
       <div class="g-main-title">SOMBRAS<br>ETERNAS</div>
@@ -4490,19 +4518,43 @@ function tocarAnimacaoGabriel(charName) {
     </div>
   `;
 
+  // Pré-carrega o áudio o quanto antes (a decodificação do base64 leva um
+  // tempinho; começar isso já, antes de montar o DOM, reduz o atraso entre
+  // o vídeo do personagem começando a emergir e o som realmente tocar).
+  let g_audio;
+  try {
+    g_audio = new Audio('data:audio/mp3;base64,' + GABRIEL_AUDIO_B64);
+    g_audio.volume = 0.9;
+    g_audio.preload = 'auto';
+    g_audio.load();
+  } catch(e) {}
+
   document.body.appendChild(overlay);
 
-  // Áudio toca junto com a foto emergindo
-  setTimeout(() => {
-    try {
-      const audio = new Audio('data:audio/mp3;base64,' + GABRIEL_AUDIO_B64);
-      audio.volume = 0.9;
-      audio.play().catch(() => {});
-    } catch(e) {}
-  }, 600);
+  const video = overlay.querySelector('.g-char-img');
 
-  // Remove overlay após animação
-  setTimeout(() => overlay.remove(), 8600);
+  // Dispara o áudio assim que ele estiver pronto para tocar sem travar,
+  // em vez de um tempo fixo às cegas — isso mantém a música sincronizada
+  // com o exato instante em que o personagem começa a emergir das sombras.
+  let __audioIniciado = false;
+  const iniciarAudio = () => {
+    if (__audioIniciado) return;
+    __audioIniciado = true;
+    try { g_audio.play().catch(()=>{}); } catch(e) {}
+  };
+  if (g_audio) {
+    if (g_audio.readyState >= 3) {
+      setTimeout(iniciarAudio, 350);
+    } else {
+      g_audio.addEventListener('canplaythrough', iniciarAudio, { once: true });
+      setTimeout(iniciarAudio, 600); // fallback, caso o evento não dispare a tempo
+    }
+  }
+  // Garante que o vídeo do personagem também comece exatamente junto
+  if (video) { try { video.currentTime = 0; video.play().catch(()=>{}); } catch(e) {} }
+
+  // Remove overlay após a animação (duração total ~6.9s + folga de leitura)
+  setTimeout(() => { overlay.remove(); try { g_audio && g_audio.pause(); } catch(e){} }, 7000);
 }
 
 /* ══════════════════════════════════════
