@@ -451,6 +451,17 @@
   .main-layout.visible { display: flex; align-items: flex-start; }
 
   /* ── FICHAS AREA ── */
+  .fichas-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    padding: 8px 14px 0;
+  }
+  .fichas-area.collapsed .fichas-toolbar { display: none; }
+  #btnToggleSoMinha.ativo {
+    border-color: var(--purple);
+    color: var(--purple);
+    background: var(--purple-glow);
+  }
   .fichas-area {
     flex: 1;
     min-width: 0;
@@ -2955,6 +2966,9 @@
 
   <!-- Fichas -->
   <div class="fichas-area" id="fichasArea">
+    <div class="fichas-toolbar" id="fichasToolbar">
+      <button class="btn-mapa" id="btnToggleSoMinha" onclick="toggleSoMinhaFicha()">👁️ Ver só a minha ficha</button>
+    </div>
     <div class="fichas-container" id="fichasContainer"></div>
   </div>
 
@@ -3214,6 +3228,10 @@ let meuUid     = null;
 let authPronto = false;
 let fichasData = {};
 let modoMestre = false;
+// Preferência pessoal de UI (só afeta a tela de quem ativou, não é sincronizada
+// pelo Firebase): mostrar apenas a própria ficha na aba "Fichas", escondendo
+// as fichas dos outros jogadores. Fica salva no localStorage do navegador.
+let mostrarSoMinhaFicha = localStorage.getItem('jjk_soMinhaFicha') === '1';
 let modoAdminSelecao = false;
 let turnoAtual = 0;
 let turnoNumero = 1;
@@ -4194,11 +4212,33 @@ function atualizarVisibilidadeMestreUI() {
   if (btn) btn.style.display = modoMestre ? 'flex' : 'none';
   const menuNpcs = document.getElementById('menuItemNpcs');
   if (menuNpcs) menuNpcs.style.display = modoMestre ? 'block' : 'none';
+  // O filtro "só a minha ficha" é uma preferência de jogador; o Mestre já tem
+  // a visão completa (e a aba própria de NPCs), então a toolbar some pra ele.
+  const toolbar = document.getElementById('fichasToolbar');
+  if (toolbar) toolbar.style.display = modoMestre ? 'none' : 'flex';
+  atualizarBotaoSoMinhaFicha();
   // Se o Mestre desativar o modo estando na aba de NPCs, volta para Fichas
   if (!modoMestre) {
     const npcsArea = document.getElementById('npcsArea');
     if (npcsArea && !npcsArea.classList.contains('collapsed')) mudarAba('fichas');
   }
+}
+
+// Alterna a preferência "ver só a minha ficha" na aba Fichas.
+// É puramente local (localStorage) — não mexe em nada no Firebase,
+// então não afeta o que os outros jogadores veem.
+window.toggleSoMinhaFicha = function() {
+  mostrarSoMinhaFicha = !mostrarSoMinhaFicha;
+  try { localStorage.setItem('jjk_soMinhaFicha', mostrarSoMinhaFicha ? '1' : '0'); } catch(e) {}
+  atualizarBotaoSoMinhaFicha();
+  renderFichas();
+};
+
+function atualizarBotaoSoMinhaFicha() {
+  const btn = document.getElementById('btnToggleSoMinha');
+  if (!btn) return;
+  btn.classList.toggle('ativo', mostrarSoMinhaFicha);
+  btn.textContent = mostrarSoMinhaFicha ? '👁️ Mostrando só a minha' : '👁️ Ver só a minha ficha';
 }
 
 // Renderiza a aba exclusiva do Mestre com apenas as fichas de NPC
@@ -6154,12 +6194,22 @@ function renderFichas() {
   const container = document.getElementById('fichasContainer');
   const ids = Object.keys(fichasData);
   document.getElementById('onlineCount').textContent = ids.length;
-  const ordem = modoMestre ? [...ids, ...Object.keys(fichasNpcData)] : [meuSlot, ...ids.filter(id => id !== meuSlot)];
+  let ordem;
+  if (modoMestre) {
+    ordem = [...ids, ...Object.keys(fichasNpcData)];
+  } else if (mostrarSoMinhaFicha) {
+    ordem = ids.includes(meuSlot) ? [meuSlot] : [];
+  } else {
+    ordem = [meuSlot, ...ids.filter(id => id !== meuSlot)];
+  }
   container.innerHTML = '';
   ordem.forEach(id => {
     const d = fichasData[id] || fichasNpcData[id];
     if (d) container.appendChild(criarCard(id, d, !!fichasNpcData[id]));
   });
+  if (!modoMestre && mostrarSoMinhaFicha && !ids.includes(meuSlot)) {
+    container.innerHTML = '<div style="padding:24px 8px;color:var(--text2);text-align:center;">Sua ficha ainda não está pronta.</div>';
+  }
   // Re-aplicar destaque de turno
   if (window.__iniciativaCache) renderIniciativa(window.__iniciativaCache);
 
