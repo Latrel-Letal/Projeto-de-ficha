@@ -4446,19 +4446,28 @@ function tocarAnimacaoGabriel(charName) {
 //  • EA investido na expansão (mesmos 80% do EA atual cobrados na ativação)
 //  • 30% do EA máximo (capacidade amaldiçoada total do feiticeiro)
 //  • Nível do personagem × 3
-//  • Maior modificador mental (INT ou WIS) × 2
+//  • Modificador de conjuração específico da classe × 2:
+//      Caster → Sabedoria (WIS) · Lutador → Força (FOR) ·
+//      Shikigami → Inteligência (INT) · Fala Amaldiçoada → Constituição (CON)
+const ATRIBUTO_CONJURACAO_POR_CLASSE = {
+  caster:    'wis',
+  lutador:   'for',
+  shikigami: 'int',
+  fala:      'con',
+};
 function calcularPoderDominio(ficha) {
   if (!ficha) return 0;
   const eaAtual = Number(ficha.ea) || 0;
   const eaMax   = Number(ficha.eaMax) || 0;
   const m = String(ficha.nivel || '').match(/\d+/);
   const nivelNum = m ? parseInt(m[0], 10) : 1;
-  const intMod = Math.floor((Number(ficha.int || 10) - 10) / 2);
-  const wisMod = Math.floor((Number(ficha.wis || 10) - 10) / 2);
-  const modMental = Math.max(intMod, wisMod);
+
+  const classeAtual = ficha.classe || 'caster';
+  const atributoChave = ATRIBUTO_CONJURACAO_POR_CLASSE[classeAtual] || 'wis';
+  const modConjuracao = Math.floor((Number(ficha[atributoChave] || 10) - 10) / 2);
 
   const custoExpansao = Math.floor(eaAtual * 0.8);
-  const poder = custoExpansao + Math.round(eaMax * 0.3) + (nivelNum * 3) + (modMental * 2);
+  const poder = custoExpansao + Math.round(eaMax * 0.3) + (nivelNum * 3) + (modConjuracao * 2);
   return Math.max(1, poder);
 }
 
