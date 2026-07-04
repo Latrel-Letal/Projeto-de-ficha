@@ -1624,6 +1624,26 @@
   }
   .btn-usar-habilidade:hover { background: var(--gold); color: #0a0a0f; }
 
+  /* ── HABILIDADES DE CONCENTRAÇÃO ── */
+  .badge-concentracao {
+    font-size: 9px; font-weight: 700; color: var(--purple);
+    border: 1px solid rgba(168,85,247,0.5); background: rgba(168,85,247,0.1);
+    border-radius: 5px; padding: 2px 6px; white-space: nowrap; flex-shrink: 0;
+  }
+  .btn-toggle-concentracao {
+    border-radius: 5px; padding: 2px 7px; font-size: 10px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
+    background: transparent;
+  }
+  .btn-toggle-concentracao.ligar { border: 1px solid rgba(168,85,247,0.5); color: var(--purple); }
+  .btn-toggle-concentracao.ligar:hover { background: var(--purple); color: white; }
+  .btn-toggle-concentracao.desligar { border: 1px solid rgba(255,74,74,0.5); color: var(--red); }
+  .btn-toggle-concentracao.desligar:hover { background: var(--red); color: white; }
+  .tecnica-item.concentracao-ativa, .passiva-item.concentracao-ativa {
+    border-color: rgba(168,85,247,0.6) !important;
+    box-shadow: 0 0 0 1px rgba(168,85,247,0.25) inset;
+  }
+
   /* ── ATTR CLICÁVEL ── */
   .attr-box.clicavel { cursor: pointer; transition: all 0.15s; }
   .attr-box.clicavel:hover {
@@ -4128,6 +4148,16 @@ window.avancarTurno = function(dir) {
   if (entries.length === 0) return;
   entries.sort((a, b) => b.total - a.total);
 
+  // Regras automáticas por turno (só disparam ao AVANÇAR — dir > 0 —, não ao voltar):
+  // 1) Checa toda habilidade de concentração ativa (técnicas, feitiços, passivas
+  //    e Domínio Simples, que por regra é sempre concentração) e pergunta se
+  //    deve continuar ativa, cobrando o custo em EA ou desligando.
+  // 2) Regenera 10% do EA máximo de cada personagem (jogadores e NPCs).
+  if (dir > 0) {
+    processarConcentracoesNoAvancoDeTurno();
+    regenerarEaDeTodos();
+  }
+
   const novoIndice = (turnoAtual + dir + entries.length) % entries.length;
   let novoNumero = turnoNumero;
   if (dir > 0 && novoIndice === 0) novoNumero++;
@@ -4137,6 +4167,94 @@ window.avancarTurno = function(dir) {
   const nome = entries[novoIndice]?.charName || '';
   enviarSistema(`⚔️ Turno ${novoNumero} — vez de ${nome}.`);
 };
+
+// Percorre todos os personagens visíveis para este cliente (jogadores sempre;
+// NPCs só quando quem está avançando o turno é o Mestre, já que fichasNpcData
+// só é carregado nesse modo) procurando Habilidades de Concentração ativas.
+// Para cada uma, pergunta se deve continuar ativa: se sim, cobra o custo em
+// EA (ou desliga automaticamente se não houver EA suficiente); se não, desliga.
+function processarConcentracoesNoAvancoDeTurno() {
+  const todasFichas = { ...fichasData, ...fichasNpcData };
+
+  Object.entries(todasFichas).forEach(([slot, ficha]) => {
+    if (!ficha) return;
+    const isNpc = !!fichasNpcData[slot];
+    const charName = ficha.nome || slot;
+
+    ['tecnicasInatas', 'feiticos', 'passivas'].forEach(campo => {
+      const raw = ficha[campo];
+      const lista = Array.isArray(raw) ? raw : Object.values(raw || {});
+      lista.forEach((item, idx) => {
+        if (!item || !item.concentracao || !item.ativa) return;
+        const custoNum = parseCustoEA(item.custo);
+        const nomeItem = item.nome || 'Habilidade';
+
+        const manter = confirm(`🔄 Habilidade de Concentração ativa:\n\n"${nomeItem}" (${charName})\nCusto por turno: ${custoNum} EA\n\nManter ativa neste turno?`);
+
+        const fichaAgora = getFicha(slot);
+        const listaAgora = Array.isArray(fichaAgora?.[campo]) ? [...fichaAgora[campo]] : Object.values(fichaAgora?.[campo] || {});
+        if (!listaAgora[idx]) return;
+
+        if (!manter) {
+          listaAgora[idx] = { ...listaAgora[idx], ativa: false };
+          salvar(slot, campo, listaAgora, isNpc);
+          enviarSistema(`✋ ${charName} encerrou "${nomeItem}".`);
+          return;
+        }
+
+        const eaAgora = Number(fichaAgora?.ea) || 0;
+        if (custoNum > 0 && eaAgora < custoNum) {
+          listaAgora[idx] = { ...listaAgora[idx], ativa: false };
+          salvar(slot, campo, listaAgora, isNpc);
+          enviarSistema(`⚠️ ${charName} não teve EA suficiente para manter "${nomeItem}" — desativada automaticamente.`);
+          return;
+        }
+        if (custoNum > 0) salvar(slot, 'ea', eaAgora - custoNum, isNpc);
+        enviarSistema(`🔄 ${charName} manteve "${nomeItem}" ativa (-${custoNum} EA).`);
+      });
+    });
+
+    // Domínio Simples — por regra, é sempre tratado como Habilidade de Concentração.
+    if (dominiosSimplesAtivos[slot]) {
+      const dominioSimples = ficha.dominioSimples || dominioSimplesDefault();
+      const custoNum = parseCustoEA(dominioSimples.custo);
+
+      const manter = confirm(`🔄 Habilidade de Concentração ativa:\n\n"Domínio Simples" (${charName})\nCusto por turno: ${custoNum} EA\n\nManter ativo neste turno?`);
+
+      if (!manter) {
+        remove(ref(db, `sessoes/${sessaoId}/dominiosSimplesAtivos/${slot}`));
+        enviarSistema(`🛡️ Domínio Simples de ${charName} encerrado.`);
+        return;
+      }
+
+      const fichaAgora = getFicha(slot);
+      const eaAgora = Number(fichaAgora?.ea) || 0;
+      if (custoNum > 0 && eaAgora < custoNum) {
+        remove(ref(db, `sessoes/${sessaoId}/dominiosSimplesAtivos/${slot}`));
+        enviarSistema(`⚠️ ${charName} não teve EA suficiente para manter o Domínio Simples — encerrado automaticamente.`);
+        return;
+      }
+      if (custoNum > 0) salvar(slot, 'ea', eaAgora - custoNum, isNpc);
+      enviarSistema(`🔄 ${charName} manteve o Domínio Simples ativo (-${custoNum} EA).`);
+    }
+  });
+}
+
+// Regeneração automática de EA a cada avanço de turno: 10% do EA máximo de
+// cada personagem (jogadores e NPCs), sem ultrapassar o EA máximo.
+function regenerarEaDeTodos() {
+  const todasFichas = { ...fichasData, ...fichasNpcData };
+  Object.entries(todasFichas).forEach(([slot, ficha]) => {
+    if (!ficha) return;
+    const eaMax = Number(ficha.eaMax) || 0;
+    if (eaMax <= 0) return;
+    const isNpc = !!fichasNpcData[slot];
+    const eaAtual = Number(ficha.ea) || 0;
+    const regen = Math.ceil(eaMax * 0.10);
+    const eaNovo = Math.min(eaMax, eaAtual + regen);
+    if (eaNovo !== eaAtual) salvar(slot, 'ea', eaNovo, isNpc);
+  });
+}
 
 window.limparIniciativa = function() {
   if (!sessaoId) return;
@@ -5890,23 +6008,38 @@ function criarCard(slot, d, isNpc) {
   // — passivas —
   const secPassivas = `
     <div class="passivas-list" id="passivas-${slot}">
-      ${passivas.map((p, i) => `
-      <div class="passiva-box passiva-item" data-idx="${i}">
+      ${passivas.map((p, i) => {
+        const custoNumP = parseCustoEA(p.custo);
+        const isConcP = !!p.concentracao;
+        const isAtivaP = isConcP && !!p.ativa;
+        const badgeConcP = isConcP
+          ? `<span class="badge-concentracao" title="Habilidade de Concentração: fica ativa e consome EA por turno até ser desligada">🔄 Concentração${isAtivaP ? ' • Ativa' : ''}</span>`
+          : '';
+        const botaoAcaoP = !ismine ? '' : isConcP
+          ? `<button class="btn-toggle-concentracao ${isAtivaP ? 'desligar' : 'ligar'}"
+              data-campo="passivas" data-idx="${i}"
+              data-nome="${(p.nome||'Passiva').replace(/"/g,'&quot;')}"
+              data-custo-num="${custoNumP}">${isAtivaP ? '✕ Desligar' : '🔄 Ativar'}</button>`
+          : `<button class="btn-usar-habilidade"
+              data-nome="${(p.nome||'Passiva').replace(/"/g,'&quot;')}"
+              data-custo="${(p.custo||'').replace(/"/g,'&quot;')}"
+              data-custo-num="${custoNumP}"
+              data-efeito="${(p.efeito||'').replace(/"/g,'&quot;')}"
+              data-desc="">⚡ Usar</button>`;
+        return `
+      <div class="passiva-box passiva-item${isAtivaP?' concentracao-ativa':''}" data-idx="${i}">
         ${ismine && passivas.length > 1 ? `<button class="btn-del-passiva" data-idx="${i}" title="Remover passiva">✕</button>` : ''}
         <div class="passiva-top">
           <div class="passiva-title" ${ea} data-field="passivas/${i}/nome">${p.nome||'Nome da Passiva'}</div>
           <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+            ${badgeConcP}
             <span class="tecnica-custo" ${ea} data-field="passivas/${i}/custo">${p.custo||'— EA'}</span>
-            ${ismine ? `<button class="btn-usar-habilidade"
-              data-nome="${(p.nome||'Passiva').replace(/"/g,'&quot;')}"
-              data-custo="${(p.custo||'').replace(/"/g,'&quot;')}"
-              data-custo-num="${parseCustoEA(p.custo)}"
-              data-efeito="${(p.efeito||'').replace(/"/g,'&quot;')}"
-              data-desc="">⚡ Usar</button>` : ''}
+            ${botaoAcaoP}
           </div>
         </div>
         <div class="passiva-efeito" ${ea} data-field="passivas/${i}/efeito">${p.efeito||'Descreva o efeito da passiva...'}</div>
-      </div>`).join('')}
+      </div>`;
+      }).join('')}
     </div>
     ${ismine ? `<button class="btn-add-passiva" data-slot="${slot}">＋ Adicionar Passiva</button>` : ''}`;
 
@@ -6109,6 +6242,39 @@ function criarCard(slot, d, isNpc) {
       });
     });
 
+    // Botões LIGAR/DESLIGAR de Habilidades de Concentração (técnicas, feitiços, passivas)
+    card.querySelectorAll('.btn-toggle-concentracao').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const campo = btn.dataset.campo;
+        const idx = parseInt(btn.dataset.idx);
+        const nome = btn.dataset.nome;
+        const custoNum = parseInt(btn.dataset.custoNum) || 0;
+        const ligando = btn.classList.contains('ligar');
+        const fichaAtual = getFicha(slot);
+        if (!fichaAtual) return;
+        const rawAtual = fichaAtual[campo];
+        const listaAtual = Array.isArray(rawAtual) ? [...rawAtual] : Object.values(rawAtual || {});
+        if (!listaAtual[idx]) return;
+        const charName = fichaAtual.nome || slot;
+
+        if (ligando) {
+          const eaAtual = Number(fichaAtual.ea) || 0;
+          if (custoNum > 0 && eaAtual < custoNum) {
+            showToast(`❌ EA insuficiente! Você tem ${eaAtual} EA, mas "${nome}" custa ${custoNum} EA.`, 'error');
+            return;
+          }
+          if (custoNum > 0) salvar(slot, 'ea', eaAtual - custoNum, isNpc);
+          listaAtual[idx] = { ...listaAtual[idx], ativa: true };
+          salvar(slot, campo, listaAtual, isNpc);
+          enviarSistema(`🔄 ${charName} ativou a concentração em "${nome}"${custoNum>0?` (-${custoNum} EA)`:''}.`);
+        } else {
+          listaAtual[idx] = { ...listaAtual[idx], ativa: false };
+          salvar(slot, campo, listaAtual, isNpc);
+          enviarSistema(`✋ ${charName} encerrou a concentração em "${nome}".`);
+        }
+      });
+    });
+
     // Avatar click
     const avatarEl = card.querySelector('.avatar-circle');
     const fileInput = card.querySelector('.avatar-input');
@@ -6164,7 +6330,8 @@ function criarCard(slot, d, isNpc) {
         } else {
           passAtual = [passivaDefault()];
         }
-        salvar(slot, 'passivas', [...passAtual, passivaDefault()], isNpc);
+        const ehConcentracao = confirm('Esta será uma Habilidade de Concentração?\n\nHabilidades de concentração ficam ativas e consomem EA automaticamente a cada turno, até serem desligadas.');
+        salvar(slot, 'passivas', [...passAtual, { ...passivaDefault(), concentracao: ehConcentracao, ativa: false }], isNpc);
       });
     }
 
@@ -6205,7 +6372,8 @@ function criarCard(slot, d, isNpc) {
         const fichaAtual = getFicha(slot);
         const atualRaw = fichaAtual?.[campo];
         const atual = Array.isArray(atualRaw) ? atualRaw : Object.values(atualRaw || {});
-        const novoItem = { nome: campo==='feiticos' ? 'Novo Feitiço' : 'Nova Técnica', custo:'— EA', efeito:'Alcance / Dano / Salvaguarda', desc:'Descreva o efeito...' };
+        const ehConcentracao = confirm('Esta será uma Habilidade de Concentração?\n\nHabilidades de concentração ficam ativas e consomem EA automaticamente a cada turno, até serem desligadas.');
+        const novoItem = { nome: campo==='feiticos' ? 'Novo Feitiço' : 'Nova Técnica', custo:'— EA', efeito:'Alcance / Dano / Salvaguarda', desc:'Descreva o efeito...', concentracao: ehConcentracao, ativa: false };
         salvar(slot, campo, [...atual, novoItem], isNpc);
       });
     });
@@ -6851,19 +7019,31 @@ function renderFalaCard(f, idx, ismine, ea) {
 // Gera o HTML de um item de Técnica Inata ou Feitiço (campo = 'tecnicasInatas' | 'feiticos')
 function renderTecnicaEditavel(campo, t, idx, ismine, ea) {
   const custoNum = parseCustoEA(t.custo);
+  const isConc = !!t.concentracao;
+  const isAtiva = isConc && !!t.ativa;
+  const badgeConc = isConc
+    ? `<span class="badge-concentracao" title="Habilidade de Concentração: fica ativa e consome EA por turno até ser desligada">🔄 Concentração${isAtiva ? ' • Ativa' : ''}</span>`
+    : '';
+  const botaoAcao = !ismine ? '' : isConc
+    ? `<button class="btn-toggle-concentracao ${isAtiva ? 'desligar' : 'ligar'}"
+        data-campo="${campo}" data-idx="${idx}"
+        data-nome="${(t.nome||'Técnica').replace(/"/g,'&quot;')}"
+        data-custo-num="${custoNum}">${isAtiva ? '✕ Desligar' : '🔄 Ativar'}</button>`
+    : `<button class="btn-usar-habilidade"
+        data-campo="${campo}" data-idx="${idx}"
+        data-nome="${(t.nome||'Técnica').replace(/"/g,'&quot;')}"
+        data-custo="${t.custo||''}"
+        data-custo-num="${custoNum}"
+        data-efeito="${(t.efeito||'').replace(/"/g,'&quot;')}"
+        data-desc="${(t.desc||'').replace(/"/g,'&quot;')}">⚡ Usar</button>`;
   return `
-  <div class="tecnica-item" data-idx="${idx}">
+  <div class="tecnica-item${isAtiva?' concentracao-ativa':''}" data-idx="${idx}">
     <div class="tecnica-top">
       <span class="tecnica-nome" ${ea} data-field="${campo}/${idx}/nome">${t.nome||(campo==='feiticos'?'Novo Feitiço':'Nova Técnica')}</span>
       <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+        ${badgeConc}
         <span class="tecnica-custo" ${ea} data-field="${campo}/${idx}/custo">${t.custo||'— EA'}</span>
-        ${ismine ? `<button class="btn-usar-habilidade"
-          data-campo="${campo}" data-idx="${idx}"
-          data-nome="${(t.nome||'Técnica').replace(/"/g,'&quot;')}"
-          data-custo="${t.custo||''}"
-          data-custo-num="${custoNum}"
-          data-efeito="${(t.efeito||'').replace(/"/g,'&quot;')}"
-          data-desc="${(t.desc||'').replace(/"/g,'&quot;')}">⚡ Usar</button>` : ''}
+        ${botaoAcao}
         ${ismine ? `<button class="btn-del-tecnica" data-campo="${campo}" data-idx="${idx}" title="Remover">✕</button>` : ''}
       </div>
     </div>
