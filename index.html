@@ -3339,6 +3339,7 @@ function fichaDefault(nome) {
     passivas: [passivaDefault()],
     dominioSimples: dominioSimplesDefault(),
     dominioExpansao: dominioExpansaoDefault(),
+    reforcoAtivo: null,
     inventario: [], condicoes: [], avatar: null
   };
 }
@@ -5936,13 +5937,15 @@ function criarCard(slot, d, isNpc) {
       ${ismine ? `<button class="btn-del-item" data-idx="${idx}" title="Remover item">✕</button>` : ''}
     </div>`).join('');
 
-  // Técnicas de reforço fixas com botão rolar
+  // Técnicas de reforço fixas — agora funcionam como Habilidades de Concentração:
+  // apenas uma pode estar ativa por vez (ligar uma desliga automaticamente a anterior).
   const tecnicasReforcoFixed = [
-    { nome:'Reforço dos Punhos',      custo:'5 EA',  formula:'1d4', label:'Reforço dos Punhos', efeito:'1d4 + Mod. FOR',            desc:'Imbui as mãos com energia amaldiçoada para causar mais dano.' },
-    { nome:'Barreira Corporal',       custo:'10 EA', formula:'1d6', label:'Barreira Corporal',   efeito:'+1d6 + Mod. CON em PVT • +CA por 1 rodada', desc:'Gera Pontos de Vida Temporários e aumenta CA.' },
-    { nome:'Passo Amaldiçoado',       custo:'15 EA', formula:'1d6', label:'Passo Amaldiçoado',   efeito:'+3m Deslocamento por 2 rodadas', desc:'Aumenta o deslocamento temporariamente.' },
-    { nome:'Fortalecimento de Habilidade', custo:'20 EA', formula:'1d8', label:'Fortalecimento', efeito:'Reforço da Técnica',       desc:'Melhora capacidade, dano e qualidade de uma técnica.' },
+    { nome:'Reforço dos Punhos',      custo:'5 EA',  formula:'1d4', label:'Reforço dos Punhos', efeito:'1d4 + Mod. FOR',            desc:'Imbui as mãos com energia amaldiçoada para causar mais dano.', condSlug:'reforco-punhos' },
+    { nome:'Barreira Corporal',       custo:'10 EA', formula:'1d6', label:'Barreira Corporal',   efeito:'+1d6 + Mod. CON em PVT • +CA por 1 rodada', desc:'Gera Pontos de Vida Temporários e aumenta CA.', condSlug:'barreira-corporal' },
+    { nome:'Passo Amaldiçoado',       custo:'15 EA', formula:'1d6', label:'Passo Amaldiçoado',   efeito:'+3m Deslocamento por 2 rodadas', desc:'Aumenta o deslocamento temporariamente.', condSlug:'passo-amaldicado' },
+    { nome:'Fortalecimento de Habilidade', custo:'20 EA', formula:'1d8', label:'Fortalecimento', efeito:'Reforço da Técnica',       desc:'Melhora capacidade, dano e qualidade de uma técnica.', condSlug:'fortalecimento' },
   ];
+  const reforcoAtivoAtual = d.reforcoAtivo || null;
 
   // Banner de domínio ativo
   const dominioSimplesEsteSlot = !!dominiosSimplesAtivos[slot];
@@ -6086,23 +6089,25 @@ function criarCard(slot, d, isNpc) {
   // — técnicas de reforço —
   const secReforco = (!isRestricao && !isFala) ? `
     <div class="tecnicas-list">
-      ${tecnicasReforcoFixed.map(t => `
-      <div class="tecnica-item">
+      ${tecnicasReforcoFixed.map(t => {
+        const isAtivaT = reforcoAtivoAtual === t.nome;
+        return `
+      <div class="tecnica-item${isAtivaT ? ' concentracao-ativa' : ''}">
         <div class="tecnica-top">
           <span class="tecnica-nome">${t.nome}</span>
           <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+            ${isAtivaT ? `<span class="badge-concentracao" title="Apenas uma Técnica de Reforço pode estar ativa por vez">🔄 Ativa</span>` : ''}
             <span class="tecnica-custo">${t.custo}</span>
-            ${ismine ? `<button class="btn-usar-habilidade"
+            ${ismine ? `<button class="btn-toggle-concentracao btn-toggle-reforco ${isAtivaT ? 'desligar' : 'ligar'}"
               data-nome="${t.nome}"
-              data-custo="${t.custo}"
-              data-custo-num="${parseCustoEA(t.custo)}"
-              data-efeito="${t.efeito.replace(/"/g,'&quot;')}"
-              data-desc="${t.desc.replace(/"/g,'&quot;')}">⚡ Usar</button>` : ''}
+              data-cond="${t.condSlug}"
+              data-custo-num="${parseCustoEA(t.custo)}">${isAtivaT ? '✕ Desligar' : '🔄 Ativar'}</button>` : ''}
           </div>
         </div>
         <span class="tecnica-efeito">${t.efeito}</span>
         <span class="tecnica-desc">${t.desc}</span>
-      </div>`).join('')}
+      </div>`;
+      }).join('')}
     </div>` : '';
 
   // — técnicas inatas —
@@ -6165,12 +6170,6 @@ function criarCard(slot, d, isNpc) {
           <div class="dominio-title">🛡️ Domínio Simples</div>
           <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
             <span class="tecnica-custo" ${ea} data-field="dominioSimples/custo">${dominioSimples.custo||'— EA'}</span>
-            ${ismine ? `<button class="btn-usar-habilidade"
-              data-nome="Domínio Simples"
-              data-custo="${(dominioSimples.custo||'').replace(/"/g,'&quot;')}"
-              data-custo-num="${parseCustoEA(dominioSimples.custo)}"
-              data-efeito="${(dominioSimples.efeito||'').replace(/"/g,'&quot;')}"
-              data-desc="${(dominioSimples.desc||'').replace(/"/g,'&quot;')}">⚡ Usar</button>` : ''}
           </div>
         </div>
         <div class="dominio-desc" ${ea} data-field="dominioSimples/desc">${dominioSimples.desc||'Descreva a barreira de domínio simples do seu personagem...'}</div>
@@ -6181,12 +6180,6 @@ function criarCard(slot, d, isNpc) {
           <div class="dominio-title">💀 Expansão de Domínio</div>
           <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
             <span class="tecnica-custo" ${ea} data-field="dominioExpansao/custo">${dominioExpansao.custo||'— EA'}</span>
-            ${ismine ? `<button class="btn-usar-habilidade"
-              data-nome="Expansão de Domínio"
-              data-custo="${(dominioExpansao.custo||'').replace(/"/g,'&quot;')}"
-              data-custo-num="${parseCustoEA(dominioExpansao.custo)}"
-              data-efeito="${(dominioExpansao.efeito||'').replace(/"/g,'&quot;')}"
-              data-desc="${(dominioExpansao.desc||'').replace(/"/g,'&quot;')}">⚡ Usar</button>` : ''}
           </div>
         </div>
         <div class="dominio-desc" ${ea} data-field="dominioExpansao/desc">${dominioExpansao.desc||'Descreva a expansão de domínio do seu personagem...'}</div>
@@ -6357,7 +6350,7 @@ function criarCard(slot, d, isNpc) {
     });
 
     // Botões LIGAR/DESLIGAR de Habilidades de Concentração (técnicas, feitiços, passivas)
-    card.querySelectorAll('.btn-toggle-concentracao').forEach(btn => {
+    card.querySelectorAll('.btn-toggle-concentracao:not(.btn-toggle-reforco)').forEach(btn => {
       btn.addEventListener('click', () => {
         const campo = btn.dataset.campo;
         const idx = parseInt(btn.dataset.idx);
@@ -6386,6 +6379,58 @@ function criarCard(slot, d, isNpc) {
           salvar(slot, campo, listaAtual, isNpc);
           enviarSistema(`✋ ${charName} encerrou a concentração em "${nome}".`);
         }
+      });
+    });
+
+    // Botões LIGAR/DESLIGAR de Técnicas de Reforço — só uma pode ficar ativa por
+    // vez (mesmo critério das Habilidades de Concentração). Ativar uma diferente
+    // desliga automaticamente a que já estava ativa, mediante confirmação.
+    card.querySelectorAll('.btn-toggle-reforco').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const nome = btn.dataset.nome;
+        const condSlug = btn.dataset.cond;
+        const custoNum = parseInt(btn.dataset.custoNum) || 0;
+        const ligando = btn.classList.contains('ligar');
+        const fichaAtual = getFicha(slot);
+        if (!fichaAtual) return;
+        const charName = fichaAtual.nome || slot;
+        const ativoAtual = fichaAtual.reforcoAtivo || null;
+
+        if (!ligando) {
+          // Desligar a técnica de reforço atualmente ativa
+          salvar(slot, 'reforcoAtivo', null, isNpc);
+          if (condSlug) setCondicaoAutomatica(slot, condSlug, false);
+          enviarSistema(`✋ ${charName} encerrou "${nome}".`);
+          return;
+        }
+
+        const ativarNovaTecnica = () => {
+          const eaAtual = Number(fichaAtual.ea) || 0;
+          if (custoNum > 0 && eaAtual < custoNum) {
+            showToast(`❌ EA insuficiente! Você tem ${eaAtual} EA, mas "${nome}" custa ${custoNum} EA.`, 'error');
+            return;
+          }
+          if (ativoAtual && ativoAtual !== nome) {
+            const anterior = tecnicasReforcoFixed.find(t => t.nome === ativoAtual);
+            if (anterior?.condSlug) setCondicaoAutomatica(slot, anterior.condSlug, false);
+          }
+          if (custoNum > 0) salvar(slot, 'ea', eaAtual - custoNum, isNpc);
+          salvar(slot, 'reforcoAtivo', nome, isNpc);
+          if (condSlug) setCondicaoAutomatica(slot, condSlug, true);
+          enviarSistema(`🔄 ${charName} ativou "${nome}"${custoNum>0?` (-${custoNum} EA)`:''}.`);
+        };
+
+        // Só é possível uma Técnica de Reforço ativa por vez — avisa e pede
+        // confirmação antes de desligar automaticamente a anterior.
+        if (ativoAtual && ativoAtual !== nome) {
+          const confirmar = confirm(
+            `Apenas uma Técnica de Reforço pode estar ativa por vez.\n\n` +
+            `Ativar "${nome}" vai desativar automaticamente "${ativoAtual}", que já está em uso.\n\n` +
+            `Deseja continuar?`
+          );
+          if (!confirmar) return;
+        }
+        ativarNovaTecnica();
       });
     });
 
@@ -6745,6 +6790,10 @@ function criarCard(slot, d, isNpc) {
           showToast(`EA insuficiente! Necessário: ${Math.ceil(eaMax * 0.8)} de ${eaMax} EA (80%)`, 'error');
           return;
         }
+        if (ea <= 0) {
+          showToast('❌ EA zerado — impossível ativar a Expansão de Domínio.', 'error');
+          return;
+        }
         // Salvar posição atual do token como origem fixa do domínio,
         // junto com o Poder de Domínio (usado em caso de Choque de Domínios)
         // e o instante da ativação (usado para detectar o confronto).
@@ -6758,7 +6807,32 @@ function criarCard(slot, d, isNpc) {
         set(ref(db, `sessoes/${sessaoId}/dominiosAtivos/${slotAlvo}`), origemDominio);
         setCondicaoAutomatica(slotAlvo, 'acerto-garantido', true);
         const nomeFicha = fichaAlvo?.nome || slotAlvo;
-        enviarSistema(`💀 Domínio de ${nomeFicha} ativado!`);
+
+        // Expansão de Domínio sempre consome 80% do EA atual (arredondado para baixo)
+        const custoEfetivo = Math.floor(ea * 0.8);
+        const eaDepois = ea - custoEfetivo;
+        const isNpcAlvo = !!fichasNpcData[slotAlvo];
+        salvar(slotAlvo, 'ea', eaDepois, isNpcAlvo);
+
+        const dominioExpansaoAlvo = fichaAlvo?.dominioExpansao || dominioExpansaoDefault();
+        const slotEfetivo = window.__rolarComoSlot || meuSlot;
+        const charName = getFicha(slotEfetivo)?.nome || (modoMestre ? '👁 Mestre' : meuSlot);
+
+        // Publica no chat (isso também dispara a animação de Expansão de Domínio
+        // em todos os clientes conectados, via renderChat / tocarAnimacaoDominio)
+        push(ref(db, `sessoes/${sessaoId}/chat`), {
+          type: 'habilidade',
+          slot: slotEfetivo,
+          charName,
+          habilidadeNome: 'Expansão de Domínio',
+          habilidadeCusto: `${custoEfetivo} EA (80% do EA atual)`,
+          habilidadeEfeito: dominioExpansaoAlvo.efeito || '',
+          habilidadeDesc: dominioExpansaoAlvo.desc || '',
+          eaReduzido: true,
+          eaAntes: ea,
+          eaDepois,
+          ts: Date.now()
+        });
       }
     });
   });
