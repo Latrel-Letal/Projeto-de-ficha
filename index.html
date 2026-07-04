@@ -2670,13 +2670,13 @@
     background: #000;
     z-index: 14; pointer-events: none;
     opacity: 0;
-    animation: gVeilPulse 1.3s ease 2.6s forwards;
+    animation: gVeilPulse 1.6s cubic-bezier(0.4, 0, 0.2, 1) 2.6s forwards;
   }
   @keyframes gVeilPulse {
-    0%  { opacity: 0; }
-    40% { opacity: 0.92; }
-    60% { opacity: 0.92; }
-    100%{ opacity: 0; }
+    0%   { opacity: 0; }
+    45%  { opacity: 0.38; }
+    55%  { opacity: 0.38; }
+    100% { opacity: 0; }
   }
 
   /* ── EXPLOSÃO DE DOMÍNIO ── */
@@ -7361,22 +7361,17 @@ function renderTecnicaEditavel(campo, t, idx, ismine, ea) {
 function abrirMenuCondicao(slot, condicoesRaw, isNpc) {
   const condicoesAtuais = Array.isArray(condicoesRaw) ? condicoesRaw : Object.values(condicoesRaw || {});
   const CONDS_STATUS  = ['sangrando','atordoado','envenenado','amedrontado','paralisado','invisivel','atingido-certamente'];
-  const CONDS_REFORCO = ['reforco-punhos','barreira-corporal','passo-amaldicado','fortalecimento'];
   const LABELS = {
     'sangrando':'🦸 Sangrando','atordoado':'💫 Atordoado','envenenado':'☠️ Envenenado',
     'amedrontado':'😨 Amedrontado','paralisado':'🧊 Paralisado','invisivel':'👻 Invisível',
-    'reforco-punhos':'👊 Reforço dos Punhos','barreira-corporal':'🛡️ Barreira Corporal',
-    'passo-amaldicado':'💨 Passo Amaldiçoado','fortalecimento':'⚡ Fortalecimento',
     'acerto-garantido':'✅ Acerto Garantido',
   };
-  const dispStatus  = CONDS_STATUS.filter(c => !condicoesAtuais.includes(c));
-  const dispReforco = CONDS_REFORCO.filter(c => !condicoesAtuais.includes(c));
-  const todas = [...dispStatus, ...dispReforco];
+  const dispStatus = CONDS_STATUS.filter(c => !condicoesAtuais.includes(c));
+  const todas = [...dispStatus];
   if (todas.length === 0) { showToast('Todas as condições já aplicadas.',''); return; }
 
   let msg = 'Adicionar condição:';
   if (dispStatus.length)  msg += '\n\n── Status ──\n'  + dispStatus.map((c,i)=>`${i+1}. ${LABELS[c]}`).join('\n');
-  if (dispReforco.length) msg += '\n\n── Técnicas de Reforço ──\n' + dispReforco.map((c,i)=>`${dispStatus.length+i+1}. ${LABELS[c]}`).join('\n');
   msg += '\n\nDigite o número:';
 
   const escolha = prompt(msg);
