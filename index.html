@@ -4521,6 +4521,9 @@ function resolverConfrontoDominios(a, b) {
     nomeVencedor, nomePerdedor,
     poderVencedor, poderPerdedor,
     ts: Date.now()
+  }).catch(err => {
+    console.error('Falha ao publicar confrontoDominio (a animação não vai aparecer):', err);
+    enviarSistema('⚠️ A animação de Choque de Domínios falhou ao sincronizar (erro de permissão no Firebase). Verifique as regras do banco.');
   });
 
   // Colapsa o domínio perdedor
