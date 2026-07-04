@@ -1211,6 +1211,9 @@
   .cond-barreira-corporal   { color: #4a9eff; border-color: rgba(74,158,255,0.5);  background: rgba(74,158,255,0.1); }
   .cond-passo-amaldicado    { color: #34d399; border-color: rgba(52,211,153,0.5);  background: rgba(52,211,153,0.1); }
   .cond-fortalecimento      { color: #f97316; border-color: rgba(249,115,22,0.5);  background: rgba(249,115,22,0.1); }
+  /* Concedida automaticamente enquanto o Domínio do personagem está ativo */
+  .cond-acerto-garantido    { color: #a855f7; border-color: rgba(168,85,247,0.5);  background: rgba(168,85,247,0.12); }
+  .cond-atingido-certamente { color: #ff4a4a; border-color: rgba(255,74,74,0.5);   background: rgba(255,74,74,0.1); }
   .btn-add-cond {
     font-size: 10px; color: var(--text2); background: transparent;
     border: 1px dashed var(--border2); border-radius: 20px; padding: 2px 8px;
@@ -3161,6 +3164,24 @@ function getFicha(slot) {
   return fichasData[slot] || fichasNpcData[slot] || null;
 }
 
+// Liga ou desliga uma condição específica na ficha de um slot, preservando
+// as demais condições já presentes. Usado, por exemplo, para conceder
+// automaticamente "Acerto Garantido" enquanto o Domínio de alguém está ativo.
+function setCondicaoAutomatica(slot, cond, ligar) {
+  if (!sessaoId || !slot) return;
+  const ficha = getFicha(slot);
+  if (!ficha) return;
+  const isNpc = !!fichasNpcData[slot];
+  const atuais = Array.isArray(ficha.condicoes) ? ficha.condicoes : Object.values(ficha.condicoes || {});
+  const tem = atuais.includes(cond);
+  if (ligar && !tem) {
+    salvar(slot, 'condicoes', [...atuais, cond], isNpc);
+  } else if (!ligar && tem) {
+    const novas = atuais.filter(c => c !== cond);
+    salvar(slot, 'condicoes', novas.length ? novas : null, isNpc);
+  }
+}
+
 /* ══════════════════════════════════════
    BARDO — MÚSICA SINCRONIZADA VIA FIREBASE
 ══════════════════════════════════════ */
@@ -4377,6 +4398,7 @@ function resolverConfrontoDominios(a, b) {
 
   // Colapsa o domínio perdedor
   remove(ref(db, `sessoes/${sessaoId}/dominiosAtivos/${perdedor.slot}`));
+  setCondicaoAutomatica(perdedor.slot, 'acerto-garantido', false);
 
   // Marca o perdedor como "Atingido Certamente"
   const isNpcPerdedor = !!fichasNpcData[perdedor.slot];
@@ -4894,13 +4916,18 @@ function renderDominioZona(cellSize, cols, rows) {
   // Coletar slots com domínio ativo (usando posição de origem fixa salva no Firebase)
   // Ignora slots cuja ficha (jogador ou NPC) já não existe mais — evita que
   // um domínio fique "preso" no mapa depois que a ficha que o ativou foi excluída.
+  // OBS: não filtramos aqui por getFicha(slot), pois jogadores comuns nunca
+  // carregam fichasNpcData (só o Mestre assina esse nó). Se filtrássemos por
+  // ficha existente, a zona de domínio de um NPC nunca apareceria pro jogador.
+  // A limpeza de domínios órfãos já é feita separadamente pelo Mestre em
+  // limparDominiosOrfaos(), então aqui basta confiar na posição salva.
   const slotsComDominio = Object.entries(dominiosAtivos)
-    .filter(([slot, v]) => v && typeof v === 'object' && 'col' in v && !!getFicha(slot))
+    .filter(([slot, v]) => v && typeof v === 'object' && 'col' in v)
     .map(([slot, origem]) => ({ slot, col: origem.col, row: origem.row }));
 
   // Suporte legado: se o valor for apenas `true` (ativado antes dessa versão), usa posição do token
   Object.entries(dominiosAtivos).forEach(([slot, v]) => {
-    if (v === true && !!getFicha(slot)) {
+    if (v === true) {
       const tk = Object.values(tokensAtuais).find(t => t.slot === slot);
       if (tk) slotsComDominio.push({ slot, col: tk.col ?? 0, row: tk.row ?? 0 });
     }
@@ -4981,7 +5008,7 @@ function renderDominioZona(cellSize, cols, rows) {
     });
 
     // Label "DOMÍNIO" no centro da zona
-    const fichaSlot = fichasData[slot] || fichasNpcData[slot];
+    const fichaSlot = fichasData[slot] || fichasNpcData[slot] || getFicha(slot);
     const nomeDom = fichaSlot?.nome ? fichaSlot.nome : 'Domínio';
     const cx = (col + 0.5) * cellSize;
     const cy = (row - raio - 0.3) * cellSize;
@@ -5657,6 +5684,7 @@ function criarCard(slot, d, isNpc) {
     'passo-amaldicado':  { icon:'💨', label:'Passo Amaldiçoado' },
     'fortalecimento':    { icon:'⚡', label:'Fortalecimento' },
     'atingido-certamente': { icon:'🎯', label:'Atingido Certamente' },
+    'acerto-garantido':    { icon:'✅', label:'Acerto Garantido' },
   };
   const condicoesHTML = condicoes.map(c => {
     const info = COND_INFO[c] || { icon:'⚠️', label: c };
@@ -6423,6 +6451,7 @@ function criarCard(slot, d, isNpc) {
       if (ativo) {
         // Desligar
         remove(ref(db, `sessoes/${sessaoId}/dominiosAtivos/${slotAlvo}`));
+        setCondicaoAutomatica(slotAlvo, 'acerto-garantido', false);
         const nomeFicha = getFicha(slotAlvo)?.nome || slotAlvo;
         enviarSistema(`💀 Domínio de ${nomeFicha} encerrado.`);
       } else {
@@ -6445,6 +6474,7 @@ function criarCard(slot, d, isNpc) {
           ts: Date.now()
         };
         set(ref(db, `sessoes/${sessaoId}/dominiosAtivos/${slotAlvo}`), origemDominio);
+        setCondicaoAutomatica(slotAlvo, 'acerto-garantido', true);
         const nomeFicha = fichaAlvo?.nome || slotAlvo;
         enviarSistema(`💀 Domínio de ${nomeFicha} ativado!`);
       }
@@ -6851,6 +6881,7 @@ function abrirMenuCondicao(slot, condicoesRaw, isNpc) {
     'amedrontado':'😨 Amedrontado','paralisado':'🧊 Paralisado','invisivel':'👻 Invisível',
     'reforco-punhos':'👊 Reforço dos Punhos','barreira-corporal':'🛡️ Barreira Corporal',
     'passo-amaldicado':'💨 Passo Amaldiçoado','fortalecimento':'⚡ Fortalecimento',
+    'acerto-garantido':'✅ Acerto Garantido',
   };
   const dispStatus  = CONDS_STATUS.filter(c => !condicoesAtuais.includes(c));
   const dispReforco = CONDS_REFORCO.filter(c => !condicoesAtuais.includes(c));
