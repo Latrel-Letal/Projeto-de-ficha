@@ -2903,6 +2903,7 @@
       <div class="mapa-toolbar-group">
         <label>Colunas</label><input type="number" id="mapaCols" value="20" min="4" max="60">
         <label>Linhas</label><input type="number" id="mapaRows" value="14" min="4" max="60">
+        <label>m/Quadrado</label><input type="number" id="mapaEscala" value="1.5" min="0.1" max="20" step="0.1" style="width:64px">
         <button class="btn-mapa" onclick="aplicarGradeMapa()">📐 Aplicar Grade</button>
       </div>
       <button class="btn-mapa" id="btnGradeToggle" onclick="toggleGradeVisivel()">▦ Grade: ON</button>
@@ -2925,6 +2926,8 @@
       <button class="btn-forma" id="btnFormaTri"   onclick="setModoForma('tri')"   title="Triângulo">▲ Tri.</button>
       <button class="btn-forma" id="btnFormaLine"  onclick="setModoForma('line')"  title="Linha">╱ Lin.</button>
       <button class="btn-forma" id="btnFormaText"  onclick="setModoForma('text')"  title="Texto/Marcador">✏️ Txt</button>
+      <button class="btn-forma" id="btnFormaQuad"  onclick="setModoForma('quad')"  title="Marca de 1 quadrado — clique numa célula">◻ 1 Quad.</button>
+      <button class="btn-forma" id="btnFormaDiam"  onclick="setModoForma('diamante')" title="Losango de 1 quadrado — clique numa célula">◇ Losango</button>
 
       <span style="width:1px;height:18px;background:var(--border);margin:0 2px;flex-shrink:0"></span>
 
@@ -4946,9 +4949,23 @@ window.definirMapaArquivo = function(e) {
 window.aplicarGradeMapa = function() {
   const cols = Math.max(4, Math.min(60, parseInt(document.getElementById('mapaCols').value)||20));
   const rows = Math.max(4, Math.min(60, parseInt(document.getElementById('mapaRows').value)||14));
+  const escalaEl = document.getElementById('mapaEscala');
+  const escala = Math.max(0.1, Math.min(20, parseFloat(escalaEl?.value) || 1.5));
   set(ref(db, `sessoes/${sessaoId}/mapa/cols`), cols);
   set(ref(db, `sessoes/${sessaoId}/mapa/rows`), rows);
+  set(ref(db, `sessoes/${sessaoId}/mapa/escala`), escala);
 };
+
+// Metros por quadrado do grid (padrão 1,5m — equivalente a 5ft/quadrado)
+function getEscalaMapa() {
+  return mapaData.escala || 1.5;
+}
+
+// Formata um valor em metros de forma compacta (sem casas decimais desnecessárias)
+function formatarMetros(valor) {
+  const arred = Math.round(valor * 10) / 10;
+  return (Number.isInteger(arred) ? arred : arred.toFixed(1)) + 'm';
+}
 
 window.toggleGradeVisivel = function() {
   const atual = mapaData.grade !== false;
@@ -5274,8 +5291,10 @@ function renderMapa() {
 
   const colsInput = document.getElementById('mapaCols');
   const rowsInput = document.getElementById('mapaRows');
+  const escalaInput = document.getElementById('mapaEscala');
   if (colsInput && document.activeElement !== colsInput) colsInput.value = cols;
   if (rowsInput && document.activeElement !== rowsInput) rowsInput.value = rows;
+  if (escalaInput && document.activeElement !== escalaInput) escalaInput.value = getEscalaMapa();
 }
 
 
@@ -5286,7 +5305,7 @@ function renderMapa() {
 function setModoForma(modo) {
   modoFormaAtual = modo;
   document.querySelectorAll('.btn-forma').forEach(b => b.classList.remove('ativo'));
-  const btnMap = { sel:'btnFormaSel', rect:'btnFormaRect', circ:'btnFormaCirc', area:'btnFormaArea', cone:'btnFormaCone', tri:'btnFormaTri', line:'btnFormaLine', text:'btnFormaText' };
+  const btnMap = { sel:'btnFormaSel', rect:'btnFormaRect', circ:'btnFormaCirc', area:'btnFormaArea', cone:'btnFormaCone', tri:'btnFormaTri', line:'btnFormaLine', text:'btnFormaText', quad:'btnFormaQuad', diamante:'btnFormaDiam' };
   const btn = document.getElementById(btnMap[modo]);
   if (btn) btn.classList.add('ativo');
 
@@ -5333,30 +5352,62 @@ function renderFormaSvgEl(svg, id, forma, cellSize, interativo) {
   const sw = Math.max(1.5, cellSize * 0.05);
   let el;
 
+  const escala = getEscalaMapa();
+
+  // Cria um <text> de etiqueta de medida (metros) para sobrepor a uma forma
+  function criarLabelMetros(texto, cx, cy) {
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x', cx); lbl.setAttribute('y', cy);
+    lbl.setAttribute('text-anchor', 'middle');
+    lbl.setAttribute('fill', cor);
+    lbl.setAttribute('font-size', Math.max(9, cellSize * 0.26));
+    lbl.setAttribute('font-family', 'Cinzel, serif');
+    lbl.setAttribute('font-weight', '700');
+    lbl.setAttribute('paint-order', 'stroke');
+    lbl.setAttribute('stroke', '#0b0b0f');
+    lbl.setAttribute('stroke-width', Math.max(1, cellSize * 0.05));
+    lbl.setAttribute('opacity', Math.min(1, op + 0.4));
+    lbl.setAttribute('pointer-events', 'none');
+    lbl.textContent = texto;
+    return lbl;
+  }
+
   if (forma.tipo === 'rect') {
     const x = Math.min(forma.col, forma.col2) * cellSize;
     const y = Math.min(forma.row, forma.row2) * cellSize;
-    const w = (Math.abs(forma.col2 - forma.col) + 1) * cellSize;
-    const h = (Math.abs(forma.row2 - forma.row) + 1) * cellSize;
-    el = document.createElementNS('http://www.w3.org/2000/svg','rect');
-    el.setAttribute('x', x); el.setAttribute('y', y);
-    el.setAttribute('width', w); el.setAttribute('height', h);
-    el.setAttribute('rx', 3);
-    el.setAttribute('fill', fill);
-    el.setAttribute('stroke', stroke);
-    el.setAttribute('stroke-width', sw);
+    const wCel = Math.abs(forma.col2 - forma.col) + 1;
+    const hCel = Math.abs(forma.row2 - forma.row) + 1;
+    const w = wCel * cellSize;
+    const h = hCel * cellSize;
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x', x); rect.setAttribute('y', y);
+    rect.setAttribute('width', w); rect.setAttribute('height', h);
+    rect.setAttribute('rx', 3);
+    rect.setAttribute('fill', fill);
+    rect.setAttribute('stroke', stroke);
+    rect.setAttribute('stroke-width', sw);
+    g.appendChild(rect);
+    g.appendChild(criarLabelMetros(`${formatarMetros(wCel*escala)} × ${formatarMetros(hCel*escala)}`, x + w/2, y + h/2));
+    el = g;
 
   } else if (forma.tipo === 'circ') {
     const cx = (Math.min(forma.col, forma.col2) + Math.abs(forma.col2 - forma.col)/2 + 0.5) * cellSize;
     const cy = (Math.min(forma.row, forma.row2) + Math.abs(forma.row2 - forma.row)/2 + 0.5) * cellSize;
-    const rx = (Math.abs(forma.col2 - forma.col) + 1) * cellSize / 2;
-    const ry = (Math.abs(forma.row2 - forma.row) + 1) * cellSize / 2;
-    el = document.createElementNS('http://www.w3.org/2000/svg','ellipse');
-    el.setAttribute('cx', cx); el.setAttribute('cy', cy);
-    el.setAttribute('rx', rx); el.setAttribute('ry', ry);
-    el.setAttribute('fill', fill);
-    el.setAttribute('stroke', stroke);
-    el.setAttribute('stroke-width', sw);
+    const wCel = Math.abs(forma.col2 - forma.col) + 1;
+    const hCel = Math.abs(forma.row2 - forma.row) + 1;
+    const rx = wCel * cellSize / 2;
+    const ry = hCel * cellSize / 2;
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    const ell = document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+    ell.setAttribute('cx', cx); ell.setAttribute('cy', cy);
+    ell.setAttribute('rx', rx); ell.setAttribute('ry', ry);
+    ell.setAttribute('fill', fill);
+    ell.setAttribute('stroke', stroke);
+    ell.setAttribute('stroke-width', sw);
+    g.appendChild(ell);
+    g.appendChild(criarLabelMetros(`${formatarMetros(wCel*escala)} × ${formatarMetros(hCel*escala)}`, cx, cy));
+    el = g;
 
   } else if (forma.tipo === 'tri') {
     const x1 = (Math.min(forma.col, forma.col2) + Math.abs(forma.col2-forma.col)/2 + 0.5) * cellSize;
@@ -5365,22 +5416,59 @@ function renderFormaSvgEl(svg, id, forma, cellSize, interativo) {
     const y2 = (Math.max(forma.row, forma.row2) + 1) * cellSize;
     const x3 = (Math.max(forma.col, forma.col2) + 1) * cellSize;
     const y3 = y2;
-    el = document.createElementNS('http://www.w3.org/2000/svg','polygon');
-    el.setAttribute('points', `${x1},${y1} ${x2},${y2} ${x3},${y3}`);
+    const baseCel = Math.abs(forma.col2 - forma.col) + 1;
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    poly.setAttribute('points', `${x1},${y1} ${x2},${y2} ${x3},${y3}`);
+    poly.setAttribute('fill', fill);
+    poly.setAttribute('stroke', stroke);
+    poly.setAttribute('stroke-width', sw);
+    g.appendChild(poly);
+    g.appendChild(criarLabelMetros(`base: ${formatarMetros(baseCel*escala)}`, (x2+x3)/2, y2 - cellSize*0.12));
+    el = g;
+
+  } else if (forma.tipo === 'line') {
+    const x1 = (forma.col  + 0.5) * cellSize;
+    const y1 = (forma.row  + 0.5) * cellSize;
+    const x2 = (forma.col2 + 0.5) * cellSize;
+    const y2 = (forma.row2 + 0.5) * cellSize;
+    const distCel = Math.hypot(forma.col2 - forma.col, forma.row2 - forma.row);
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    const linha = document.createElementNS('http://www.w3.org/2000/svg','line');
+    linha.setAttribute('x1', x1); linha.setAttribute('y1', y1);
+    linha.setAttribute('x2', x2); linha.setAttribute('y2', y2);
+    linha.setAttribute('stroke', stroke);
+    linha.setAttribute('stroke-width', Math.max(2, cellSize * 0.12));
+    linha.setAttribute('stroke-linecap', 'round');
+    linha.setAttribute('stroke-opacity', op);
+    g.appendChild(linha);
+    g.appendChild(criarLabelMetros(formatarMetros(distCel*escala), (x1+x2)/2, (y1+y2)/2 - cellSize*0.15));
+    el = g;
+
+  } else if (forma.tipo === 'quad') {
+    // Marca de 1 quadrado — quadrado inset dentro de uma única célula
+    const inset = cellSize * 0.15;
+    const x = forma.col * cellSize + inset;
+    const y = forma.row * cellSize + inset;
+    const lado = cellSize - inset*2;
+    el = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    el.setAttribute('x', x); el.setAttribute('y', y);
+    el.setAttribute('width', lado); el.setAttribute('height', lado);
+    el.setAttribute('rx', 2);
     el.setAttribute('fill', fill);
     el.setAttribute('stroke', stroke);
     el.setAttribute('stroke-width', sw);
 
-  } else if (forma.tipo === 'line') {
-    el = document.createElementNS('http://www.w3.org/2000/svg','line');
-    el.setAttribute('x1', (forma.col  + 0.5) * cellSize);
-    el.setAttribute('y1', (forma.row  + 0.5) * cellSize);
-    el.setAttribute('x2', (forma.col2 + 0.5) * cellSize);
-    el.setAttribute('y2', (forma.row2 + 0.5) * cellSize);
+  } else if (forma.tipo === 'diamante') {
+    // Marca de 1 quadrado em formato de losango — bom para armadilhas/gatilhos pontuais
+    const cx = (forma.col + 0.5) * cellSize;
+    const cy = (forma.row + 0.5) * cellSize;
+    const r = cellSize * 0.42;
+    el = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    el.setAttribute('points', `${cx},${cy-r} ${cx+r},${cy} ${cx},${cy+r} ${cx-r},${cy}`);
+    el.setAttribute('fill', fill);
     el.setAttribute('stroke', stroke);
-    el.setAttribute('stroke-width', Math.max(2, cellSize * 0.12));
-    el.setAttribute('stroke-linecap', 'round');
-    el.setAttribute('stroke-opacity', op);
+    el.setAttribute('stroke-width', sw);
 
   } else if (forma.tipo === 'text') {
     el = document.createElementNS('http://www.w3.org/2000/svg','text');
@@ -5418,7 +5506,7 @@ function renderFormaSvgEl(svg, id, forma, cellSize, interativo) {
     lbl.setAttribute('font-family','Cinzel, serif');
     lbl.setAttribute('font-weight','700');
     lbl.setAttribute('opacity', Math.min(1, op + 0.4));
-    lbl.textContent = `r=${forma.raio || 1}`;
+    lbl.textContent = `raio: ${formatarMetros((forma.raio || 1) * escala)}`;
     g.appendChild(lbl);
     g.setAttribute('class','mapa-forma-el');
     g.dataset.formaId = id;
@@ -5447,12 +5535,19 @@ function renderFormaSvgEl(svg, id, forma, cellSize, interativo) {
     const y2 = oy + Math.sin(a2) * alcance;
     const largArc = abertura > Math.PI ? 1 : 0;
     const pathD = `M ${ox},${oy} L ${x1},${y1} A ${alcance},${alcance} 0 ${largArc},1 ${x2},${y2} Z`;
-    el = document.createElementNS('http://www.w3.org/2000/svg','path');
-    el.setAttribute('d', pathD);
-    el.setAttribute('fill', fill);
-    el.setAttribute('stroke', stroke);
-    el.setAttribute('stroke-width', sw);
-    el.setAttribute('stroke-linejoin','round');
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', pathD);
+    path.setAttribute('fill', fill);
+    path.setAttribute('stroke', stroke);
+    path.setAttribute('stroke-width', sw);
+    path.setAttribute('stroke-linejoin','round');
+    g.appendChild(path);
+    const alcanceCel = (forma.alcance || 3);
+    const midX = ox + Math.cos(angCentro) * alcance * 0.6;
+    const midY = oy + Math.sin(angCentro) * alcance * 0.6;
+    g.appendChild(criarLabelMetros(formatarMetros(alcanceCel*escala), midX, midY));
+    el = g;
   }
 
   if (!el) return;
@@ -5554,6 +5649,13 @@ function iniciarInteracaoFormas() {
       const txt = prompt('Texto / Marcador:');
       if (!txt) return;
       salvarForma({ tipo:'text', col:pos.col, row:pos.row, col2:pos.col, row2:pos.row, cor:corFormaAtual, opacidade:getOpacidade(), texto:txt });
+      return;
+    }
+
+    if (modoFormaAtual === 'quad' || modoFormaAtual === 'diamante') {
+      // Formas de 1 quadrado: um clique já posiciona, sem precisar arrastar
+      desenhando = false;
+      salvarForma({ tipo:modoFormaAtual, col:pos.col, row:pos.row, cor:corFormaAtual, opacidade:getOpacidade() });
       return;
     }
 
