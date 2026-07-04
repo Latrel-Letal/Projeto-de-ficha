@@ -2878,6 +2878,8 @@
         <button class="menu-dropdown-item" id="menuItemImagens" onclick="mudarAba('imagens')">🖼️ Chat de Imagens</button>
         <button class="menu-dropdown-item mobile-only-menu-item" id="menuItemChat" onclick="mudarAba('chat')">💬 Chat</button>
         <button class="menu-dropdown-item mobile-only-menu-item" id="menuItemMusica" onclick="mudarAba('musica')">🎵 Música</button>
+        <div class="menu-dropdown-divider"></div>
+        <button class="menu-dropdown-item" onclick="voltarParaInicio()" style="color:var(--red)">🏠 Voltar ao Início</button>
       </div>
     </div>
   </div>
@@ -3145,6 +3147,7 @@ let formaArrastando = null; // { col0, row0 } ao desenhar
 let formaPreview    = null; // elemento SVG de preview
 let dominiosSimplesAtivos = {}; // { slot: true } sincronizado pelo Firebase (Domínio Simples)
 let unsubFichasNpc = null;
+let __sessaoListeners = []; // funções de unsubscribe dos onValue() da sessão atual (usado para "Voltar ao Início")
 let dominioAnimUltimoTs = Date.now();
 let confrontoAnimUltimoTs = Date.now();
 let __confrontosProcessados = new Set(); // chaves "slot:ts__slot:ts" já resolvidas nesta sessão do navegador
@@ -3303,7 +3306,7 @@ window.bardoTogglePlayer = function() {
 
 // Escutar mudanças do Bardo no Firebase (chamado após entrar na sessão)
 window.__iniciarBardoListener = function(sid) {
-  onValue(window.__ref(window.__db, `sessoes/${sid}/bardo`), snap => {
+  window.__unsubBardo = onValue(window.__ref(window.__db, `sessoes/${sid}/bardo`), snap => {
     bardoAtualizarUI(snap.val());
   });
 };
@@ -3710,7 +3713,7 @@ function iniciarApp() {
   atualizarVisibilidadeMestreUI();
 
   // Fichas em tempo real
-  onValue(ref(db, `sessoes/${sessaoId}/fichas`), snap => {
+  __sessaoListeners.push(onValue(ref(db, `sessoes/${sessaoId}/fichas`), snap => {
     fichasData = snap.val() || {};
     renderFichas();
     renderMapa();
@@ -3719,25 +3722,25 @@ function iniciarApp() {
       document.getElementById('mySlotLabel').textContent = '[ '+nomeAtual+' ]';
     }
     limparDominiosOrfaos();
-  });
+  }));
 
   // Chat em tempo real
-  onValue(ref(db, `sessoes/${sessaoId}/chat`), snap => {
+  __sessaoListeners.push(onValue(ref(db, `sessoes/${sessaoId}/chat`), snap => {
     renderChat(snap.val() || {});
-  });
+  }));
 
   // Chat de imagens em tempo real
-  onValue(ref(db, `sessoes/${sessaoId}/chatImagens`), snap => {
+  __sessaoListeners.push(onValue(ref(db, `sessoes/${sessaoId}/chatImagens`), snap => {
     renderImagens(snap.val() || {});
-  });
+  }));
 
   // Iniciativa em tempo real
-  onValue(ref(db, `sessoes/${sessaoId}/iniciativa`), snap => {
+  __sessaoListeners.push(onValue(ref(db, `sessoes/${sessaoId}/iniciativa`), snap => {
     renderIniciativa(snap.val() || {});
-  });
+  }));
 
   // Turno em tempo real
-  onValue(ref(db, `sessoes/${sessaoId}/turno`), snap => {
+  __sessaoListeners.push(onValue(ref(db, `sessoes/${sessaoId}/turno`), snap => {
     const t = snap.val();
     if (t !== null && t !== undefined) {
       turnoAtual = t.indice || 0;
@@ -3747,44 +3750,44 @@ function iniciarApp() {
       turnoNumero = 1;
     }
     renderIniciativa(window.__iniciativaCache || {});
-  });
+  }));
 
   // Mapa de batalha em tempo real
-  onValue(ref(db, `sessoes/${sessaoId}/mapa`), snap => {
+  __sessaoListeners.push(onValue(ref(db, `sessoes/${sessaoId}/mapa`), snap => {
     mapaData = snap.val() || {};
     renderMapa();
-  });
+  }));
 
   // Formas no mapa em tempo real
-  onValue(ref(db, `sessoes/${sessaoId}/mapaFormas`), snap => {
+  __sessaoListeners.push(onValue(ref(db, `sessoes/${sessaoId}/mapaFormas`), snap => {
     formasData = snap.val() || {};
     renderFormasMapa();
-  });
+  }));
 
   // Domínios ativos em tempo real
-  onValue(ref(db, `sessoes/${sessaoId}/dominiosAtivos`), snap => {
+  __sessaoListeners.push(onValue(ref(db, `sessoes/${sessaoId}/dominiosAtivos`), snap => {
     dominiosAtivos = snap.val() || {};
     renderFichas();
     renderMapa();
     limparDominiosOrfaos();
     verificarConfrontoDominios();
-  });
+  }));
 
   // Choque de Domínios — evento em tempo real (dispara a animação para todos)
-  onValue(ref(db, `sessoes/${sessaoId}/confrontoDominio`), snap => {
+  __sessaoListeners.push(onValue(ref(db, `sessoes/${sessaoId}/confrontoDominio`), snap => {
     const c = snap.val();
     if (c && (c.ts||0) > confrontoAnimUltimoTs) {
       confrontoAnimUltimoTs = c.ts;
       tocarAnimacaoConfronto(c);
     }
-  });
+  }));
 
   // Domínios Simples ativos em tempo real
-  onValue(ref(db, `sessoes/${sessaoId}/dominiosSimplesAtivos`), snap => {
+  __sessaoListeners.push(onValue(ref(db, `sessoes/${sessaoId}/dominiosSimplesAtivos`), snap => {
     dominiosSimplesAtivos = snap.val() || {};
     renderFichas();
     limparDominiosOrfaos();
-  });
+  }));
 
   // Mensagem de entrada
   enviarSistema(meuNome + ' entrou na sessão.');
@@ -3792,6 +3795,69 @@ function iniciarApp() {
   // Bardo — música sincronizada
   window.__iniciarBardoListener(sessaoId);
 }
+
+/* ══════════════════════════════════════
+   VOLTAR AO INÍCIO — sai da sessão atual e volta para a
+   tela inicial (código de sessão), sem precisar recarregar a página.
+══════════════════════════════════════ */
+window.voltarParaInicio = function() {
+  if (!sessaoId) return; // já está na tela inicial
+  const confirmar = confirm('Deseja voltar para a tela inicial? Você sairá da sessão atual.');
+  if (!confirmar) return;
+
+  // Desliga todos os listeners do Firebase abertos para esta sessão
+  __sessaoListeners.forEach(unsub => { try { unsub(); } catch(e) {} });
+  __sessaoListeners = [];
+  desativarListenerNpc();
+  if (window.__unsubBardo) { try { window.__unsubBardo(); } catch(e) {} window.__unsubBardo = null; }
+
+  // Para a música local (sem alterar o estado compartilhado do Bardo para os outros)
+  const bardoIframe = document.getElementById('bardoIframe');
+  if (bardoIframe) bardoIframe.src = '';
+  const bardoPanel = document.getElementById('bardoPanel');
+  if (bardoPanel) bardoPanel.classList.add('collapsed');
+  bardoAtualizarUI(null);
+
+  // Reseta o estado da sessão em memória
+  sessaoId = null;
+  meuSlot = null;
+  meuNome = null;
+  modoMestre = false;
+  modoAdminSelecao = false;
+  fichasData = {};
+  fichasNpcData = {};
+  mapaData = {};
+  formasData = {};
+  dominiosAtivos = {};
+  dominiosSimplesAtivos = {};
+  turnoAtual = 0;
+  turnoNumero = 1;
+  window.__iniciativaCache = {};
+
+  // Limpa as áreas visuais para não mostrar dados da sessão anterior ao reentrar
+  const fichasContainer = document.getElementById('fichasContainer');
+  if (fichasContainer) fichasContainer.innerHTML = '';
+  const chatMessages = document.getElementById('chatMessages');
+  if (chatMessages) chatMessages.innerHTML = '';
+
+  // Reseta a UI do header/menu
+  document.getElementById('btnMestre')?.classList.remove('active');
+  const mySlotLabelEl = document.getElementById('mySlotLabel');
+  if (mySlotLabelEl) mySlotLabelEl.style.color = 'var(--purple)';
+  document.getElementById('menuPaginasDropdown')?.classList.remove('show');
+
+  // Esconde o app principal e volta para a tela de seleção
+  document.getElementById('mainLayout').classList.remove('visible');
+  document.getElementById('appHeader').style.display = 'none';
+  document.getElementById('bardoFab').style.display = 'none';
+  document.getElementById('selectScreen').style.display = '';
+  document.getElementById('playerGrid').style.display = 'none';
+  document.getElementById('playerGrid').innerHTML = '';
+  document.getElementById('sessionInput').value = '';
+  renderSessoesRecentes();
+
+  showToast('Você voltou para a tela inicial.', 'success');
+};
 
 /* ══════════════════════════════════════
    MENU LATERAL — ABAS (FICHAS / MAPA / CHAT DE IMAGENS)
