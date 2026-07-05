@@ -4407,6 +4407,17 @@ window.avancarTurno = function(dir) {
   enviarSistema(`⚔️ Turno ${novoNumero} — vez de ${nome}.`);
 };
 
+// Técnicas de reforço fixas — tratadas como Habilidades de Concentração:
+// cobram EA a cada turno mantidas ativas, e apenas uma pode estar ativa por vez.
+// Definida em escopo global para ser usada tanto na renderização da ficha
+// quanto no processamento automático de turno.
+const TECNICAS_REFORCO_FIXED = [
+  { nome:'Reforço dos Punhos',      custo:'5 EA',  formula:'1d4', label:'Reforço dos Punhos', efeito:'1d4 + Mod. FOR',            desc:'Imbui as mãos com energia amaldiçoada para causar mais dano.', condSlug:'reforco-punhos' },
+  { nome:'Barreira Corporal',       custo:'10 EA', formula:'1d6', label:'Barreira Corporal',   efeito:'+1d6 + Mod. CON em PVT • +CA por 1 rodada', desc:'Gera Pontos de Vida Temporários e aumenta CA.', condSlug:'barreira-corporal' },
+  { nome:'Passo Amaldiçoado',       custo:'15 EA', formula:'1d6', label:'Passo Amaldiçoado',   efeito:'+3m Deslocamento por 2 rodadas', desc:'Aumenta o deslocamento temporariamente.', condSlug:'passo-amaldicado' },
+  { nome:'Fortalecimento de Habilidade', custo:'20 EA', formula:'1d8', label:'Fortalecimento', efeito:'Reforço da Técnica',       desc:'Melhora capacidade, dano e qualidade de uma técnica.', condSlug:'fortalecimento' },
+];
+
 // Percorre todos os personagens visíveis para este cliente (jogadores sempre;
 // NPCs só quando quem está avançando o turno é o Mestre, já que fichasNpcData
 // só é carregado nesse modo) procurando Habilidades de Concentração ativas.
@@ -4452,6 +4463,33 @@ function processarConcentracoesNoAvancoDeTurno() {
         enviarSistema(`🔄 ${charName} manteve "${nomeItem}" ativa (-${custoNum} EA).`);
       });
     });
+
+    // Técnica de Reforço ativa — tratada como Habilidade de Concentração:
+    // cobra EA a cada turno mantida ativa, ou desliga automaticamente.
+    if (ficha.reforcoAtivo) {
+      const tecnica = TECNICAS_REFORCO_FIXED.find(t => t.nome === ficha.reforcoAtivo);
+      if (tecnica) {
+        const custoNum = parseCustoEA(tecnica.custo);
+        const manter = confirm(`🔄 Técnica de Reforço ativa:\n\n"${tecnica.nome}" (${charName})\nCusto por turno: ${custoNum} EA\n\nManter ativa neste turno?`);
+
+        if (!manter) {
+          salvar(slot, 'reforcoAtivo', null, isNpc);
+          if (tecnica.condSlug) setCondicaoAutomatica(slot, tecnica.condSlug, false);
+          enviarSistema(`✋ ${charName} encerrou "${tecnica.nome}".`);
+        } else {
+          const fichaAgora = getFicha(slot);
+          const eaAgora = Number(fichaAgora?.ea) || 0;
+          if (custoNum > 0 && eaAgora < custoNum) {
+            salvar(slot, 'reforcoAtivo', null, isNpc);
+            if (tecnica.condSlug) setCondicaoAutomatica(slot, tecnica.condSlug, false);
+            enviarSistema(`⚠️ ${charName} não teve EA suficiente para manter "${tecnica.nome}" — desativada automaticamente.`);
+          } else {
+            if (custoNum > 0) salvar(slot, 'ea', eaAgora - custoNum, isNpc);
+            enviarSistema(`🔄 ${charName} manteve "${tecnica.nome}" ativa (-${custoNum} EA).`);
+          }
+        }
+      }
+    }
 
     // Domínio Simples — por regra, é sempre tratado como Habilidade de Concentração.
     if (dominiosSimplesAtivos[slot]) {
@@ -6332,13 +6370,10 @@ function criarCard(slot, d, isNpc) {
     </div>`).join('');
 
   // Técnicas de reforço fixas — agora funcionam como Habilidades de Concentração:
-  // apenas uma pode estar ativa por vez (ligar uma desliga automaticamente a anterior).
-  const tecnicasReforcoFixed = [
-    { nome:'Reforço dos Punhos',      custo:'5 EA',  formula:'1d4', label:'Reforço dos Punhos', efeito:'1d4 + Mod. FOR',            desc:'Imbui as mãos com energia amaldiçoada para causar mais dano.', condSlug:'reforco-punhos' },
-    { nome:'Barreira Corporal',       custo:'10 EA', formula:'1d6', label:'Barreira Corporal',   efeito:'+1d6 + Mod. CON em PVT • +CA por 1 rodada', desc:'Gera Pontos de Vida Temporários e aumenta CA.', condSlug:'barreira-corporal' },
-    { nome:'Passo Amaldiçoado',       custo:'15 EA', formula:'1d6', label:'Passo Amaldiçoado',   efeito:'+3m Deslocamento por 2 rodadas', desc:'Aumenta o deslocamento temporariamente.', condSlug:'passo-amaldicado' },
-    { nome:'Fortalecimento de Habilidade', custo:'20 EA', formula:'1d8', label:'Fortalecimento', efeito:'Reforço da Técnica',       desc:'Melhora capacidade, dano e qualidade de uma técnica.', condSlug:'fortalecimento' },
-  ];
+  // apenas uma pode estar ativa por vez (ligar uma desliga automaticamente a anterior),
+  // e cobram EA a cada turno mantidas ativas (ver TECNICAS_REFORCO_FIXED e
+  // processarConcentracoesNoAvancoDeTurno).
+  const tecnicasReforcoFixed = TECNICAS_REFORCO_FIXED;
   const reforcoAtivoAtual = d.reforcoAtivo || null;
 
   // Banner de domínio ativo
