@@ -4353,7 +4353,10 @@ function renderIniciativa(data) {
     list.appendChild(row);
   });
 
-  // Mostrar/esconder controles de turno (só mestre ou se já há iniciativa)
+  // Controles de turno visíveis para todos os jogadores — qualquer um pode
+  // avançar/voltar o turno. As Regras de Segurança do Firebase liberam a
+  // gravação de EA/condições de terceiros para qualquer usuário autenticado
+  // (ver campos 'ea', 'reforcoAtivo' e 'condicoes' nas regras).
   const turnoCtrl = document.getElementById('turnoControls');
   turnoCtrl.style.display = 'flex';
   document.getElementById('turnoCounter').textContent = `Turno ${turnoNumero} · ${ativoEntry?.charName||''}`;
