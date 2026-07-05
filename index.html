@@ -2110,13 +2110,6 @@
     transition:color 0.15s;
   }
   .btn-del-shikigami:hover { color:var(--red); }
-  .btn-token-shikigami {
-    position:absolute; top:8px; right:30px;
-    background:transparent; border:none; color:var(--text2);
-    cursor:pointer; font-size:12px; padding:2px 5px; border-radius:4px;
-    transition:color 0.15s;
-  }
-  .btn-token-shikigami:hover { color:#34d399; }
   .btn-add-shikigami {
     width:100%; padding:8px; background:transparent;
     border:1px dashed rgba(52,211,153,0.4); border-radius:8px;
@@ -3759,18 +3752,10 @@ function limparEstadoDoSlot(slot) {
   if (!sessaoId || !slot) return;
   remove(ref(db, `sessoes/${sessaoId}/dominiosAtivos/${slot}`));
   remove(ref(db, `sessoes/${sessaoId}/dominiosSimplesAtivos/${slot}`));
-  // Remove o(s) token(s) do slot em TODAS as abas de mapa (não só na ativa),
+  // Remove o token do slot em TODAS as abas de mapa (não só na ativa),
   // já que a ficha pode ter deixado um token em outra aba anteriormente.
-  // Isso inclui tanto o token principal (chave = slot) quanto eventuais
-  // tokens de shikigamis daquele dono (chave "sk_<slot>_<idx>"), que
-  // precisam ser varridos pelo conteúdo (tk.slot) e não só pela chave.
-  Object.entries(mapasData || {}).forEach(([mapaId, m]) => {
+  Object.keys(mapasData || {}).forEach(mapaId => {
     remove(ref(db, `sessoes/${sessaoId}/mapas/${mapaId}/tokens/${slot}`));
-    Object.entries(m?.tokens || {}).forEach(([tokenId, tk]) => {
-      if (tk && tk.slot === slot && tokenId !== slot) {
-        remove(ref(db, `sessoes/${sessaoId}/mapas/${mapaId}/tokens/${tokenId}`));
-      }
-    });
   });
   remove(ref(db, `sessoes/${sessaoId}/iniciativa/${slot.replace(/\s+/g,'_')}`));
 }
@@ -3841,10 +3826,6 @@ function iniciarApp() {
       document.getElementById('mySlotLabel').textContent = '[ '+nomeAtual+' ]';
     }
     limparDominiosOrfaos();
-    // Se um domínio já estava ativo esperando a ficha do outro combatente
-    // carregar, esta ficha pode ter acabado de chegar — vale reconferir
-    // agora em vez de esperar dominiosAtivos mudar por outro motivo.
-    verificarConfrontoDominios();
   }));
 
   // Chat em tempo real
@@ -4220,9 +4201,6 @@ function ativarListenerNpc() {
     renderFichas();
     renderMapa();
     limparDominiosOrfaos();
-    // Mesmo raciocínio: se o confronto envolvia um NPC cuja ficha ainda
-    // não tinha carregado, reconfere agora que ela chegou.
-    verificarConfrontoDominios();
   });
 }
 function desativarListenerNpc() {
@@ -4407,16 +4385,22 @@ window.avancarTurno = function(dir) {
   // 1) Checa toda habilidade de concentração ativa (técnicas, feitiços, passivas
   //    e Domínio Simples, que por regra é sempre concentração) e pergunta se
   //    deve continuar ativa, cobrando o custo em EA ou desligando.
-  // 2) Regenera 10% do EA máximo de cada personagem (jogadores e NPCs).
   if (dir > 0) {
     processarConcentracoesNoAvancoDeTurno();
-    regenerarEaDeTodos();
   }
 
   const novoIndice = (turnoAtual + dir + entries.length) % entries.length;
   let novoNumero = turnoNumero;
-  if (dir > 0 && novoIndice === 0) novoNumero++;
+  const avancouRodada = dir > 0 && novoIndice === 0;
+  if (avancouRodada) novoNumero++;
   if (dir < 0 && turnoAtual === 0) novoNumero = Math.max(1, novoNumero - 1);
+
+  // 2) Regenera 10% do EA máximo de cada personagem (jogadores e NPCs), mas
+  //    somente quando a rodada realmente vira (ex: da rodada 4 para a 5),
+  //    não a cada "próximo" dentro da mesma rodada.
+  if (avancouRodada) {
+    regenerarEaDeTodos();
+  }
 
   set(ref(db, `sessoes/${sessaoId}/turno`), { indice: novoIndice, numero: novoNumero });
   const nome = entries[novoIndice]?.charName || '';
@@ -5451,61 +5435,6 @@ function adicionarTokenNpcSolto() {
   set(novaRef, { tipo:'npc', slot:null, nome, emoji, cor, col: Math.floor(cols/2), row: Math.floor(rows/2) });
 }
 
-// Coloca o token de um Shikigami específico no mapa da aba ativa. O token
-// fica vinculado ao slot do dono (jogador ou NPC) + índice do shikigami
-// dentro do array `shikigamis`, para que a vida (PV) exibida no mapa
-// acompanhe a PV daquele shikigami — não a PV do dono da ficha.
-function adicionarTokenShikigami(slot, idx) {
-  if (!sessaoId) return;
-  if (!mapaAtivoId) { showToast('Nenhuma aba de mapa selecionada.', 'error'); return; }
-  const fichaAtual = getFicha(slot);
-  const arr = Array.isArray(fichaAtual?.shikigamis) ? fichaAtual.shikigamis : Object.values(fichaAtual?.shikigamis || {});
-  const sk = arr[idx];
-  if (!sk) { showToast('Shikigami não encontrado.', 'error'); return; }
-
-  const tokenId = 'sk_' + String(slot).replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + idx;
-  const tokensAtuais = mapaData.tokens || {};
-  if (tokensAtuais[tokenId]) {
-    showToast(`"${sk.nome || 'Shikigami'}" já está no mapa. Arraste-o para mover.`, '');
-    return;
-  }
-
-  const cols = mapaData.cols || 20;
-  const rows = mapaData.rows || 14;
-  const ocupadas = new Set(Object.values(tokensAtuais).map(t => `${t.col},${t.row}`));
-  let col = 0, row = 0;
-  busca:
-  for (let r=0; r<rows; r++) {
-    for (let c=0; c<cols; c++) {
-      if (!ocupadas.has(`${c},${r}`)) { col=c; row=r; break busca; }
-    }
-  }
-  set(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/tokens/${tokenId}`), {
-    tipo: 'shikigami', slot, skIdx: idx, nome: sk.nome || 'Shikigami',
-    avatar: sk.imagem || null, emoji: sk.imagem ? null : '🐉', cor: '#34d399', col, row
-  });
-  showToast(`Token de "${sk.nome || 'Shikigami'}" colocado no mapa.`, 'success');
-}
-
-// Quando um shikigami é removido da ficha, o array é reindexado (splice),
-// então qualquer token no mapa que apontava pro shikigami excluído (mesmo
-// índice) precisa sumir, e os tokens de shikigamis seguintes (índice maior)
-// precisam ter o skIdx decrementado em 1 para continuar apontando pro
-// shikigami certo. Roda em todas as abas de mapa, não só na ativa.
-function removerERealinharTokensShikigami(slot, idxRemovido) {
-  if (!sessaoId) return;
-  Object.entries(mapasData || {}).forEach(([mapaId, m]) => {
-    Object.entries(m?.tokens || {}).forEach(([tokenId, tk]) => {
-      if (!tk || tk.tipo !== 'shikigami' || tk.slot !== slot) return;
-      if (tk.skIdx === idxRemovido) {
-        remove(ref(db, `sessoes/${sessaoId}/mapas/${mapaId}/tokens/${tokenId}`));
-      } else if (tk.skIdx > idxRemovido) {
-        set(ref(db, `sessoes/${sessaoId}/mapas/${mapaId}/tokens/${tokenId}/skIdx`), tk.skIdx - 1);
-      }
-    });
-  });
-}
-
 function renderDominioZona(cellSize, cols, rows) {
   const svg = document.getElementById('dominioZonaSvg');
   if (!svg) return;
@@ -5683,15 +5612,8 @@ function renderMapa() {
     el.dataset.cell = cellSize;
 
     // Vida vinculada à ficha (se o token estiver ligado a uma ficha de PC ou NPC)
-    // — para tokens de shikigami, a vida acompanha o shikigami específico
-    // (arr[skIdx].pv) dentro da ficha do dono, não a PV do dono em si.
     let pvAtual = null;
-    if (tk.tipo === 'shikigami' && tk.slot) {
-      const fichaLigada = getFicha(tk.slot);
-      const arrSk = Array.isArray(fichaLigada?.shikigamis) ? fichaLigada.shikigamis : Object.values(fichaLigada?.shikigamis || {});
-      const skLigado = arrSk[tk.skIdx];
-      if (skLigado && skLigado.pv !== undefined && skLigado.pv !== null) pvAtual = Number(skLigado.pv);
-    } else if (tk.slot) {
+    if (tk.slot) {
       const fichaLigada = tk.tipo === 'npc' ? fichasNpcData[tk.slot] : fichasData[tk.slot];
       if (fichaLigada && fichaLigada.pv !== undefined && fichaLigada.pv !== null) pvAtual = Number(fichaLigada.pv);
     }
@@ -7144,13 +7066,6 @@ function criarCard(slot, d, isNpc) {
           salvar(slot, 'shikigamis', [...arr, { nome:'Novo Shikigami', desc:'Descrição...', imagem:null, for:10, dex:10, con:10, ca:10, pv:10, pvMax:10, deslocamento:9 }], isNpc);
         });
       }
-      // Colocar/mover o token do shikigami no mapa
-      card.querySelectorAll('.btn-token-shikigami').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const idx = parseInt(btn.dataset.idx);
-          adicionarTokenShikigami(slot, idx);
-        });
-      });
       card.querySelectorAll('.btn-del-shikigami').forEach(btn => {
         btn.addEventListener('click', () => {
           const idx = parseInt(btn.dataset.idx);
@@ -7158,7 +7073,6 @@ function criarCard(slot, d, isNpc) {
           const arr = [...(Array.isArray(fichaAtual?.shikigamis) ? fichaAtual.shikigamis : Object.values(fichaAtual?.shikigamis || {}))];
           arr.splice(idx, 1);
           salvar(slot, 'shikigamis', arr.length ? arr : null, isNpc);
-          removerERealinharTokensShikigami(slot, idx);
         });
       });
       // Upload imagem shikigami
@@ -7618,7 +7532,6 @@ function renderShikigamiCard(sk, idx, ismine, ea) {
   const modVal = v => { const m=Math.floor((v-10)/2); return (m>=0?'+':'')+m; };
   return `
   <div class="shikigami-card" data-idx="${idx}">
-    ${ismine ? `<button class="btn-token-shikigami" data-idx="${idx}" title="Colocar no mapa">🗺️</button>` : ''}
     ${ismine ? `<button class="btn-del-shikigami" data-idx="${idx}" title="Remover shikigami">✕</button>` : ''}
     <div class="shikigami-header">
       <div class="${wrapClass}" title="${ismine?'Clique para alterar imagem':''}">
