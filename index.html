@@ -3841,6 +3841,10 @@ function iniciarApp() {
       document.getElementById('mySlotLabel').textContent = '[ '+nomeAtual+' ]';
     }
     limparDominiosOrfaos();
+    // Se um domínio já estava ativo esperando a ficha do outro combatente
+    // carregar, esta ficha pode ter acabado de chegar — vale reconferir
+    // agora em vez de esperar dominiosAtivos mudar por outro motivo.
+    verificarConfrontoDominios();
   }));
 
   // Chat em tempo real
@@ -4216,6 +4220,9 @@ function ativarListenerNpc() {
     renderFichas();
     renderMapa();
     limparDominiosOrfaos();
+    // Mesmo raciocínio: se o confronto envolvia um NPC cuja ficha ainda
+    // não tinha carregado, reconfere agora que ela chegou.
+    verificarConfrontoDominios();
   });
 }
 function desativarListenerNpc() {
