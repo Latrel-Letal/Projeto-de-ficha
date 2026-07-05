@@ -4384,24 +4384,21 @@ window.avancarTurno = function(dir) {
   if (entries.length === 0) return;
   entries.sort((a, b) => b.total - a.total);
 
-  // Regras automáticas por turno (só disparam ao AVANÇAR — dir > 0 —, não ao voltar):
-  // 1) Checa toda habilidade de concentração ativa (técnicas, feitiços, passivas
-  //    e Domínio Simples, que por regra é sempre concentração) e pergunta se
-  //    deve continuar ativa, cobrando o custo em EA ou desligando.
-  if (dir > 0) {
-    processarConcentracoesNoAvancoDeTurno();
-  }
-
   const novoIndice = (turnoAtual + dir + entries.length) % entries.length;
   let novoNumero = turnoNumero;
   const avancouRodada = dir > 0 && novoIndice === 0;
   if (avancouRodada) novoNumero++;
   if (dir < 0 && turnoAtual === 0) novoNumero = Math.max(1, novoNumero - 1);
 
-  // 2) Regenera 10% do EA máximo de cada personagem (jogadores e NPCs), mas
-  //    somente quando a rodada realmente vira (ex: da rodada 4 para a 5),
-  //    não a cada "próximo" dentro da mesma rodada.
+  // Regras automáticas por turno: só disparam quando a RODADA realmente vira
+  // (ex: da rodada 17 para a 18), nunca a cada "Próximo" entre personagens
+  // dentro da mesma rodada.
+  // 1) Checa toda habilidade de concentração ativa (técnicas, feitiços, passivas,
+  //    Técnica de Reforço e Domínio Simples, que por regra é sempre concentração)
+  //    e pergunta se deve continuar ativa, cobrando o custo em EA ou desligando.
+  // 2) Regenera 10% do EA máximo de cada personagem (jogadores e NPCs).
   if (avancouRodada) {
+    processarConcentracoesNoAvancoDeTurno();
     regenerarEaDeTodos();
   }
 
