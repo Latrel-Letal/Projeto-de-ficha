@@ -2129,6 +2129,37 @@
     color:#34d399; font-size:11px; cursor:pointer; transition:all 0.15s; margin-top:2px;
   }
   .btn-add-shikigami:hover { border-color:#34d399; }
+  /* — Colapsar card de shikigami — */
+  .shikigami-header.shikigami-toggle { cursor:pointer; }
+  .shikigami-chevron { font-size:10px; color:var(--text2); transition:transform 0.2s cubic-bezier(0.4,0,0.2,1); margin-left:auto; flex-shrink:0; }
+  .shikigami-card.colapsado .shikigami-chevron { transform:rotate(-90deg); }
+  .shikigami-card.colapsado .shikigami-body { display:none; }
+  .shikigami-body { display:flex; flex-direction:column; gap:8px; }
+  /* — Habilidades/Efeitos do shikigami (várias, empilhadas) — */
+  .shikigami-habilidades { display:flex; flex-direction:column; gap:6px; margin-top:2px; }
+  .shikigami-habilidades-label { font-size:9px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--text2); }
+  .shiki-hab-list { display:flex; flex-direction:column; gap:6px; }
+  .shiki-hab-item {
+    background:rgba(255,255,255,0.03); border:1px solid rgba(52,211,153,0.25);
+    border-radius:7px; padding:6px 8px; display:flex; flex-direction:column; gap:4px;
+  }
+  .shiki-hab-top { display:flex; align-items:center; justify-content:space-between; gap:6px; flex-wrap:wrap; }
+  .shiki-hab-nome { font-size:11px; font-weight:700; color:#34d399; }
+  .shiki-hab-nome[contenteditable="true"]:focus { outline:1px solid rgba(52,211,153,0.5); border-radius:3px; padding:1px 3px; }
+  .shiki-hab-custo { font-size:10px; font-weight:700; color:var(--blue); background:rgba(74,158,255,0.1); border:1px solid rgba(74,158,255,0.3); border-radius:20px; padding:2px 7px; white-space:nowrap; }
+  .shiki-hab-custo[contenteditable="true"]:focus { outline:1px solid rgba(74,158,255,0.5); border-radius:20px; }
+  .shiki-hab-efeito { font-size:10px; color:var(--text); line-height:1.4; }
+  .shiki-hab-efeito[contenteditable="true"]:focus { outline:1px solid rgba(52,211,153,0.4); border-radius:3px; }
+  .shiki-hab-desc { font-size:10px; color:var(--text2); line-height:1.4; }
+  .shiki-hab-desc[contenteditable="true"]:focus { outline:1px solid rgba(52,211,153,0.3); border-radius:3px; }
+  .btn-del-shiki-hab { background:transparent; border:none; color:var(--text2); cursor:pointer; font-size:10px; padding:1px 4px; border-radius:4px; transition:color 0.15s; flex-shrink:0; }
+  .btn-del-shiki-hab:hover { color:var(--red); }
+  .btn-add-shiki-hab {
+    width:100%; padding:6px; background:transparent;
+    border:1px dashed rgba(52,211,153,0.35); border-radius:7px;
+    color:#34d399; font-size:10px; cursor:pointer; transition:all 0.15s;
+  }
+  .btn-add-shiki-hab:hover { border-color:#34d399; }
 
   /* ── FALAS AMALDIÇOADAS ── */
   .falas-list { display:flex; flex-direction:column; gap:5px; }
@@ -6530,7 +6561,7 @@ function criarCard(slot, d, isNpc) {
   // — shikigami —
   const secShikigami = isShikigami ? `
     <div class="shikigami-list" id="shikigamis-${slot}">
-      ${shikigamis.map((sk,i) => renderShikigamiCard(sk, i, ismine, ea)).join('')}
+      ${shikigamis.map((sk,i) => renderShikigamiCard(sk, i, ismine, ea, slot)).join('')}
     </div>
     ${ismine ? `<button class="btn-add-shikigami">＋ Adicionar Shikigami</button>` : ''}` : '';
 
@@ -7130,7 +7161,7 @@ function criarCard(slot, d, isNpc) {
         addSkBtn.addEventListener('click', () => {
           const fichaAtual = getFicha(slot);
           const arr = Array.isArray(fichaAtual?.shikigamis) ? fichaAtual.shikigamis : Object.values(fichaAtual?.shikigamis || {});
-          salvar(slot, 'shikigamis', [...arr, { nome:'Novo Shikigami', desc:'Descrição...', imagem:null, for:10, dex:10, con:10, ca:10, pv:10, pvMax:10, deslocamento:9 }], isNpc);
+          salvar(slot, 'shikigamis', [...arr, { nome:'Novo Shikigami', desc:'Descrição...', imagem:null, for:10, dex:10, con:10, ca:10, pv:10, pvMax:10, deslocamento:9, habilidades:[] }], isNpc);
         });
       }
       card.querySelectorAll('.btn-del-shikigami').forEach(btn => {
@@ -7187,6 +7218,46 @@ function criarCard(slot, d, isNpc) {
           if (arr[idx]) { arr[idx][campo] = Number(inp.value); salvar(slot, 'shikigamis', arr, isNpc); }
         });
       });
+      // Colapsar/expandir card do shikigami (clique no cabeçalho, exceto no nome editável e na imagem)
+      card.querySelectorAll('.shikigami-header.shikigami-toggle').forEach(header => {
+        header.addEventListener('click', (e) => {
+          if (e.target.closest('.shikigami-nome, .shikigami-img-wrap, .shiki-img-input')) return;
+          const skCard = header.closest('.shikigami-card');
+          if (!skCard) return;
+          skCard.classList.toggle('colapsado');
+          const key = skCard.dataset.openKey;
+          if (key) localStorage.setItem(key, skCard.classList.contains('colapsado') ? 'nao' : 'sim');
+        });
+      });
+      // Adicionar habilidade/efeito a um shikigami
+      card.querySelectorAll('.btn-add-shiki-hab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.dataset.idx);
+          const fichaAtual = getFicha(slot);
+          const arr = [...(Array.isArray(fichaAtual?.shikigamis) ? fichaAtual.shikigamis : Object.values(fichaAtual?.shikigamis || {}))];
+          if (!arr[idx]) return;
+          const habs = Array.isArray(arr[idx].habilidades) ? arr[idx].habilidades : Object.values(arr[idx].habilidades || {});
+          arr[idx] = { ...arr[idx], habilidades: [...habs, { nome:'Nova Habilidade', custo:'— EA', efeito:'Dano / Alcance / Descreva o efeito...', desc:'' }] };
+          salvar(slot, 'shikigamis', arr, isNpc);
+        });
+      });
+      // Remover habilidade/efeito de um shikigami
+      card.querySelectorAll('.btn-del-shiki-hab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const skIdx = parseInt(btn.dataset.habParent);
+          const hidx = parseInt(btn.dataset.habIdx);
+          const fichaAtual = getFicha(slot);
+          const arr = [...(Array.isArray(fichaAtual?.shikigamis) ? fichaAtual.shikigamis : Object.values(fichaAtual?.shikigamis || {}))];
+          if (!arr[skIdx]) return;
+          const habs = [...(Array.isArray(arr[skIdx].habilidades) ? arr[skIdx].habilidades : Object.values(arr[skIdx].habilidades || {}))];
+          habs.splice(hidx, 1);
+          arr[skIdx] = { ...arr[skIdx], habilidades: habs };
+          salvar(slot, 'shikigamis', arr, isNpc);
+        });
+      });
+      // Os campos de texto de cada habilidade (nome/custo/efeito/desc) usam data-field
+      // com caminho completo (shikigamis/IDX/habilidades/HIDX/campo) e já são salvos
+      // automaticamente pelo listener genérico de [contenteditable="true"] mais abaixo.
     }
 
     // ── FALAS AMALDIÇOADAS ──
@@ -7643,15 +7714,19 @@ function renderArmaCard(a, idx, ismine, ea) {
 }
 
 // Gera o HTML de um card de Shikigami
-function renderShikigamiCard(sk, idx, ismine, ea) {
+function renderShikigamiCard(sk, idx, ismine, ea, slot) {
   const imgSrc = sk.imagem ? `<img src="${sk.imagem}" alt="shikigami">` : '🐉';
   const wrapClass = ismine ? 'shikigami-img-wrap editable' : 'shikigami-img-wrap';
   const pvPct = Math.max(0, Math.min(100, sk.pvMax>0 ? (sk.pv/sk.pvMax)*100 : 0));
   const modVal = v => { const m=Math.floor((v-10)/2); return (m>=0?'+':'')+m; };
+  const habilidades = Array.isArray(sk.habilidades) ? sk.habilidades : Object.values(sk.habilidades || {});
+  const openKey = `jk_shiki_open_${sessaoId}_${slot}_${idx}`;
+  const salvo = localStorage.getItem(openKey);
+  const open = salvo !== null ? salvo === 'sim' : true;
   return `
-  <div class="shikigami-card" data-idx="${idx}">
+  <div class="shikigami-card${open?'':' colapsado'}" data-idx="${idx}" data-open-key="${openKey}">
     ${ismine ? `<button class="btn-del-shikigami" data-idx="${idx}" title="Remover shikigami">✕</button>` : ''}
-    <div class="shikigami-header">
+    <div class="shikigami-header shikigami-toggle">
       <div class="${wrapClass}" title="${ismine?'Clique para alterar imagem':''}">
         ${imgSrc}
       </div>
@@ -7659,37 +7734,64 @@ function renderShikigamiCard(sk, idx, ismine, ea) {
       <div class="arma-info">
         <div class="shikigami-nome" ${ea} data-sk-idx="${idx}" data-sk-campo="nome">${sk.nome||'Shikigami'}</div>
       </div>
+      <span class="shikigami-chevron">▼</span>
     </div>
-    <div class="shikigami-desc" ${ea} data-sk-idx="${idx}" data-sk-campo="desc">${sk.desc||'Descrição...'}</div>
-    <div class="shikigami-stats">
-      ${['for','dex','con'].map(a => `
-      <div class="shikigami-stat-box">
-        <span class="s-label">${a.toUpperCase()}</span>
-        <span class="shikigami-stat-val" ${ea} data-sk-idx="${idx}" data-sk-campo="${a}">${sk[a]??10}</span>
-        <div style="font-size:9px;color:var(--text2)">${modVal(sk[a]??10)}</div>
-      </div>`).join('')}
-    </div>
-    <div class="shikigami-resources">
-      <div class="shikigami-res-row">
-        <span class="shikigami-res-label">PV</span>
-        <div class="bar-track" style="flex:1"><div class="bar-fill pv" style="width:${pvPct}%"></div></div>
-        <div class="resource-inputs">
-          <input class="num-input sk-num-input" type="number" value="${sk.pv??10}" min="0" data-idx="${idx}" data-campo="pv" ${ismine?'':'disabled'}>
-          <span class="num-sep">/</span>
-          <input class="num-input sk-num-input" type="number" value="${sk.pvMax??10}" min="0" data-idx="${idx}" data-campo="pvMax" ${ismine?'':'disabled'}>
+    <div class="shikigami-body">
+      <div class="shikigami-desc" ${ea} data-sk-idx="${idx}" data-sk-campo="desc">${sk.desc||'Descrição...'}</div>
+      <div class="shikigami-stats">
+        ${['for','dex','con'].map(a => `
+        <div class="shikigami-stat-box">
+          <span class="s-label">${a.toUpperCase()}</span>
+          <span class="shikigami-stat-val" ${ea} data-sk-idx="${idx}" data-sk-campo="${a}">${sk[a]??10}</span>
+          <div style="font-size:9px;color:var(--text2)">${modVal(sk[a]??10)}</div>
+        </div>`).join('')}
+      </div>
+      <div class="shikigami-resources">
+        <div class="shikigami-res-row">
+          <span class="shikigami-res-label">PV</span>
+          <div class="bar-track" style="flex:1"><div class="bar-fill pv" style="width:${pvPct}%"></div></div>
+          <div class="resource-inputs">
+            <input class="num-input sk-num-input" type="number" value="${sk.pv??10}" min="0" data-idx="${idx}" data-campo="pv" ${ismine?'':'disabled'}>
+            <span class="num-sep">/</span>
+            <input class="num-input sk-num-input" type="number" value="${sk.pvMax??10}" min="0" data-idx="${idx}" data-campo="pvMax" ${ismine?'':'disabled'}>
+          </div>
+        </div>
+        <div class="shikigami-res-row">
+          <span class="shikigami-res-label ca">CA</span>
+          <span style="flex:1;font-size:10px;color:var(--text2)">Classe de Armadura</span>
+          <span class="shikigami-stat-val" ${ea} data-sk-idx="${idx}" data-sk-campo="ca" style="font-size:16px;width:36px;text-align:center">${sk.ca??10}</span>
+        </div>
+        <div class="shikigami-res-row">
+          <span class="shikigami-res-label deslo">🏃</span>
+          <span style="flex:1;font-size:10px;color:var(--text2)">Deslocamento</span>
+          <span class="shikigami-stat-val" ${ea} data-sk-idx="${idx}" data-sk-campo="deslocamento" style="font-size:14px;width:48px;text-align:center">${sk.deslocamento??9}m</span>
         </div>
       </div>
-      <div class="shikigami-res-row">
-        <span class="shikigami-res-label ca">CA</span>
-        <span style="flex:1;font-size:10px;color:var(--text2)">Classe de Armadura</span>
-        <span class="shikigami-stat-val" ${ea} data-sk-idx="${idx}" data-sk-campo="ca" style="font-size:16px;width:36px;text-align:center">${sk.ca??10}</span>
-      </div>
-      <div class="shikigami-res-row">
-        <span class="shikigami-res-label deslo">🏃</span>
-        <span style="flex:1;font-size:10px;color:var(--text2)">Deslocamento</span>
-        <span class="shikigami-stat-val" ${ea} data-sk-idx="${idx}" data-sk-campo="deslocamento" style="font-size:14px;width:48px;text-align:center">${sk.deslocamento??9}m</span>
+      <div class="shikigami-habilidades">
+        <span class="shikigami-habilidades-label">Habilidades / Efeitos</span>
+        <div class="shiki-hab-list">
+          ${habilidades.map((h,hidx) => renderShikigamiHabilidade(h, idx, hidx, ismine, ea)).join('')}
+        </div>
+        ${ismine ? `<button class="btn-add-shiki-hab" data-idx="${idx}">＋ Adicionar Habilidade</button>` : ''}
       </div>
     </div>
+  </div>`;
+}
+
+// Gera o HTML de uma habilidade/efeito de um Shikigami (várias por shikigami, empilhadas)
+function renderShikigamiHabilidade(h, skIdx, hidx, ismine, ea) {
+  const base = `shikigamis/${skIdx}/habilidades/${hidx}`;
+  return `
+  <div class="shiki-hab-item">
+    <div class="shiki-hab-top">
+      <span class="shiki-hab-nome" ${ea} data-field="${base}/nome">${h.nome||'Nova Habilidade'}</span>
+      <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+        <span class="shiki-hab-custo" ${ea} data-field="${base}/custo">${h.custo||'— EA'}</span>
+        ${ismine ? `<button class="btn-del-shiki-hab" data-hab-parent="${skIdx}" data-hab-idx="${hidx}" title="Remover habilidade">✕</button>` : ''}
+      </div>
+    </div>
+    <span class="shiki-hab-efeito" ${ea} data-field="${base}/efeito">${h.efeito||'Dano / Alcance / Descreva o efeito...'}</span>
+    <span class="shiki-hab-desc" ${ea} data-field="${base}/desc">${h.desc||''}</span>
   </div>`;
 }
 
