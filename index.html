@@ -826,11 +826,24 @@
   .resource-label.pv  { color: var(--red); }
   .resource-label.ea  { color: var(--blue); }
   .resource-label.pvt { color: var(--gold); }
+  .resource-label.estamina { color: var(--purple); }
   .bar-track { flex: 1; height: 11px; background: var(--bg3); border-radius: 6px; border: 1px solid var(--border); overflow: hidden; }
   .bar-fill { height: 100%; border-radius: 6px; transition: width 0.4s cubic-bezier(0.4,0,0.2,1); }
   .bar-fill.pv  { background: linear-gradient(90deg,#7f1d1d,var(--red)); }
   .bar-fill.ea  { background: linear-gradient(90deg,#1e3a6e,var(--blue)); }
   .bar-fill.pvt { background: linear-gradient(90deg,#78350f,var(--gold)); }
+  .bar-fill.estamina { background: linear-gradient(90deg,#4c1d75,var(--purple)); }
+  .fala-complexidade {
+    background: var(--bg3); color: var(--text); border: 1px solid var(--border);
+    border-radius: 6px; font-size: 10px; padding: 3px 6px; cursor: pointer;
+  }
+  .fala-complexidade:disabled { opacity: 0.7; cursor: default; }
+  .btn-fala-silencio {
+    width: 100%; margin-top: 6px; padding: 8px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg3); color: var(--text2);
+    font-size: 11px; font-weight: 600; cursor: pointer; transition: background 0.2s;
+  }
+  .btn-fala-silencio:hover { background: rgba(168,85,247,0.15); color: var(--purple); border-color: var(--purple); }
   .resource-inputs { display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
   .num-input {
     width: 42px;
@@ -3435,7 +3448,7 @@ function dominioExpansaoDefault() {
 function fichaDefault(nome) {
   return { nome:nome, linhagem:'Linhagem Técnica', grau:'Grau 3', nivel:'Nível 01', afiliacao:'Instituto',
     classe: 'feiticeiro',
-    pv:0,pvMax:0, pvt:0,pvtMax:0, ea:0,eaMax:0,
+    pv:0,pvMax:0, pvt:0,pvtMax:0, ea:0,eaMax:0, estamina:0,
     deslocamento:0, ca:0, for:0,dex:0,con:0,int:0,wis:0,cha:0,
     tecnicasInatas: tecnicasInatasDefault(),
     feiticos: feiticosDefault(),
@@ -6284,6 +6297,9 @@ function criarCard(slot, d, isNpc) {
   const pvPct  = Math.max(0,Math.min(100, d.pvMax>0?(d.pv/d.pvMax)*100:0));
   const eaPct  = Math.max(0,Math.min(100, d.eaMax>0?(d.ea/d.eaMax)*100:0));
   const pvtPct = Math.max(0,Math.min(100, d.pvtMax>0?(d.pvt/d.pvtMax)*100:0));
+  const ESTAMINA_MAX = 12;
+  const estaminaAtual = Math.max(0, Math.min(ESTAMINA_MAX, Number(d.estamina)||0));
+  const estaminaPct = Math.max(0, Math.min(100, (estaminaAtual/ESTAMINA_MAX)*100));
   const mod = v => { const m=Math.floor((v-10)/2); return (m>=0?'+':'')+m; };
   const dexMod = Math.floor(((d.dex??0)-10)/2);
   const dexStr = (dexMod>=0?'+':'')+dexMod;
@@ -6447,6 +6463,16 @@ function criarCard(slot, d, isNpc) {
           <input class="num-input" type="number" data-field="pvMax" value="${d.pvMax}" min="0" ${ismine?'':'disabled'}>
         </div>
       </div>
+      ${isFala ? `
+      <div class="resource-row" title="A cada Fala usada, ganha pontos de Estamina (Fácil +1, Moderada +2, Complexa +3). Ao atingir 12/12, sofre 10% do PV máximo em dano. Sem usar falas, pode reduzir 2 pontos.">
+        <span class="resource-label estamina">EST</span>
+        <div class="bar-track"><div class="bar-fill estamina" style="width:${estaminaPct}%"></div></div>
+        <div class="resource-inputs">
+          <input class="num-input" type="number" data-field="estamina" value="${estaminaAtual}" min="0" max="${ESTAMINA_MAX}" ${ismine?'':'disabled'}>
+          <span class="num-sep">/</span>
+          <span style="font-size:11px;color:var(--text2);width:22px;text-align:center;flex-shrink:0">${ESTAMINA_MAX}</span>
+        </div>
+      </div>` : `
       <div class="resource-row">
         <span class="resource-label pvt">PVT</span>
         <div class="bar-track"><div class="bar-fill pvt" style="width:${pvtPct}%"></div></div>
@@ -6455,7 +6481,7 @@ function criarCard(slot, d, isNpc) {
           <span class="num-sep">/</span>
           <input class="num-input" type="number" data-field="pvtMax" value="${d.pvtMax||0}" min="0" ${ismine?'':'disabled'}>
         </div>
-      </div>
+      </div>`}
       ${!isRestricao ? `
       <div class="resource-row">
         <span class="resource-label ea">EA</span>
@@ -6513,7 +6539,8 @@ function criarCard(slot, d, isNpc) {
     <div class="falas-list" id="falasAmal-${slot}">
       ${falasAmal.map((f,i) => renderFalaCard(f, i, ismine, ea)).join('')}
     </div>
-    ${ismine && falasAmal.length < 5 ? `<button class="btn-add-fala">＋ Adicionar Fala (${falasAmal.length}/5)</button>` : ''}` : '';
+    ${ismine && falasAmal.length < 5 ? `<button class="btn-add-fala">＋ Adicionar Fala (${falasAmal.length}/5)</button>` : ''}
+    ${ismine ? `<button class="btn-fala-silencio" title="Reduz 2 pontos de Estamina por não usar nenhuma Fala Amaldiçoada">😶 Não Falar (−2 Estamina)</button>` : ''}` : '';
 
   // — técnicas de reforço —
   const secReforco = (!isRestricao && !isFala) ? `
@@ -6746,6 +6773,11 @@ function criarCard(slot, d, isNpc) {
     card.querySelectorAll('input.num-input').forEach(inp => {
       if (inp.classList.contains('inv-qty')) {
         inp.addEventListener('change', () => salvar(slot, inp.dataset.field, Number(inp.value), isNpc));
+      } else if (inp.dataset.field === 'estamina') {
+        inp.addEventListener('change', () => {
+          const val = Math.max(0, Math.min(12, Number(inp.value)||0));
+          salvar(slot, 'estamina', val, isNpc);
+        });
       } else {
         inp.addEventListener('change', () => salvar(slot, inp.dataset.field, Number(inp.value), isNpc));
       }
@@ -7181,9 +7213,32 @@ function criarCard(slot, d, isNpc) {
         btn.addEventListener('click', () => {
           if (modoMestre) window.__rolarComoSlot = slot;
           usarHabilidade(slot, btn.dataset.nome, btn.dataset.custo, parseInt(btn.dataset.custoNum)||0, btn.dataset.efeito, btn.dataset.desc, isNpc);
+          adicionarEstamina(slot, btn.dataset.complexidade, isNpc);
           if (modoMestre) window.__rolarComoSlot = null;
         });
       });
+      // Seletor de complexidade da fala
+      card.querySelectorAll('.fala-complexidade').forEach(sel => {
+        sel.addEventListener('change', () => {
+          const idx = parseInt(sel.dataset.idx);
+          const fichaAtual = getFicha(slot);
+          const arr = [...(Array.isArray(fichaAtual?.falasAmal) ? fichaAtual.falasAmal : Object.values(fichaAtual?.falasAmal || {}))];
+          if (arr[idx]) { arr[idx].complexidade = sel.value; salvar(slot, 'falasAmal', arr, isNpc); }
+        });
+      });
+      // Botão "Não Falar" — reduz 2 pontos de Estamina
+      const silencioBtn = card.querySelector('.btn-fala-silencio');
+      if (silencioBtn) {
+        silencioBtn.addEventListener('click', () => {
+          const fichaAtual = getFicha(slot);
+          if (!fichaAtual) return;
+          const atual = Math.max(0, Math.min(12, Number(fichaAtual.estamina)||0));
+          const novo = Math.max(0, atual - 2);
+          salvar(slot, 'estamina', novo, isNpc);
+          const nomeFicha = fichaAtual.nome || slot;
+          enviarSistema(`😶 ${nomeFicha} não usou nenhuma Fala Amaldiçoada. Estamina reduzida para ${novo}/12.`);
+        });
+      }
       // Campos texto das falas
       card.querySelectorAll('[data-fala-idx]').forEach(el => {
         el.addEventListener('blur', () => {
@@ -7372,6 +7427,34 @@ function usarHabilidade(slot, nome, custo, custoNum, efeito, desc, isNpc) {
     eaDepois,
     ts: Date.now()
   });
+}
+
+/* ══════════════════════════════════════
+   ESTAMINA DA FALA AMALDIÇOADA
+   Cada fala usada soma pontos (Fácil +1, Moderada +2, Complexa +3).
+   Ao atingir 12/12, causa 10% do PV máximo em dano e zera a barra.
+══════════════════════════════════════ */
+function adicionarEstamina(slot, complexidade, isNpc) {
+  const fichaAtual = getFicha(slot);
+  if (!fichaAtual) return;
+  const pontos = FALA_COMPLEXIDADE_PONTOS[complexidade] || 1;
+  const ESTAMINA_MAX = 12;
+  const estaminaAntes = Math.max(0, Math.min(ESTAMINA_MAX, Number(fichaAtual.estamina)||0));
+  const estaminaDepois = estaminaAntes + pontos;
+  const nomeFicha = fichaAtual.nome || slot;
+
+  if (estaminaDepois >= ESTAMINA_MAX) {
+    // Estourou o limite: 10% do PV máximo em dano, e a barra zera
+    const pvMax = Number(fichaAtual.pvMax) || 0;
+    const dano = Math.round(pvMax * 0.10);
+    const pvAtual = Number(fichaAtual.pv) || 0;
+    const pvNovo = Math.max(0, pvAtual - dano);
+    salvar(slot, 'estamina', 0, isNpc);
+    salvar(slot, 'pv', pvNovo, isNpc);
+    enviarSistema(`🗣️💥 ${nomeFicha} atingiu o limite da Estamina de Fala Amaldiçoada (12/12) e sofreu ${dano} de dano (10% do PV máx)!`);
+  } else {
+    salvar(slot, 'estamina', estaminaDepois, isNpc);
+  }
 }
 
 /* ══════════════════════════════════════
@@ -7611,20 +7694,28 @@ function renderShikigamiCard(sk, idx, ismine, ea) {
 }
 
 // Gera o HTML de um card de Fala Amaldiçoada
+const FALA_COMPLEXIDADE_PONTOS = { facil: 1, moderada: 2, complexa: 3 };
 function renderFalaCard(f, idx, ismine, ea) {
   const custoNum = parseCustoEA(f.custo);
+  const complexidade = f.complexidade || 'facil';
   return `
   <div class="fala-item" data-idx="${idx}">
     <div class="fala-top">
       <span class="fala-nome" ${ea} data-fala-idx="${idx}" data-fala-campo="nome">${f.nome||'Fala Amaldiçoada'}</span>
       <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
         <span class="tecnica-custo" ${ea} data-fala-idx="${idx}" data-fala-campo="custo">${f.custo||'— EA'}</span>
+        <select class="fala-complexidade" data-idx="${idx}" title="Complexidade da fala — define quantos pontos de Estamina ela gera" ${ismine?'':'disabled'}>
+          <option value="facil" ${complexidade==='facil'?'selected':''}>😌 Fácil (+1 Est.)</option>
+          <option value="moderada" ${complexidade==='moderada'?'selected':''}>😐 Moderada (+2 Est.)</option>
+          <option value="complexa" ${complexidade==='complexa'?'selected':''}>😤 Complexa (+3 Est.)</option>
+        </select>
         ${ismine ? `<button class="btn-usar-fala"
           data-nome="${(f.nome||'Fala').replace(/"/g,'&quot;')}"
           data-custo="${(f.custo||'').replace(/"/g,'&quot;')}"
           data-custo-num="${custoNum}"
           data-efeito="${(f.efeito||'').replace(/"/g,'&quot;')}"
-          data-desc="${(f.desc||'').replace(/"/g,'&quot;')}">🗣️ Usar</button>` : ''}
+          data-desc="${(f.desc||'').replace(/"/g,'&quot;')}"
+          data-complexidade="${complexidade}">🗣️ Usar</button>` : ''}
         ${ismine ? `<button class="btn-del-fala" data-idx="${idx}" title="Remover">✕</button>` : ''}
       </div>
     </div>
