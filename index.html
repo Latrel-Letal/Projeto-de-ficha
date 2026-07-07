@@ -7241,6 +7241,22 @@ function criarCard(slot, d, isNpc) {
           salvar(slot, 'shikigamis', arr, isNpc);
         });
       });
+      // Usar habilidade/efeito de um shikigami
+      card.querySelectorAll('.btn-usar-shiki-hab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (modoMestre) window.__rolarComoSlot = slot;
+          usarHabilidade(
+            slot,
+            btn.dataset.nome,
+            btn.dataset.custo,
+            parseInt(btn.dataset.custoNum)||0,
+            btn.dataset.efeito,
+            btn.dataset.desc,
+            isNpc
+          );
+          if (modoMestre) window.__rolarComoSlot = null;
+        });
+      });
       // Remover habilidade/efeito de um shikigami
       card.querySelectorAll('.btn-del-shiki-hab').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -7781,12 +7797,20 @@ function renderShikigamiCard(sk, idx, ismine, ea, slot) {
 // Gera o HTML de uma habilidade/efeito de um Shikigami (várias por shikigami, empilhadas)
 function renderShikigamiHabilidade(h, skIdx, hidx, ismine, ea) {
   const base = `shikigamis/${skIdx}/habilidades/${hidx}`;
+  const custoNum = parseCustoEA(h.custo);
   return `
   <div class="shiki-hab-item">
     <div class="shiki-hab-top">
       <span class="shiki-hab-nome" ${ea} data-field="${base}/nome">${h.nome||'Nova Habilidade'}</span>
       <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
         <span class="shiki-hab-custo" ${ea} data-field="${base}/custo">${h.custo||'— EA'}</span>
+        ${ismine ? `<button class="btn-usar-habilidade btn-usar-shiki-hab"
+          data-hab-parent="${skIdx}" data-hab-idx="${hidx}"
+          data-nome="${(h.nome||'Habilidade').replace(/"/g,'&quot;')}"
+          data-custo="${(h.custo||'').replace(/"/g,'&quot;')}"
+          data-custo-num="${custoNum}"
+          data-efeito="${(h.efeito||'').replace(/"/g,'&quot;')}"
+          data-desc="${(h.desc||'').replace(/"/g,'&quot;')}">⚡ Usar</button>` : ''}
         ${ismine ? `<button class="btn-del-shiki-hab" data-hab-parent="${skIdx}" data-hab-idx="${hidx}" title="Remover habilidade">✕</button>` : ''}
       </div>
     </div>
