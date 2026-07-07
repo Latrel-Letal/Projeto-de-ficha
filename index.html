@@ -6570,7 +6570,7 @@ function criarCard(slot, d, isNpc) {
     <div class="falas-list" id="falasAmal-${slot}">
       ${falasAmal.map((f,i) => renderFalaCard(f, i, ismine, ea)).join('')}
     </div>
-    ${ismine && falasAmal.length < 5 ? `<button class="btn-add-fala">＋ Adicionar Fala (${falasAmal.length}/5)</button>` : ''}
+    ${ismine ? `<button class="btn-add-fala">＋ Adicionar Fala (${falasAmal.length})</button>` : ''}
     ${ismine ? `<button class="btn-fala-silencio" title="Reduz 2 pontos de Estamina por não usar nenhuma Fala Amaldiçoada">😶 Não Falar (−2 Estamina)</button>` : ''}` : '';
 
   // — técnicas de reforço —
@@ -7283,7 +7283,6 @@ function criarCard(slot, d, isNpc) {
         addFalaBtn.addEventListener('click', () => {
           const fichaAtual = getFicha(slot);
           const arr = Array.isArray(fichaAtual?.falasAmal) ? fichaAtual.falasAmal : Object.values(fichaAtual?.falasAmal || {});
-          if (arr.length >= 5) { showToast('Máximo de 5 falas atingido.', ''); return; }
           salvar(slot, 'falasAmal', [...arr, { nome:'Nova Fala', custo:'— EA', efeito:'Descreva o efeito...', desc:'' }], isNpc);
         });
       }
