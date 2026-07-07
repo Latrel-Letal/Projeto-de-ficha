@@ -7241,22 +7241,9 @@ function criarCard(slot, d, isNpc) {
           salvar(slot, 'shikigamis', arr, isNpc);
         });
       });
-      // Usar habilidade/efeito de um shikigami
-      card.querySelectorAll('.btn-usar-shiki-hab').forEach(btn => {
-        btn.addEventListener('click', () => {
-          if (modoMestre) window.__rolarComoSlot = slot;
-          usarHabilidade(
-            slot,
-            btn.dataset.nome,
-            btn.dataset.custo,
-            parseInt(btn.dataset.custoNum)||0,
-            btn.dataset.efeito,
-            btn.dataset.desc,
-            isNpc
-          );
-          if (modoMestre) window.__rolarComoSlot = null;
-        });
-      });
+      // Usar habilidade/efeito de um shikigami — já tratado pelo listener genérico
+      // de '.btn-usar-habilidade' (o botão também possui essa classe), então não
+      // duplicamos o listener aqui para evitar envio duplo no chat.
       // Remover habilidade/efeito de um shikigami
       card.querySelectorAll('.btn-del-shiki-hab').forEach(btn => {
         btn.addEventListener('click', () => {
