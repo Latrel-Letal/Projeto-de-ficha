@@ -476,13 +476,19 @@
     padding: 0;
   }
   .fichas-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-    align-items: start;
-    gap: 18px;
+    column-width: 360px;
+    column-gap: 18px;
     padding: 20px;
     max-width: 1600px;
     margin: 0 auto;
+  }
+  .fichas-container > .ficha-card {
+    display: inline-block;
+    width: 100%;
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    margin: 0 0 18px;
+    vertical-align: top;
   }
 
   /* ══════════════════════════════════════
@@ -2210,7 +2216,7 @@
   /* ── Responsive ── */
   @media (max-width: 860px) {
     .right-panel { width: 260px; }
-    .fichas-container { grid-template-columns: 1fr; padding: 12px; }
+    .fichas-container { column-width: 100%; padding: 12px; }
   }
   @media (max-width: 640px) {
     .main-layout.visible { flex-direction: column; }
@@ -4085,15 +4091,34 @@ window.mudarAba = function(aba) {
 
   if (aba === 'npcs') renderNpcsTab();
 
-  if (aba === 'mapa') setTimeout(() => {
-    renderMapa();
+  if (aba === 'mapa') {
     renderAbasMapa();
     if (!window.__formasIniciado) {
       iniciarInteracaoFormas();
       window.__formasIniciado = true;
     }
     setModoForma('sel');
-  }, 60);
+
+    // Renderiza já (feedback imediato) ...
+    renderMapa();
+
+    // ...e renderiza de novo quando a transição de abertura do painel
+    // (.mapa-area { transition: all 0.3s }) terminar, pois é só aí que
+    // mapaViewport.clientWidth reflete o tamanho final do painel.
+    // Sem isso, o cálculo do cellSize acontece com o painel ainda
+    // "encolhido" pela animação, e o mapa fica preso num tamanho errado.
+    const mapaAreaEl = areas.mapa;
+    let jaRenderizouPosTransicao = false;
+    const rerenderPosTransicao = () => {
+      if (jaRenderizouPosTransicao) return;
+      jaRenderizouPosTransicao = true;
+      renderMapa();
+    };
+    mapaAreaEl.addEventListener('transitionend', rerenderPosTransicao, { once: true });
+    // Fallback (garante que renderiza mesmo se o transitionend não disparar,
+    // ex.: painel já estava com o tamanho final, sem propriedade animando)
+    setTimeout(rerenderPosTransicao, 350);
+  }
 
   if (aba !== 'mapa') toggleFichaDrawer(false);
   atualizarFichaDrawerFabVisibilidade();
@@ -5647,6 +5672,12 @@ function renderMapa() {
   const overlay = document.getElementById('mapaGridOverlay');
   const emptyState = document.getElementById('mapaEmptyState');
   if (!canvas || !viewport) return;
+  // Aba Mapa escondida (collapsed): não recalcular o tamanho do canvas agora,
+  // pois viewport.clientWidth estaria 0/errado e "prenderia" o mapa nesse
+  // tamanho até a próxima vez que a aba for aberta (renderMapa() é chamado
+  // de novo em mudarAba() quando o painel volta a ficar visível).
+  const mapaAreaEl = document.getElementById('mapaArea');
+  if (mapaAreaEl && mapaAreaEl.classList.contains('collapsed')) return;
 
   const cols = mapaData.cols || 20;
   const rows = mapaData.rows || 14;
