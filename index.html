@@ -2115,6 +2115,10 @@
   .shikigami-desc[contenteditable="true"]:focus { outline:1px solid rgba(52,211,153,0.4); border-radius:4px; }
   .shikigami-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; }
   .shikigami-stat-box { background:var(--bg3); border:1px solid var(--border); border-radius:7px; padding:6px 3px; text-align:center; }
+  .shikigami-stat-box.clicavel { cursor: pointer; transition: all 0.15s; }
+  .shikigami-stat-box.clicavel:hover { border-color: #34d399; background: rgba(52,211,153,0.08); }
+  .shikigami-stat-box.clicavel:hover .s-label,
+  .shikigami-stat-box.clicavel:hover .shikigami-stat-val { color: #34d399; }
   .shikigami-stat-box .s-label { font-size:9px; color:var(--text2); letter-spacing:1px; text-transform:uppercase; display:block; }
   .shikigami-stat-val { font-size:16px; font-weight:700; color:#34d399; display:block; line-height:1.2; }
   .shikigami-stat-val[contenteditable="true"]:focus { outline:1px solid rgba(52,211,153,0.5); border-radius:3px; }
@@ -7268,6 +7272,21 @@ function criarCard(slot, d, isNpc) {
           });
         });
       });
+      // Rolar dado clicando no atributo (FOR/DEX/CON) do shikigami
+      card.querySelectorAll('.shikigami-stat-box.clicavel').forEach(box => {
+        box.addEventListener('click', e => {
+          if (e.target.getAttribute('contenteditable') === 'true') return;
+          const idx = parseInt(box.dataset.skAttrIdx);
+          const atributo = box.dataset.skAttr;
+          const fichaAtual = getFicha(slot);
+          const arr = Array.isArray(fichaAtual?.shikigamis) ? fichaAtual.shikigamis : Object.values(fichaAtual?.shikigamis || {});
+          const sk = arr[idx];
+          if (!sk) return;
+          if (modoMestre) window.__rolarComoSlot = slot;
+          rolarAtributoShikigami(slot, sk.nome || 'Shikigami', atributo, sk[atributo] ?? 10);
+          if (modoMestre) window.__rolarComoSlot = null;
+        });
+      });
       // Colocar/remover token do shikigami no mapa ativo
       card.querySelectorAll('.btn-token-shikigami').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -7664,6 +7683,34 @@ function rolarAtributo(slot, atributo, valor) {
   showToast(`🎯 ${atNome}: ${roll}${modStr} = ${total}`, 'roll');
 }
 
+function rolarAtributoShikigami(slot, nomeShiki, atributo, valor) {
+  const v = parseInt(valor)||10;
+  const mod = Math.floor((v-10)/2);
+  const roll = Math.floor(Math.random()*20)+1;
+  const total = roll + mod;
+  const modStr = (mod>=0?'+':'')+mod;
+  const isCrit = roll === 20;
+  const isFail = roll === 1;
+
+  const slotEfetivo = window.__rolarComoSlot || meuSlot;
+  const atNome = atributo.toUpperCase();
+
+  push(ref(db, `sessoes/${sessaoId}/chat`), {
+    type: 'roll',
+    slot: slotEfetivo,
+    charName: `🐉 ${nomeShiki}`,
+    formula: `1d20${modStr} (${atNome})`,
+    rolls: [roll],
+    bonus: mod,
+    total,
+    label: `🎯 Teste de ${atNome}` + (isCrit ? ' — ⚡ Crítico!' : isFail ? ' — 💀 Falha!' : ''),
+    special: isCrit ? 'nat20' : isFail ? 'critical' : '',
+    ts: Date.now()
+  });
+
+  showToast(`🐉 ${nomeShiki} — ${atNome}: ${roll}${modStr} = ${total}`, 'roll');
+}
+
 /* ══════════════════════════════════════
    MODAL DE DADOS COMPOSTOS
 ══════════════════════════════════════ */
@@ -7847,7 +7894,7 @@ function renderShikigamiCard(sk, idx, ismine, ea, slot) {
       <div class="shikigami-desc" ${ea} data-sk-idx="${idx}" data-sk-campo="desc">${sk.desc||'Descrição...'}</div>
       <div class="shikigami-stats">
         ${['for','dex','con'].map(a => `
-        <div class="shikigami-stat-box">
+        <div class="shikigami-stat-box${ismine?' clicavel':''}" ${ismine?`data-sk-attr="${a}" data-sk-attr-idx="${idx}" title="Clique para rolar ${a.toUpperCase()} (1d20 ${modVal(sk[a]??10)})"`:''}>
           <span class="s-label">${a.toUpperCase()}</span>
           <span class="shikigami-stat-val" ${ea} data-sk-idx="${idx}" data-sk-campo="${a}">${sk[a]??10}</span>
           <div style="font-size:9px;color:var(--text2)">${modVal(sk[a]??10)}</div>
