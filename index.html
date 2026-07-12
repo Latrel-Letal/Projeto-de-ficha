@@ -728,6 +728,7 @@
   .mapa-token-circle img { width: 100%; height: 100%; object-fit: cover; }
   .mapa-token.is-mine .mapa-token-circle { border-color: var(--purple); box-shadow: 0 0 10px var(--purple-glow); }
   .mapa-token.is-npc .mapa-token-circle { border-color: var(--gold); }
+  .mapa-token.is-shikigami .mapa-token-circle { border-color: #34d399; box-shadow: 0 0 10px rgba(52,211,153,0.5); }
   .mapa-token-label {
     font-size: 9px; font-weight: 600; color: var(--text);
     background: rgba(10,10,15,0.75); border-radius: 4px; padding: 1px 5px;
@@ -2129,6 +2130,14 @@
     transition:color 0.15s;
   }
   .btn-del-shikigami:hover { color:var(--red); }
+  .btn-token-shikigami {
+    position:absolute; top:8px; right:28px;
+    background:transparent; border:none; color:var(--text2);
+    cursor:pointer; font-size:12px; padding:2px 5px; border-radius:4px;
+    transition:color 0.15s, transform 0.15s;
+  }
+  .btn-token-shikigami:hover { color:#34d399; }
+  .btn-token-shikigami.ativo { color:#34d399; text-shadow:0 0 8px rgba(52,211,153,0.7); }
   .btn-add-shikigami {
     width:100%; padding:8px; background:transparent;
     border:1px dashed rgba(52,211,153,0.4); border-radius:8px;
@@ -5530,6 +5539,45 @@ function adicionarTokenDeFichaNpc(slot, ficha) {
   showToast(`Token de "${ficha.nome || 'NPC'}" colocado no mapa.`, 'success');
 }
 
+// Coloca (ou remove, se já existir) o token de um shikigami específico no mapa ativo.
+// O token fica vinculado ao slot do dono (jogador ou NPC) e ao índice do shikigami,
+// para que PV/imagem/nome sigam sincronizados com a ficha.
+function toggleTokenShikigami(slot, idx, isNpc) {
+  if (!sessaoId) return;
+  if (!mapaAtivoId) { showToast('Nenhuma aba de mapa selecionada.', 'error'); return; }
+  const fichaDona = getFicha(slot);
+  if (!fichaDona) return;
+  const arr = Array.isArray(fichaDona.shikigamis) ? fichaDona.shikigamis : Object.values(fichaDona.shikigamis || {});
+  const sk = arr[idx];
+  if (!sk) return;
+
+  const tokensAtuais = mapaData.tokens || {};
+  const existente = Object.entries(tokensAtuais).find(([, t]) => t.tipo === 'shikigami' && t.slot === slot && t.skIdx === idx);
+
+  if (existente) {
+    remove(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/tokens/${existente[0]}`));
+    return;
+  }
+
+  const cols = mapaData.cols || 20;
+  const rows = mapaData.rows || 14;
+  const ocupadas = new Set(Object.values(tokensAtuais).map(t => `${t.col},${t.row}`));
+  let col = 0, row = 0;
+  busca:
+  for (let r=0; r<rows; r++) {
+    for (let c=0; c<cols; c++) {
+      if (!ocupadas.has(`${c},${r}`)) { col=c; row=r; break busca; }
+    }
+  }
+  const novaRef = push(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/tokens`));
+  set(novaRef, {
+    tipo: 'shikigami', origem: isNpc ? 'npc' : 'pc', slot, skIdx: idx,
+    nome: sk.nome || 'Shikigami', avatar: sk.imagem || null,
+    emoji: sk.imagem ? null : '🐉', cor: null, col, row
+  });
+  showToast(`Token de "${sk.nome || 'Shikigami'}" colocado no mapa.`, 'success');
+}
+
 function adicionarTokenNpcSolto() {
   const nome = prompt('Nome do NPC/Monstro:');
   if (!nome) return;
@@ -5719,14 +5767,21 @@ function renderMapa() {
       canvas.appendChild(el);
       ativarDragToken(el, id);
     }
-    el.classList.toggle('is-mine', tk.slot === meuSlot);
+    el.classList.toggle('is-mine', tk.slot === meuSlot && tk.tipo !== 'shikigami');
     el.classList.toggle('is-npc', tk.tipo === 'npc');
+    el.classList.toggle('is-shikigami', tk.tipo === 'shikigami');
     el.style.cursor = podeMover ? 'grab' : 'default';
     el.dataset.cell = cellSize;
 
-    // Vida vinculada à ficha (se o token estiver ligado a uma ficha de PC ou NPC)
+    // Vida vinculada à ficha (se o token estiver ligado a uma ficha de PC ou NPC),
+    // ou ao shikigami específico dentro da ficha do dono (tokens tipo "shikigami")
     let pvAtual = null;
-    if (tk.slot) {
+    if (tk.tipo === 'shikigami' && tk.slot && tk.skIdx !== undefined && tk.skIdx !== null) {
+      const fichaDona = getFicha(tk.slot);
+      const skArr = fichaDona ? (Array.isArray(fichaDona.shikigamis) ? fichaDona.shikigamis : Object.values(fichaDona.shikigamis || {})) : [];
+      const skObj = skArr[tk.skIdx];
+      if (skObj && skObj.pv !== undefined && skObj.pv !== null) pvAtual = Number(skObj.pv);
+    } else if (tk.slot) {
       const fichaLigada = tk.tipo === 'npc' ? fichasNpcData[tk.slot] : fichasData[tk.slot];
       if (fichaLigada && fichaLigada.pv !== undefined && fichaLigada.pv !== null) pvAtual = Number(fichaLigada.pv);
     }
@@ -7202,6 +7257,22 @@ function criarCard(slot, d, isNpc) {
           const arr = [...(Array.isArray(fichaAtual?.shikigamis) ? fichaAtual.shikigamis : Object.values(fichaAtual?.shikigamis || {}))];
           arr.splice(idx, 1);
           salvar(slot, 'shikigamis', arr.length ? arr : null, isNpc);
+          // Remove também qualquer token desse shikigami que esteja em qualquer aba de mapa
+          Object.keys(mapasData || {}).forEach(mapaId => {
+            const tks = (mapasData[mapaId] || {}).tokens || {};
+            Object.entries(tks).forEach(([tid, t]) => {
+              if (t.tipo === 'shikigami' && t.slot === slot && t.skIdx === idx) {
+                remove(ref(db, `sessoes/${sessaoId}/mapas/${mapaId}/tokens/${tid}`));
+              }
+            });
+          });
+        });
+      });
+      // Colocar/remover token do shikigami no mapa ativo
+      card.querySelectorAll('.btn-token-shikigami').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.dataset.idx);
+          toggleTokenShikigami(slot, idx, isNpc);
         });
       });
       // Upload imagem shikigami
@@ -7756,9 +7827,12 @@ function renderShikigamiCard(sk, idx, ismine, ea, slot) {
   const openKey = `jk_shiki_open_${sessaoId}_${slot}_${idx}`;
   const salvo = localStorage.getItem(openKey);
   const open = salvo !== null ? salvo === 'sim' : true;
+  const tokensDoMapa = mapaData.tokens || {};
+  const noMapa = Object.values(tokensDoMapa).some(t => t.tipo === 'shikigami' && t.slot === slot && t.skIdx === idx);
   return `
   <div class="shikigami-card${open?'':' colapsado'}" data-idx="${idx}" data-open-key="${openKey}">
     ${ismine ? `<button class="btn-del-shikigami" data-idx="${idx}" title="Remover shikigami">✕</button>` : ''}
+    ${ismine ? `<button class="btn-token-shikigami${noMapa?' ativo':''}" data-idx="${idx}" title="${noMapa?'Remover token do mapa':'Colocar token no mapa'}">📍</button>` : ''}
     <div class="shikigami-header shikigami-toggle">
       <div class="${wrapClass}" title="${ismine?'Clique para alterar imagem':''}">
         ${imgSrc}
