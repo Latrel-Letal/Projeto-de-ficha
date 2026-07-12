@@ -741,6 +741,17 @@
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; border: 1px solid var(--bg);
   }
+  .mapa-token-resize {
+    position: absolute; bottom: -5px;
+    width: 15px; height: 15px; border-radius: 50%;
+    background: var(--bg2); color: var(--text); font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: 1px solid var(--border2);
+    user-select: none;
+  }
+  .mapa-token-resize:hover { border-color: var(--purple); color: var(--purple); }
+  .mapa-token-resize.menos { left: -5px; }
+  .mapa-token-resize.mais { right: -5px; }
   .mapa-token.is-morto .mapa-token-circle {
     filter: grayscale(1) brightness(0.55);
     border-color: var(--red) !important;
@@ -5717,6 +5728,18 @@ function renderDominioZona(cellSize, cols, rows) {
   });
 }
 
+// Aumenta/diminui o tamanho visual de um token no mapa (multiplicador tk.tam).
+// delta positivo aumenta, negativo diminui. Limites: 0.5x a 3x, passos de 0.25.
+function redimensionarToken(id, delta) {
+  const tk = (mapaData.tokens||{})[id];
+  if (!tk) return;
+  const atual = tk.tam || 1;
+  let novoTam = Math.round((atual + delta) * 4) / 4;
+  novoTam = Math.max(0.5, Math.min(3, novoTam));
+  if (novoTam === atual) return;
+  set(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/tokens/${id}/tam`), novoTam);
+}
+
 function renderMapa() {
   if (!sessaoId) return;
   const canvas = document.getElementById('mapaCanvas');
@@ -5796,24 +5819,33 @@ function renderMapa() {
     const tokenDominioAtivo = tk.slot ? (!!dominiosAtivos[tk.slot] && !!getFicha(tk.slot)) : false;
     el.classList.toggle('dominio-ativo', tokenDominioAtivo);
 
+    // Tamanho do token: multiplicador salvo em tk.tam (1 = padrão, 0.5–3)
+    const tam = tk.tam || 1;
+    const tamanhoBase = cellSize*0.8;
+    const tamanhoCirculo = tamanhoBase * tam;
+    el.dataset.tam = tam;
+
     const circle = el.querySelector('.mapa-token-circle');
-    circle.style.width  = (cellSize*0.8)+'px';
-    circle.style.height = (cellSize*0.8)+'px';
-    circle.style.fontSize = Math.max(10, cellSize*0.32)+'px';
+    circle.style.width  = tamanhoCirculo+'px';
+    circle.style.height = tamanhoCirculo+'px';
+    circle.style.fontSize = Math.max(10, cellSize*0.32*tam)+'px';
     circle.innerHTML = (tk.avatar ? `<img src="${tk.avatar}">` : esc(tk.emoji || (tk.nome||'?')[0]))
       + (morto ? `<div class="mapa-token-skull">☠️</div>` : '');
     circle.style.borderColor = tk.cor || '';
 
     el.querySelector('.mapa-token-label').textContent = tk.nome || '';
 
+    // Recentraliza o token no tile mesmo quando o círculo cresce/encolhe
+    const offset = (tamanhoCirculo - tamanhoBase)/2;
     if (!el.classList.contains('dragging')) {
-      el.style.left = (tk.col*cellSize + cellSize*0.1) + 'px';
-      el.style.top  = (tk.row*cellSize + cellSize*0.1) + 'px';
+      el.style.left = (tk.col*cellSize + cellSize*0.1 - offset) + 'px';
+      el.style.top  = (tk.row*cellSize + cellSize*0.1 - offset) + 'px';
     }
 
     // Sempre recriar o botão de remoção para garantir id/nome atualizados
     const remBtnExistente = el.querySelector('.mapa-token-remove');
     if (remBtnExistente) remBtnExistente.remove();
+    el.querySelectorAll('.mapa-token-resize').forEach(b => b.remove());
 
     if (podeMover) {
       const remBtn = document.createElement('div');
@@ -5833,6 +5865,29 @@ function renderMapa() {
         }
       });
       el.appendChild(remBtn);
+
+      // Botões de redimensionar (- / +), alternativa ao scroll do mouse
+      const btnMenos = document.createElement('div');
+      btnMenos.className = 'mapa-token-resize menos';
+      btnMenos.textContent = '−';
+      btnMenos.title = 'Diminuir token';
+      btnMenos.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); });
+      btnMenos.addEventListener('click', (e) => {
+        e.stopPropagation(); e.preventDefault();
+        redimensionarToken(id, -0.25);
+      });
+      el.appendChild(btnMenos);
+
+      const btnMais = document.createElement('div');
+      btnMais.className = 'mapa-token-resize mais';
+      btnMais.textContent = '+';
+      btnMais.title = 'Aumentar token';
+      btnMais.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); });
+      btnMais.addEventListener('click', (e) => {
+        e.stopPropagation(); e.preventDefault();
+        redimensionarToken(id, 0.25);
+      });
+      el.appendChild(btnMais);
     }
   });
 
@@ -6361,6 +6416,19 @@ function ativarDragToken(el, id) {
   }
   el.addEventListener('pointerup', soltar);
   el.addEventListener('pointercancel', soltar);
+
+  // Scroll do mouse em cima do token = aumentar/diminuir (desktop)
+  let wheelDebounce;
+  el.addEventListener('wheel', e => {
+    const tk = (mapaData.tokens||{})[id];
+    const podeMover = modoMestre || (tk && tk.slot === meuSlot);
+    if (!podeMover) return;
+    e.preventDefault();
+    e.stopPropagation();
+    clearTimeout(wheelDebounce);
+    const delta = e.deltaY > 0 ? -0.25 : 0.25;
+    wheelDebounce = setTimeout(() => redimensionarToken(id, delta), 60);
+  }, { passive: false });
 }
 
 window.addEventListener('resize', () => { if (sessaoId) renderMapa(); });
