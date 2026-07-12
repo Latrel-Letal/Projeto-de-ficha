@@ -752,6 +752,15 @@
   .mapa-token-resize:hover { border-color: var(--purple); color: var(--purple); }
   .mapa-token-resize.menos { left: -5px; }
   .mapa-token-resize.mais { right: -5px; }
+  .mapa-token-resize-handle {
+    position: absolute; top: -5px; left: -5px;
+    width: 13px; height: 13px; border-radius: 3px;
+    background: var(--purple); color: white; font-size: 8px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: nwse-resize; border: 1px solid var(--bg);
+    user-select: none; touch-action: none;
+  }
+  .mapa-token-resize-handle:hover { box-shadow: 0 0 6px var(--purple-glow); }
   .mapa-token.is-morto .mapa-token-circle {
     filter: grayscale(1) brightness(0.55);
     border-color: var(--red) !important;
@@ -995,6 +1004,7 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 8px;
+    gap: 8px;
   }
   .initiative-title {
     font-family: 'Cinzel', serif;
@@ -1005,6 +1015,21 @@
     align-items: center;
     gap: 6px;
   }
+  .initiative-header-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .initiative-mini-turno {
+    display: none;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--online);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+  }
+  .initiative-panel.collapsed .initiative-mini-turno { display: inline-block; }
+  .initiative-panel.collapsed .initiative-list,
+  .initiative-panel.collapsed .turno-controls { display: none !important; }
+  .initiative-panel.collapsed .initiative-header { margin-bottom: 0; }
   .btn-clear-init {
     font-size: 10px;
     color: var(--text2);
@@ -1016,8 +1041,32 @@
     transition: all 0.15s;
   }
   .btn-clear-init:hover { color: var(--red); border-color: var(--red); }
+  .btn-toggle-init {
+    font-size: 10px;
+    color: var(--text2);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-toggle-init:hover { color: var(--gold); border-color: var(--gold); }
+  .initiative-panel.collapsed .btn-toggle-init { transform: rotate(180deg); }
 
-  .initiative-list { display: flex; flex-direction: column; gap: 4px; }
+  .initiative-list {
+    display: flex; flex-direction: column; gap: 4px;
+    max-height: 190px;
+    overflow-y: auto;
+    padding-right: 3px;
+    margin-right: -3px;
+  }
+  .initiative-list::-webkit-scrollbar { width: 5px; }
+  .initiative-list::-webkit-scrollbar-track { background: transparent; }
+  .initiative-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  .initiative-list::-webkit-scrollbar-thumb:hover { background: var(--purple); }
   .init-row {
     display: flex;
     align-items: center;
@@ -3152,10 +3201,14 @@
   <div class="right-panel" id="rightPanel">
 
     <!-- ORDEM DE INICIATIVA -->
-    <div class="initiative-panel">
+    <div class="initiative-panel" id="initiativePanel">
       <div class="initiative-header">
         <div class="initiative-title">⚔️ ORDEM DE INICIATIVA</div>
-        <button class="btn-clear-init" onclick="limparIniciativa()">Limpar</button>
+        <div class="initiative-header-actions">
+          <span class="initiative-mini-turno" id="initiativeMiniTurno"></span>
+          <button class="btn-clear-init" onclick="limparIniciativa()">Limpar</button>
+          <button class="btn-toggle-init" id="btnToggleInit" onclick="toggleInitiativePanel()" title="Recolher/expandir">▲</button>
+        </div>
       </div>
       <div class="initiative-list" id="initiativeList">
         <div class="init-empty">Nenhuma iniciativa rolada ainda.</div>
@@ -4411,6 +4464,7 @@ function renderIniciativa(data) {
   if (entries.length === 0) {
     list.innerHTML = '<div class="init-empty">Nenhuma iniciativa rolada ainda.</div>';
     document.getElementById('turnoControls').style.display = 'none';
+    document.getElementById('initiativeMiniTurno').textContent = '';
     // Remover destaque de turno de todos os cards
     document.querySelectorAll('.ficha-card.turno-ativo').forEach(c => c.classList.remove('turno-ativo'));
     document.querySelectorAll('.turno-ativo-banner').forEach(b => b.remove());
@@ -4453,6 +4507,7 @@ function renderIniciativa(data) {
   const turnoCtrl = document.getElementById('turnoControls');
   turnoCtrl.style.display = 'flex';
   document.getElementById('turnoCounter').textContent = `Turno ${turnoNumero} · ${ativoEntry?.charName||''}`;
+  document.getElementById('initiativeMiniTurno').textContent = ativoEntry ? `▶ ${ativoEntry.charName||ativoEntry.slot}` : '';
 
   // Destacar card da ficha ativa
   document.querySelectorAll('.ficha-card').forEach(card => {
@@ -4625,6 +4680,31 @@ function regenerarEaDeTodos() {
     if (eaNovo !== eaAtual) salvar(slot, 'ea', eaNovo, isNpc);
   });
 }
+
+// Recolhe/expande o painel de iniciativa pra sobrar mais espaço pro chat.
+// O estado escolhido fica salvo no navegador (localStorage), então persiste
+// entre sessões nesse dispositivo.
+window.toggleInitiativePanel = function() {
+  const panel = document.getElementById('initiativePanel');
+  const btn = document.getElementById('btnToggleInit');
+  const colapsado = panel.classList.toggle('collapsed');
+  btn.textContent = colapsado ? '▼' : '▲';
+  try { localStorage.setItem('initiativePanelCollapsed', colapsado ? '1' : '0'); } catch(e) {}
+};
+
+// Restaura o estado salvo (recolhido ou não) assim que a página carrega.
+(function restaurarEstadoInitPanel() {
+  try {
+    if (localStorage.getItem('initiativePanelCollapsed') === '1') {
+      document.addEventListener('DOMContentLoaded', () => {
+        const panel = document.getElementById('initiativePanel');
+        const btn = document.getElementById('btnToggleInit');
+        if (panel) panel.classList.add('collapsed');
+        if (btn) btn.textContent = '▼';
+      });
+    }
+  } catch(e) {}
+})();
 
 window.limparIniciativa = function() {
   if (!sessaoId) return;
@@ -5729,14 +5809,23 @@ function renderDominioZona(cellSize, cols, rows) {
 }
 
 // Aumenta/diminui o tamanho visual de um token no mapa (multiplicador tk.tam).
-// delta positivo aumenta, negativo diminui. Limites: 0.5x a 3x, passos de 0.25.
+// delta positivo aumenta, negativo diminui. Limites: 0.3x a 5x, passos de 0.1.
 function redimensionarToken(id, delta) {
   const tk = (mapaData.tokens||{})[id];
   if (!tk) return;
   const atual = tk.tam || 1;
-  let novoTam = Math.round((atual + delta) * 4) / 4;
-  novoTam = Math.max(0.5, Math.min(3, novoTam));
+  let novoTam = Math.round((atual + delta) * 10) / 10;
+  novoTam = Math.max(0.3, Math.min(5, novoTam));
   if (novoTam === atual) return;
+  set(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/tokens/${id}/tam`), novoTam);
+}
+
+// Define um valor exato de tamanho (usado no arraste livre e no input manual).
+function definirTamanhoToken(id, valor) {
+  const tk = (mapaData.tokens||{})[id];
+  if (!tk) return;
+  let novoTam = Math.round(valor * 20) / 20; // arredonda pra múltiplos de 0.05
+  novoTam = Math.max(0.3, Math.min(5, novoTam));
   set(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/tokens/${id}/tam`), novoTam);
 }
 
@@ -5819,16 +5908,21 @@ function renderMapa() {
     const tokenDominioAtivo = tk.slot ? (!!dominiosAtivos[tk.slot] && !!getFicha(tk.slot)) : false;
     el.classList.toggle('dominio-ativo', tokenDominioAtivo);
 
-    // Tamanho do token: multiplicador salvo em tk.tam (1 = padrão, 0.5–3)
+    // Tamanho do token: multiplicador salvo em tk.tam (1 = padrão, 0.3–5, livre)
     const tam = tk.tam || 1;
     const tamanhoBase = cellSize*0.8;
     const tamanhoCirculo = tamanhoBase * tam;
     el.dataset.tam = tam;
 
     const circle = el.querySelector('.mapa-token-circle');
-    circle.style.width  = tamanhoCirculo+'px';
-    circle.style.height = tamanhoCirculo+'px';
-    circle.style.fontSize = Math.max(10, cellSize*0.32*tam)+'px';
+    // Enquanto o handle de arrastar está em uso, não sobrescreve o tamanho
+    // (evita "piscar" de volta pro tamanho antigo se o mapa re-renderizar
+    // por causa de outro jogador mexendo em algo, antes do Firebase salvar).
+    if (!el.classList.contains('resizing-tam')) {
+      circle.style.width  = tamanhoCirculo+'px';
+      circle.style.height = tamanhoCirculo+'px';
+      circle.style.fontSize = Math.max(10, cellSize*0.32*tam)+'px';
+    }
     circle.innerHTML = (tk.avatar ? `<img src="${tk.avatar}">` : esc(tk.emoji || (tk.nome||'?')[0]))
       + (morto ? `<div class="mapa-token-skull">☠️</div>` : '');
     circle.style.borderColor = tk.cor || '';
@@ -5837,7 +5931,7 @@ function renderMapa() {
 
     // Recentraliza o token no tile mesmo quando o círculo cresce/encolhe
     const offset = (tamanhoCirculo - tamanhoBase)/2;
-    if (!el.classList.contains('dragging')) {
+    if (!el.classList.contains('dragging') && !el.classList.contains('resizing-tam')) {
       el.style.left = (tk.col*cellSize + cellSize*0.1 - offset) + 'px';
       el.style.top  = (tk.row*cellSize + cellSize*0.1 - offset) + 'px';
     }
@@ -5846,6 +5940,8 @@ function renderMapa() {
     const remBtnExistente = el.querySelector('.mapa-token-remove');
     if (remBtnExistente) remBtnExistente.remove();
     el.querySelectorAll('.mapa-token-resize').forEach(b => b.remove());
+    const handleExistente = el.querySelector('.mapa-token-resize-handle');
+    if (handleExistente) handleExistente.remove();
 
     if (podeMover) {
       const remBtn = document.createElement('div');
@@ -5866,6 +5962,40 @@ function renderMapa() {
       });
       el.appendChild(remBtn);
 
+      // Handle de arrastar no canto — redimensiona livremente, qualquer valor
+      const handle = document.createElement('div');
+      handle.className = 'mapa-token-resize-handle';
+      handle.textContent = '⤡';
+      handle.title = 'Arraste para redimensionar livremente (ou dê 2 cliques no token pra digitar o tamanho)';
+      handle.addEventListener('pointerdown', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const startX = e.clientX, startY = e.clientY;
+        const tamInicial = tk.tam || 1;
+        const cellAtual = cellSize;
+        el.classList.add('resizing-tam');
+        handle.setPointerCapture?.(e.pointerId);
+        let tamFinal = tamInicial;
+        function mover(ev) {
+          const dist = ((ev.clientX-startX) + (ev.clientY-startY)) / 2;
+          tamFinal = Math.max(0.3, Math.min(5, tamInicial + dist/cellAtual));
+          const tb = cellAtual*0.8;
+          const tc = tb * tamFinal;
+          circle.style.width = tc+'px';
+          circle.style.height = tc+'px';
+          circle.style.fontSize = Math.max(10, cellAtual*0.32*tamFinal)+'px';
+        }
+        function soltar() {
+          document.removeEventListener('pointermove', mover);
+          document.removeEventListener('pointerup', soltar);
+          el.classList.remove('resizing-tam');
+          definirTamanhoToken(id, tamFinal);
+        }
+        document.addEventListener('pointermove', mover);
+        document.addEventListener('pointerup', soltar);
+      });
+      el.appendChild(handle);
+
       // Botões de redimensionar (- / +), alternativa ao scroll do mouse
       const btnMenos = document.createElement('div');
       btnMenos.className = 'mapa-token-resize menos';
@@ -5874,7 +6004,7 @@ function renderMapa() {
       btnMenos.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); });
       btnMenos.addEventListener('click', (e) => {
         e.stopPropagation(); e.preventDefault();
-        redimensionarToken(id, -0.25);
+        redimensionarToken(id, -0.1);
       });
       el.appendChild(btnMenos);
 
@@ -5885,7 +6015,7 @@ function renderMapa() {
       btnMais.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); });
       btnMais.addEventListener('click', (e) => {
         e.stopPropagation(); e.preventDefault();
-        redimensionarToken(id, 0.25);
+        redimensionarToken(id, 0.1);
       });
       el.appendChild(btnMais);
     }
@@ -6426,9 +6556,24 @@ function ativarDragToken(el, id) {
     e.preventDefault();
     e.stopPropagation();
     clearTimeout(wheelDebounce);
-    const delta = e.deltaY > 0 ? -0.25 : 0.25;
+    const delta = e.deltaY > 0 ? -0.1 : 0.1;
     wheelDebounce = setTimeout(() => redimensionarToken(id, delta), 60);
   }, { passive: false });
+
+  // Duplo clique no token = digitar o tamanho exato (ex: 1.75, 2.4...)
+  el.addEventListener('dblclick', e => {
+    const tk = (mapaData.tokens||{})[id];
+    const podeMover = modoMestre || (tk && tk.slot === meuSlot);
+    if (!podeMover) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const atual = tk.tam || 1;
+    const valor = prompt('Tamanho do token (0.3 a 5, ex: 1.5 = 150%):', atual);
+    if (valor === null) return;
+    const novo = parseFloat(String(valor).replace(',', '.'));
+    if (isNaN(novo)) { showToast?.('Digite um número válido.', ''); return; }
+    definirTamanhoToken(id, novo);
+  });
 }
 
 window.addEventListener('resize', () => { if (sessaoId) renderMapa(); });
