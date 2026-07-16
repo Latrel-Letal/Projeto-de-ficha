@@ -2095,6 +2095,86 @@
   }
   .card-tab-panel.active { display: flex; }
 
+  /* ══════════════════════════════════════
+     FICHA — EFEITO 3D (frente / verso do Inventário)
+  ══════════════════════════════════════ */
+  .ficha-flip-container {
+    perspective: 2000px;
+  }
+  .ficha-flipper {
+    position: relative;
+    width: 100%;
+    transition: transform 0.7s cubic-bezier(.4,.2,.2,1);
+    transform-style: preserve-3d;
+  }
+  .ficha-flipper.flipped { transform: rotateY(180deg); }
+  .ficha-front, .ficha-back {
+    width: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .ficha-front { display: flex; flex-direction: column; }
+  .ficha-back {
+    position: absolute;
+    inset: 0;
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    background: var(--bg2);
+    border-radius: inherit;
+  }
+  .ficha-back-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+    flex-shrink: 0;
+  }
+  .ficha-back-header span {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    color: var(--text);
+    letter-spacing: 0.5px;
+  }
+  .ficha-back-body { padding: 14px 18px; }
+  .btn-voltar-ficha {
+    background: none;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    border-radius: 7px;
+    padding: 5px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-voltar-ficha:hover { color: var(--text); border-color: var(--red); }
+  .ficha-geral-flip-prompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 24px 10px;
+    text-align: center;
+    color: var(--text2);
+    font-size: 12px;
+  }
+  .btn-ver-inventario {
+    background: linear-gradient(135deg, #b177f5, var(--purple));
+    border: none;
+    color: white;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 14px rgba(168,85,247,0.35);
+  }
+  .btn-ver-inventario:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(168,85,247,0.5); }
+
   /* ── ACORDEÕES dentro das abas ── */
   .acordeao {
     border: 1px solid var(--border);
@@ -6872,6 +6952,12 @@ document.addEventListener('click', e => {
   fecharDockPopup();
 });
 
+// Vira a ficha entre frente (combate/habilidades/geral) e verso (inventário)
+window.virarFicha = function(flipperId) {
+  const flipper = document.getElementById(flipperId);
+  if (flipper) flipper.classList.toggle('flipped');
+};
+
 function criarCard(slot, d, isNpc) {
   isNpc = !!isNpc;
   const ismine = (slot === meuSlot) || modoMestre;
@@ -6936,6 +7022,7 @@ function criarCard(slot, d, isNpc) {
   const classeBadgeLabel = CLASSES.find(c => c.value === classeAtual)?.label || '✨ Caster';
 
   // Avatar
+  const flipperId = `flipper-${slot}-${Math.random().toString(36).slice(2,8)}`;
   const avatarSrc = d.avatar ? `<img src="${d.avatar}" alt="avatar">` : `<span style="font-size:22px">${(d.nome||'?')[0]}</span>`;
   const avatarEditable = ismine ? 'class="avatar-circle editable"' : 'class="avatar-circle"';
 
@@ -7284,51 +7371,70 @@ function criarCard(slot, d, isNpc) {
 
   card.innerHTML = `
     ${dominioBannerHTML}
-    <div class="card-header">
-      <div ${avatarEditable} data-slot="${slot}" title="${ismine?'Clique para alterar avatar':''}">
-        ${avatarSrc}
-      </div>
-      ${ismine ? `<input type="file" class="avatar-input" accept="image/*" data-slot="${slot}">` : ''}
-      <div class="card-header-left" style="margin-left:10px">
-        <div class="char-name" ${ea} data-field="nome">${d.nome||slot}</div>
-        <div class="char-meta">
-          <span>⚡ <span ${ea} data-field="linhagem">${d.linhagem||'—'}</span></span>
-          <span>◆ <span ${ea} data-field="grau">${d.grau||'—'}</span></span>
-          <span>▲ <span ${ea} data-field="nivel">${d.nivel||'—'}</span></span>
-          <span>🏛 <span ${ea} data-field="afiliacao">${d.afiliacao||'—'}</span></span>
+    <div class="ficha-flip-container">
+      <div class="ficha-flipper" id="${flipperId}">
+        <div class="ficha-front">
+          <div class="card-header">
+            <div ${avatarEditable} data-slot="${slot}" title="${ismine?'Clique para alterar avatar':''}">
+              ${avatarSrc}
+            </div>
+            ${ismine ? `<input type="file" class="avatar-input" accept="image/*" data-slot="${slot}">` : ''}
+            <div class="card-header-left" style="margin-left:10px">
+              <div class="char-name" ${ea} data-field="nome">${d.nome||slot}</div>
+              <div class="char-meta">
+                <span>⚡ <span ${ea} data-field="linhagem">${d.linhagem||'—'}</span></span>
+                <span>◆ <span ${ea} data-field="grau">${d.grau||'—'}</span></span>
+                <span>▲ <span ${ea} data-field="nivel">${d.nivel||'—'}</span></span>
+                <span>🏛 <span ${ea} data-field="afiliacao">${d.afiliacao||'—'}</span></span>
+              </div>
+              <div class="classe-select-wrap">
+                ${ismine ? `
+                <select class="classe-select" data-field="classe">
+                  ${CLASSES.map(c => `<option value="${c.value}" ${c.value===classeAtual?'selected':''}>${c.label}</option>`).join('')}
+                </select>` : `
+                <span class="classe-badge ${classeAtual}">${classeBadgeLabel}</span>`}
+              </div>
+              <div class="condicoes-area">${condicoesHTML}${addCondBtn}</div>
+            </div>
+            <span class="player-badge ${badgeClass}">${badgeLabel}</span>
+            ${dupNpcBtnHTML}
+            ${delNpcBtnHTML}
+          </div>
+
+          <div class="card-tabs-nav">
+            <button class="card-tab-btn ${tabAtiva==='combate'?'active':''}" data-tab="combate">⚔️ Combate</button>
+            <button class="card-tab-btn ${tabAtiva==='habilidades'?'active':''}" data-tab="habilidades">✨ Habilidades</button>
+            <button class="card-tab-btn ${tabAtiva==='geral'?'active':''}" data-tab="geral">🎒 Geral</button>
+          </div>
+
+          <div class="card-tab-panel ${tabAtiva==='combate'?'active':''}" data-panel="combate">
+            ${acord('❤️ Recursos', 'recursos', secRecursos, true)}
+            ${acord('📊 Status', 'status', secStatus, true)}
+            ${acord('🎯 Atributos', 'atributos', secAtributos, true)}
+          </div>
+
+          <div class="card-tab-panel ${tabAtiva==='habilidades'?'active':''}" data-panel="habilidades">
+            ${tabHabilidades}
+          </div>
+
+          <div class="card-tab-panel ${tabAtiva==='geral'?'active':''}" data-panel="geral">
+            <div class="ficha-geral-flip-prompt">
+              <span>🎒 O inventário agora vive no verso da ficha.</span>
+              <button class="btn-ver-inventario" onclick="virarFicha('${flipperId}')">🔄 Ver Inventário</button>
+            </div>
+          </div>
         </div>
-        <div class="classe-select-wrap">
-          ${ismine ? `
-          <select class="classe-select" data-field="classe">
-            ${CLASSES.map(c => `<option value="${c.value}" ${c.value===classeAtual?'selected':''}>${c.label}</option>`).join('')}
-          </select>` : `
-          <span class="classe-badge ${classeAtual}">${classeBadgeLabel}</span>`}
+
+        <div class="ficha-back">
+          <div class="ficha-back-header">
+            <span>🎒 Inventário — ${esc(d.nome||slot)}</span>
+            <button class="btn-voltar-ficha" onclick="virarFicha('${flipperId}')">↩ Voltar</button>
+          </div>
+          <div class="ficha-back-body">
+            ${secInventario}
+          </div>
         </div>
-        <div class="condicoes-area">${condicoesHTML}${addCondBtn}</div>
       </div>
-      <span class="player-badge ${badgeClass}">${badgeLabel}</span>
-      ${dupNpcBtnHTML}
-      ${delNpcBtnHTML}
-    </div>
-
-    <div class="card-tabs-nav">
-      <button class="card-tab-btn ${tabAtiva==='combate'?'active':''}" data-tab="combate">⚔️ Combate</button>
-      <button class="card-tab-btn ${tabAtiva==='habilidades'?'active':''}" data-tab="habilidades">✨ Habilidades</button>
-      <button class="card-tab-btn ${tabAtiva==='geral'?'active':''}" data-tab="geral">🎒 Geral</button>
-    </div>
-
-    <div class="card-tab-panel ${tabAtiva==='combate'?'active':''}" data-panel="combate">
-      ${acord('❤️ Recursos', 'recursos', secRecursos, true)}
-      ${acord('📊 Status', 'status', secStatus, true)}
-      ${acord('🎯 Atributos', 'atributos', secAtributos, true)}
-    </div>
-
-    <div class="card-tab-panel ${tabAtiva==='habilidades'?'active':''}" data-panel="habilidades">
-      ${tabHabilidades}
-    </div>
-
-    <div class="card-tab-panel ${tabAtiva==='geral'?'active':''}" data-panel="geral">
-      ${acord('🎒 Inventário', 'inventario', secInventario, true)}
     </div>
   `;
 
