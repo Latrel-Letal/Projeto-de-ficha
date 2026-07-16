@@ -792,8 +792,10 @@
     margin-bottom: 8px;
   }
   .dock-popup-bar-fill { height: 100%; border-radius: 4px; transition: width 0.2s; }
-  .dock-popup-bar-fill.pv { background: linear-gradient(90deg,#ff4a4a,#f0c040,var(--online)); }
-  .dock-popup-bar-fill.ea { background: linear-gradient(90deg,var(--blue),var(--purple)); }
+  .dock-popup-bar-fill.pv { background: linear-gradient(90deg,#7f1d1d,var(--red)); }
+  .dock-popup-bar-fill.ea { background: linear-gradient(90deg,#1e3a6e,var(--blue)); }
+  .dock-popup-bar-fill.pvt { background: linear-gradient(90deg,#78350f,var(--gold)); }
+  .dock-popup-bar-fill.estamina { background: linear-gradient(90deg,#4c1d75,var(--purple)); }
   .dock-popup-dominio-tag {
     font-size: 9px;
     color: var(--purple);
@@ -6813,18 +6815,42 @@ function togglePersonagensDockPopup(slot, itemEl) {
   }
   const d = fichasData[slot];
   if (!d) return;
-  const pvPct = Math.max(0, Math.min(100, d.pvMax > 0 ? (d.pv / d.pvMax) * 100 : 0));
-  const eaPct = Math.max(0, Math.min(100, d.eaMax > 0 ? (d.ea / d.eaMax) * 100 : 0));
+
+  // Mesma lógica de classe usada em criarCard(): cada classe usa um conjunto
+  // diferente de atributos (Restrição não usa EA; Fala usa Estamina em vez de PVT).
+  const classeAtual = d.classe || 'feiticeiro';
+  const isRestricao = classeAtual === 'restricao';
+  const isFala = classeAtual === 'fala';
+  const ESTAMINA_MAX = 12;
+  const estaminaAtual = Math.max(0, Math.min(ESTAMINA_MAX, Number(d.estamina) || 0));
+
+  const pvPct  = Math.max(0, Math.min(100, d.pvMax > 0 ? (d.pv / d.pvMax) * 100 : 0));
+  const eaPct  = Math.max(0, Math.min(100, d.eaMax > 0 ? (d.ea / d.eaMax) * 100 : 0));
+  const pvtPct = Math.max(0, Math.min(100, d.pvtMax > 0 ? (d.pvt / d.pvtMax) * 100 : 0));
+  const estaminaPct = Math.max(0, Math.min(100, (estaminaAtual / ESTAMINA_MAX) * 100));
   const dominioAtivo = !!dominiosAtivos[slot];
+
+  const linhaPV = `
+    <div class="dock-popup-bar-label"><span>PV</span><span>${d.pv ?? 0}/${d.pvMax ?? 0}</span></div>
+    <div class="dock-popup-bar-track"><div class="dock-popup-bar-fill pv" style="width:${pvPct}%"></div></div>`;
+
+  const linhaTerceira = isFala ? `
+    <div class="dock-popup-bar-label"><span>EST</span><span>${estaminaAtual}/${ESTAMINA_MAX}</span></div>
+    <div class="dock-popup-bar-track"><div class="dock-popup-bar-fill estamina" style="width:${estaminaPct}%"></div></div>` : `
+    <div class="dock-popup-bar-label"><span>PVT</span><span>${d.pvt ?? 0}/${d.pvtMax ?? 0}</span></div>
+    <div class="dock-popup-bar-track"><div class="dock-popup-bar-fill pvt" style="width:${pvtPct}%"></div></div>`;
+
+  const linhaEA = !isRestricao ? `
+    <div class="dock-popup-bar-label"><span>EA</span><span>${d.ea ?? 0}/${d.eaMax ?? 0}</span></div>
+    <div class="dock-popup-bar-track"><div class="dock-popup-bar-fill ea" style="width:${eaPct}%"></div></div>` : '';
 
   popup.dataset.slot = slot;
   popup.innerHTML = `
     <div class="dock-popup-nome">${esc(d.nome || 'Personagem')}</div>
     ${dominioAtivo ? `<div class="dock-popup-dominio-tag">💀 Domínio Ativo</div>` : ''}
-    <div class="dock-popup-bar-label"><span>PV</span><span>${d.pv ?? 0}/${d.pvMax ?? 0}</span></div>
-    <div class="dock-popup-bar-track"><div class="dock-popup-bar-fill pv" style="width:${pvPct}%"></div></div>
-    <div class="dock-popup-bar-label"><span>EA</span><span>${d.ea ?? 0}/${d.eaMax ?? 0}</span></div>
-    <div class="dock-popup-bar-track"><div class="dock-popup-bar-fill ea" style="width:${eaPct}%"></div></div>
+    ${linhaPV}
+    ${linhaTerceira}
+    ${linhaEA}
     <button class="dock-popup-btn" onclick="abrirFichaDrawerSlot('${esc(slot)}')">📋 Ver ficha completa</button>
   `;
   popup.style.top = Math.max(0, itemEl.offsetTop) + 'px';
