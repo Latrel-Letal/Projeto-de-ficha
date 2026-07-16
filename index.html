@@ -682,7 +682,143 @@
     flex: 1;
     overflow: auto;
     padding: 20px;
+    position: relative;
     background: repeating-conic-gradient(var(--bg3) 0% 25%, var(--bg) 0% 50%) 0 0/22px 22px;
+  }
+
+  /* ══════════════════════════════════════
+     DOCK DE PERSONAGENS — LATERAL NO MAPA
+  ══════════════════════════════════════ */
+  .personagens-dock {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 6px;
+    background: rgba(10,10,15,0.55);
+    border: 1px solid var(--border2);
+    border-radius: 14px;
+    backdrop-filter: blur(4px);
+    max-height: calc(100% - 20px);
+    overflow-y: auto;
+  }
+  .personagens-dock:empty { display: none; }
+  .dock-item {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .dock-item-ring {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    padding: 2px;
+    background: conic-gradient(var(--online) calc(var(--pv-pct,100) * 1%), var(--red) 0);
+    transition: background 0.2s;
+  }
+  .dock-item-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg3);
+    border: 2px solid var(--bg1, #0a0a12);
+    font-size: 18px;
+  }
+  .dock-item-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .dock-item.selecionado .dock-item-ring { box-shadow: 0 0 0 2px var(--purple); }
+  .dock-item.dominio-ativo .dock-item-ring { box-shadow: 0 0 10px 2px rgba(168,85,247,0.7); }
+  .dock-item-nome {
+    position: absolute;
+    left: 56px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(10,10,15,0.85);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 5px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+  }
+  .dock-item:hover .dock-item-nome { opacity: 1; }
+
+  /* Popup compacto ao clicar num avatar do dock */
+  .dock-popup {
+    position: absolute;
+    left: 62px;
+    top: 0;
+    z-index: 50;
+    width: 190px;
+    background: var(--bg1, #0a0a12);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    padding: 10px;
+    display: none;
+  }
+  .dock-popup.show { display: block; }
+  .dock-popup-nome {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    color: var(--text);
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+  }
+  .dock-popup-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--text2);
+    margin-bottom: 2px;
+  }
+  .dock-popup-bar-track {
+    height: 6px;
+    border-radius: 4px;
+    background: var(--bg3);
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .dock-popup-bar-fill { height: 100%; border-radius: 4px; transition: width 0.2s; }
+  .dock-popup-bar-fill.pv { background: linear-gradient(90deg,#ff4a4a,#f0c040,var(--online)); }
+  .dock-popup-bar-fill.ea { background: linear-gradient(90deg,var(--blue),var(--purple)); }
+  .dock-popup-dominio-tag {
+    font-size: 9px;
+    color: var(--purple);
+    border: 1px solid rgba(168,85,247,0.5);
+    border-radius: 6px;
+    padding: 2px 6px;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+  .dock-popup-btn {
+    width: 100%;
+    background: none;
+    border: 1px solid var(--border2);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 6px;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .dock-popup-btn:hover { border-color: var(--purple); color: var(--purple); }
+  @media (max-width: 640px) {
+    .personagens-dock { left: 6px; top: 6px; }
+    .dock-item { width: 40px; height: 40px; }
+    .dock-popup { left: 50px; width: 170px; }
   }
   .mapa-canvas {
     position: relative;
@@ -3171,6 +3307,8 @@
     </div>
 
     <div class="mapa-viewport" id="mapaViewport">
+      <div class="personagens-dock" id="personagensDock"></div>
+      <div class="dock-popup" id="dockPopup"></div>
       <div class="mapa-canvas" id="mapaCanvas">
         <svg class="dominio-zona-svg" id="dominioZonaSvg"></svg>
         <svg class="mapa-formas-svg" id="mapaFormasSvg"></svg>
@@ -3267,7 +3405,7 @@
 <div class="ficha-drawer-overlay" id="fichaDrawerOverlay" onclick="fecharFichaDrawerSeFora(event)">
   <div class="ficha-drawer">
     <div class="ficha-drawer-header">
-      <span>📋 Minha Ficha</span>
+      <span id="fichaDrawerTitulo">📋 Minha Ficha</span>
       <button class="ficha-drawer-close" onclick="toggleFichaDrawer(false)">✕ Fechar</button>
     </div>
     <div class="ficha-drawer-body" id="fichaDrawerBody"></div>
@@ -4214,15 +4352,23 @@ function atualizarFichaDrawerFabVisibilidade() {
   fab.style.display = (areaMapaVisivel && temFichaPropria) ? 'flex' : 'none';
 }
 
+// Slot cuja ficha está aberta no drawer. null = usa meuSlot (própria ficha).
+let fichaDrawerSlotAtual = null;
+
 function renderFichaDrawer() {
   const body = document.getElementById('fichaDrawerBody');
+  const titulo = document.getElementById('fichaDrawerTitulo');
   if (!body) return;
   body.innerHTML = '';
-  const d = fichasData[meuSlot];
-  if (meuSlot && d) {
-    body.appendChild(criarCard(meuSlot, d, false));
+  const slot = fichaDrawerSlotAtual || meuSlot;
+  const isNpcAlvo = !!fichasNpcData[slot];
+  const d = fichasData[slot] || fichasNpcData[slot];
+  if (slot && d) {
+    body.appendChild(criarCard(slot, d, isNpcAlvo));
+    if (titulo) titulo.textContent = (slot === meuSlot) ? '📋 Minha Ficha' : `📋 Ficha de ${d.nome || 'Personagem'}`;
   } else {
     body.innerHTML = '<div style="padding:24px 8px;color:var(--text2);text-align:center;">Ficha não encontrada.</div>';
+    if (titulo) titulo.textContent = '📋 Ficha';
   }
 }
 
@@ -4233,11 +4379,22 @@ window.toggleFichaDrawer = function(forcarAberto) {
   if (!overlay) return;
   const abrir = typeof forcarAberto === 'boolean' ? forcarAberto : !overlay.classList.contains('show');
   if (abrir) {
+    fichaDrawerSlotAtual = meuSlot; // FAB sempre abre a própria ficha
     renderFichaDrawer();
     overlay.classList.add('show');
   } else {
     overlay.classList.remove('show');
   }
+};
+
+// Abre o drawer com a ficha completa de um personagem específico (usado pelo dock de personagens no mapa)
+window.abrirFichaDrawerSlot = function(slot) {
+  const overlay = document.getElementById('fichaDrawerOverlay');
+  if (!overlay) return;
+  fichaDrawerSlotAtual = slot;
+  renderFichaDrawer();
+  overlay.classList.add('show');
+  fecharDockPopup();
 };
 
 window.fecharFichaDrawerSeFora = function(ev) {
@@ -6611,7 +6768,83 @@ function renderFichas() {
 
   // Mantém a aba exclusiva de NPCs sincronizada (se estiver aberta ou não)
   if (modoMestre) renderNpcsTab();
+
+  // Mantém o dock de personagens (aba Mapa) sincronizado
+  renderPersonagensDock();
 }
+
+/* ══════════════════════════════════════
+   DOCK DE PERSONAGENS — LATERAL NO MAPA
+   Mostra um avatar por personagem (você + aliados). Ao clicar, abre um
+   popup compacto com PV/EA e um botão para ver a ficha completa.
+══════════════════════════════════════ */
+function renderPersonagensDock() {
+  const dock = document.getElementById('personagensDock');
+  if (!dock) return;
+  const ids = Object.keys(fichasData).filter(id => fichasData[id]);
+  if (!ids.length) { dock.innerHTML = ''; fecharDockPopup(); return; }
+  const ordem = meuSlot && ids.includes(meuSlot) ? [meuSlot, ...ids.filter(id => id !== meuSlot)] : ids;
+
+  dock.innerHTML = ordem.map(slot => {
+    const d = fichasData[slot];
+    const pvPct = Math.max(0, Math.min(100, d.pvMax > 0 ? (d.pv / d.pvMax) * 100 : 0));
+    const avatarHTML = d.avatar ? `<img src="${d.avatar}" alt="avatar">` : `<span>${esc((d.nome || '?')[0])}</span>`;
+    const dominioAtivo = !!dominiosAtivos[slot];
+    return `<div class="dock-item${dominioAtivo ? ' dominio-ativo' : ''}" data-slot="${esc(slot)}" style="--pv-pct:${pvPct}" title="${esc(d.nome || 'Personagem')}">
+      <div class="dock-item-ring"><div class="dock-item-avatar">${avatarHTML}</div></div>
+      <span class="dock-item-nome">${esc(d.nome || 'Personagem')}</span>
+    </div>`;
+  }).join('');
+
+  dock.querySelectorAll('.dock-item').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      togglePersonagensDockPopup(item.dataset.slot, item);
+    });
+  });
+}
+
+function togglePersonagensDockPopup(slot, itemEl) {
+  const popup = document.getElementById('dockPopup');
+  if (!popup) return;
+  if (popup.classList.contains('show') && popup.dataset.slot === slot) {
+    fecharDockPopup();
+    return;
+  }
+  const d = fichasData[slot];
+  if (!d) return;
+  const pvPct = Math.max(0, Math.min(100, d.pvMax > 0 ? (d.pv / d.pvMax) * 100 : 0));
+  const eaPct = Math.max(0, Math.min(100, d.eaMax > 0 ? (d.ea / d.eaMax) * 100 : 0));
+  const dominioAtivo = !!dominiosAtivos[slot];
+
+  popup.dataset.slot = slot;
+  popup.innerHTML = `
+    <div class="dock-popup-nome">${esc(d.nome || 'Personagem')}</div>
+    ${dominioAtivo ? `<div class="dock-popup-dominio-tag">💀 Domínio Ativo</div>` : ''}
+    <div class="dock-popup-bar-label"><span>PV</span><span>${d.pv ?? 0}/${d.pvMax ?? 0}</span></div>
+    <div class="dock-popup-bar-track"><div class="dock-popup-bar-fill pv" style="width:${pvPct}%"></div></div>
+    <div class="dock-popup-bar-label"><span>EA</span><span>${d.ea ?? 0}/${d.eaMax ?? 0}</span></div>
+    <div class="dock-popup-bar-track"><div class="dock-popup-bar-fill ea" style="width:${eaPct}%"></div></div>
+    <button class="dock-popup-btn" onclick="abrirFichaDrawerSlot('${esc(slot)}')">📋 Ver ficha completa</button>
+  `;
+  popup.style.top = Math.max(0, itemEl.offsetTop) + 'px';
+  popup.classList.add('show');
+
+  document.querySelectorAll('.dock-item.selecionado').forEach(el => el.classList.remove('selecionado'));
+  itemEl.classList.add('selecionado');
+}
+
+function fecharDockPopup() {
+  const popup = document.getElementById('dockPopup');
+  if (popup) { popup.classList.remove('show'); popup.dataset.slot = ''; }
+  document.querySelectorAll('.dock-item.selecionado').forEach(el => el.classList.remove('selecionado'));
+}
+document.addEventListener('click', e => {
+  const popup = document.getElementById('dockPopup');
+  if (!popup || !popup.classList.contains('show')) return;
+  if (popup.contains(e.target) || e.target.closest('.dock-item')) return;
+  fecharDockPopup();
+});
 
 function criarCard(slot, d, isNpc) {
   isNpc = !!isNpc;
