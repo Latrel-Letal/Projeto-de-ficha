@@ -451,17 +451,6 @@
   .main-layout.visible { display: flex; align-items: flex-start; }
 
   /* ── FICHAS AREA ── */
-  .fichas-toolbar {
-    display: flex;
-    justify-content: flex-end;
-    padding: 8px 14px 0;
-  }
-  .fichas-area.collapsed .fichas-toolbar { display: none; }
-  #btnToggleSoMinha.ativo {
-    border-color: var(--purple);
-    color: var(--purple);
-    background: var(--purple-glow);
-  }
   .fichas-area {
     flex: 1;
     min-width: 0;
@@ -474,6 +463,11 @@
     pointer-events: none;
     width: 0;
     padding: 0;
+  }
+  /* Wrapper posicionado — ancora o dock lateral de aliados (igual ao do Mapa) */
+  .fichas-viewport {
+    position: relative;
+    min-height: calc(100vh - 53px);
   }
   .fichas-container {
     column-width: 360px;
@@ -489,6 +483,19 @@
     -webkit-column-break-inside: avoid;
     margin: 0 0 18px;
     vertical-align: top;
+  }
+  /* Modo jogador: mostra só a própria ficha, centralizada na tela */
+  .fichas-container.fichas-solo {
+    display: flex;
+    justify-content: center;
+    column-width: auto;
+    padding-left: 90px;
+  }
+  .fichas-container.fichas-solo > .ficha-card {
+    display: block;
+    width: 100%;
+    max-width: 460px;
+    margin: 0;
   }
 
   /* ══════════════════════════════════════
@@ -792,10 +799,8 @@
     margin-bottom: 8px;
   }
   .dock-popup-bar-fill { height: 100%; border-radius: 4px; transition: width 0.2s; }
-  .dock-popup-bar-fill.pv { background: linear-gradient(90deg,#7f1d1d,var(--red)); }
-  .dock-popup-bar-fill.ea { background: linear-gradient(90deg,#1e3a6e,var(--blue)); }
-  .dock-popup-bar-fill.pvt { background: linear-gradient(90deg,#78350f,var(--gold)); }
-  .dock-popup-bar-fill.estamina { background: linear-gradient(90deg,#4c1d75,var(--purple)); }
+  .dock-popup-bar-fill.pv { background: linear-gradient(90deg,#ff4a4a,#f0c040,var(--online)); }
+  .dock-popup-bar-fill.ea { background: linear-gradient(90deg,var(--blue),var(--purple)); }
   .dock-popup-dominio-tag {
     font-size: 9px;
     color: var(--purple);
@@ -821,6 +826,7 @@
     .personagens-dock { left: 6px; top: 6px; }
     .dock-item { width: 40px; height: 40px; }
     .dock-popup { left: 50px; width: 170px; }
+    .fichas-container.fichas-solo { padding-left: 56px; }
   }
   .mapa-canvas {
     position: relative;
@@ -1751,30 +1757,6 @@
   /* ══════════════════════════════════════
      FICHA FLUTUANTE — ACESSO RÁPIDO NO MAPA
   ══════════════════════════════════════ */
-  .ficha-drawer-fab {
-    position: fixed;
-    bottom: 28px;
-    right: 28px;
-    z-index: 400;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    border: none;
-    background: linear-gradient(135deg, #b177f5, var(--purple));
-    display: none;
-    align-items: center;
-    justify-content: center;
-    cursor: grab;
-    touch-action: none;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    box-shadow: 0 4px 16px rgba(168,85,247,0.5);
-    transition: transform 0.15s, box-shadow 0.15s;
-    font-size: 22px;
-  }
-  .ficha-drawer-fab:hover { transform: scale(1.1); box-shadow: 0 6px 22px rgba(168,85,247,0.75); }
-  .ficha-drawer-fab:active { transform: scale(0.93); cursor: grabbing; }
-  .ficha-drawer-fab:active { transform: scale(0.93); }
 
   .ficha-drawer-overlay {
     position: fixed;
@@ -1835,7 +1817,6 @@
   }
   .ficha-drawer-body .ficha-card { width: 100%; max-width: none; }
   @media (max-width: 640px) {
-    .ficha-drawer-fab { right: 16px; bottom: 16px; }
     .ficha-drawer { width: 100vw; }
   }
 
@@ -2094,86 +2075,6 @@
     animation: fadeIn 0.18s ease;
   }
   .card-tab-panel.active { display: flex; }
-
-  /* ══════════════════════════════════════
-     FICHA — EFEITO 3D (frente / verso do Inventário)
-  ══════════════════════════════════════ */
-  .ficha-flip-container {
-    perspective: 2000px;
-  }
-  .ficha-flipper {
-    position: relative;
-    width: 100%;
-    transition: transform 0.7s cubic-bezier(.4,.2,.2,1);
-    transform-style: preserve-3d;
-  }
-  .ficha-flipper.flipped { transform: rotateY(180deg); }
-  .ficha-front, .ficha-back {
-    width: 100%;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-  }
-  .ficha-front { display: flex; flex-direction: column; }
-  .ficha-back {
-    position: absolute;
-    inset: 0;
-    transform: rotateY(180deg);
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    background: var(--bg2);
-    border-radius: inherit;
-  }
-  .ficha-back-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg3);
-    flex-shrink: 0;
-  }
-  .ficha-back-header span {
-    font-family: 'Cinzel', serif;
-    font-size: 13px;
-    color: var(--text);
-    letter-spacing: 0.5px;
-  }
-  .ficha-back-body { padding: 14px 18px; }
-  .btn-voltar-ficha {
-    background: none;
-    border: 1px solid var(--border2);
-    color: var(--text2);
-    border-radius: 7px;
-    padding: 5px 10px;
-    font-size: 11px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .btn-voltar-ficha:hover { color: var(--text); border-color: var(--red); }
-  .ficha-geral-flip-prompt {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    padding: 24px 10px;
-    text-align: center;
-    color: var(--text2);
-    font-size: 12px;
-  }
-  .btn-ver-inventario {
-    background: linear-gradient(135deg, #b177f5, var(--purple));
-    border: none;
-    color: white;
-    border-radius: 8px;
-    padding: 10px 18px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s;
-    box-shadow: 0 4px 14px rgba(168,85,247,0.35);
-  }
-  .btn-ver-inventario:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(168,85,247,0.5); }
 
   /* ── ACORDEÕES dentro das abas ── */
   .acordeao {
@@ -2508,6 +2409,7 @@
   @media (max-width: 860px) {
     .right-panel { width: 260px; }
     .fichas-container { column-width: 100%; padding: 12px; }
+    .fichas-container.fichas-solo { padding-left: 70px; }
   }
   @media (max-width: 640px) {
     .main-layout.visible { flex-direction: column; }
@@ -3307,10 +3209,11 @@
 
   <!-- Fichas -->
   <div class="fichas-area" id="fichasArea">
-    <div class="fichas-toolbar" id="fichasToolbar">
-      <button class="btn-mapa" id="btnToggleSoMinha" onclick="toggleSoMinhaFicha()">👁️ Ver só a minha ficha</button>
+    <div class="fichas-viewport" id="fichasViewport">
+      <div class="personagens-dock" id="personagensDockFichas"></div>
+      <div class="dock-popup" id="dockPopupFichas"></div>
+      <div class="fichas-container" id="fichasContainer"></div>
     </div>
-    <div class="fichas-container" id="fichasContainer"></div>
   </div>
 
   <!-- Fichas de NPC (visível apenas ao Mestre) -->
@@ -3482,8 +3385,7 @@
   </div>
 </div>
 
-<!-- FICHA FLUTUANTE — ACESSO RÁPIDO NO MAPA -->
-<button class="ficha-drawer-fab" id="fichaDrawerFab" onclick="toggleFichaDrawer()" title="Minha Ficha">📋</button>
+<!-- FICHA FLUTUANTE — ACESSO RÁPIDO NO MAPA (aberta pelo dock lateral de aliados) -->
 <div class="ficha-drawer-overlay" id="fichaDrawerOverlay" onclick="fecharFichaDrawerSeFora(event)">
   <div class="ficha-drawer">
     <div class="ficha-drawer-header">
@@ -3575,10 +3477,6 @@ let meuUid     = null;
 let authPronto = false;
 let fichasData = {};
 let modoMestre = false;
-// Preferência pessoal de UI (só afeta a tela de quem ativou, não é sincronizada
-// pelo Firebase): mostrar apenas a própria ficha na aba "Fichas", escondendo
-// as fichas dos outros jogadores. Fica salva no localStorage do navegador.
-let mostrarSoMinhaFicha = localStorage.getItem('jjk_soMinhaFicha') === '1';
 let modoAdminSelecao = false;
 let turnoAtual = 0;
 let turnoNumero = 1;
@@ -4418,21 +4316,13 @@ window.mudarAba = function(aba) {
   }
 
   if (aba !== 'mapa') toggleFichaDrawer(false);
-  atualizarFichaDrawerFabVisibilidade();
 };
 
 /* ══════════════════════════════════════
    FICHA FLUTUANTE — ACESSO RÁPIDO NO MAPA
-   Permite abrir/editar a própria ficha sem sair da aba Mapa.
+   Aberta a partir do dock lateral de personagens (clique no próprio avatar
+   ou no de um aliado).
 ══════════════════════════════════════ */
-function atualizarFichaDrawerFabVisibilidade() {
-  const fab = document.getElementById('fichaDrawerFab');
-  if (!fab) return;
-  const mapaArea = document.getElementById('mapaArea');
-  const areaMapaVisivel = mapaArea && !mapaArea.classList.contains('collapsed');
-  const temFichaPropria = meuSlot && meuSlot !== '__mestre__' && !!fichasData[meuSlot];
-  fab.style.display = (areaMapaVisivel && temFichaPropria) ? 'flex' : 'none';
-}
 
 // Slot cuja ficha está aberta no drawer. null = usa meuSlot (própria ficha).
 let fichaDrawerSlotAtual = null;
@@ -4455,13 +4345,11 @@ function renderFichaDrawer() {
 }
 
 window.toggleFichaDrawer = function(forcarAberto) {
-  const fab = document.getElementById('fichaDrawerFab');
-  if (typeof forcarAberto !== 'boolean' && fab && fab.dataset.dragged === '1') return;
   const overlay = document.getElementById('fichaDrawerOverlay');
   if (!overlay) return;
   const abrir = typeof forcarAberto === 'boolean' ? forcarAberto : !overlay.classList.contains('show');
   if (abrir) {
-    fichaDrawerSlotAtual = meuSlot; // FAB sempre abre a própria ficha
+    fichaDrawerSlotAtual = meuSlot;
     renderFichaDrawer();
     overlay.classList.add('show');
   } else {
@@ -4571,7 +4459,6 @@ function tornarArrastavel(el, storageKey) {
 }
 
 tornarArrastavel(document.getElementById('bardoFab'), 'posBardoFab');
-tornarArrastavel(document.getElementById('fichaDrawerFab'), 'posFichaDrawerFab');
 
 /* ══════════════════════════════════════
    FICHAS DE NPC (visíveis apenas ao Mestre)
@@ -4597,33 +4484,16 @@ function atualizarVisibilidadeMestreUI() {
   if (btn) btn.style.display = modoMestre ? 'flex' : 'none';
   const menuNpcs = document.getElementById('menuItemNpcs');
   if (menuNpcs) menuNpcs.style.display = modoMestre ? 'block' : 'none';
-  // O filtro "só a minha ficha" é uma preferência de jogador; o Mestre já tem
-  // a visão completa (e a aba própria de NPCs), então a toolbar some pra ele.
-  const toolbar = document.getElementById('fichasToolbar');
-  if (toolbar) toolbar.style.display = modoMestre ? 'none' : 'flex';
-  atualizarBotaoSoMinhaFicha();
+  // O dock lateral de aliados é uma conveniência de jogador (que só vê a própria
+  // ficha na aba Fichas); o Mestre já vê todas as fichas diretamente, então o
+  // dock some pra ele.
+  const dockFichasWrap = document.getElementById('personagensDockFichas');
+  if (dockFichasWrap) dockFichasWrap.style.display = modoMestre ? 'none' : 'flex';
   // Se o Mestre desativar o modo estando na aba de NPCs, volta para Fichas
   if (!modoMestre) {
     const npcsArea = document.getElementById('npcsArea');
     if (npcsArea && !npcsArea.classList.contains('collapsed')) mudarAba('fichas');
   }
-}
-
-// Alterna a preferência "ver só a minha ficha" na aba Fichas.
-// É puramente local (localStorage) — não mexe em nada no Firebase,
-// então não afeta o que os outros jogadores veem.
-window.toggleSoMinhaFicha = function() {
-  mostrarSoMinhaFicha = !mostrarSoMinhaFicha;
-  try { localStorage.setItem('jjk_soMinhaFicha', mostrarSoMinhaFicha ? '1' : '0'); } catch(e) {}
-  atualizarBotaoSoMinhaFicha();
-  renderFichas();
-};
-
-function atualizarBotaoSoMinhaFicha() {
-  const btn = document.getElementById('btnToggleSoMinha');
-  if (!btn) return;
-  btn.classList.toggle('ativo', mostrarSoMinhaFicha);
-  btn.textContent = mostrarSoMinhaFicha ? '👁️ Mostrando só a minha' : '👁️ Ver só a minha ficha';
 }
 
 // Renderiza a aba exclusiva do Mestre com apenas as fichas de NPC
@@ -6827,24 +6697,24 @@ function renderFichas() {
   let ordem;
   if (modoMestre) {
     ordem = [...ids, ...Object.keys(fichasNpcData)];
-  } else if (mostrarSoMinhaFicha) {
-    ordem = ids.includes(meuSlot) ? [meuSlot] : [];
   } else {
-    ordem = [meuSlot, ...ids.filter(id => id !== meuSlot)];
+    // Jogador vê apenas a própria ficha aqui; as fichas dos aliados ficam
+    // acessíveis (em modo leitura) pelo dock lateral.
+    ordem = ids.includes(meuSlot) ? [meuSlot] : [];
   }
+  container.classList.toggle('fichas-solo', !modoMestre);
   container.innerHTML = '';
   ordem.forEach(id => {
     const d = fichasData[id] || fichasNpcData[id];
     if (d) container.appendChild(criarCard(id, d, !!fichasNpcData[id]));
   });
-  if (!modoMestre && mostrarSoMinhaFicha && !ids.includes(meuSlot)) {
+  if (!modoMestre && !ids.includes(meuSlot)) {
     container.innerHTML = '<div style="padding:24px 8px;color:var(--text2);text-align:center;">Sua ficha ainda não está pronta.</div>';
   }
   // Re-aplicar destaque de turno
   if (window.__iniciativaCache) renderIniciativa(window.__iniciativaCache);
 
-  // Mantém a ficha flutuante (usada na aba Mapa) sincronizada
-  atualizarFichaDrawerFabVisibilidade();
+  // Mantém a ficha flutuante (aberta pelo dock) sincronizada, se estiver aberta
   const drawerOverlay = document.getElementById('fichaDrawerOverlay');
   if (drawerOverlay && drawerOverlay.classList.contains('show')) renderFichaDrawer();
 
@@ -6856,15 +6726,27 @@ function renderFichas() {
 }
 
 /* ══════════════════════════════════════
-   DOCK DE PERSONAGENS — LATERAL NO MAPA
+   DOCK DE PERSONAGENS — LATERAL (Mapa e Fichas)
    Mostra um avatar por personagem (você + aliados). Ao clicar, abre um
-   popup compacto com PV/EA e um botão para ver a ficha completa.
+   popup compacto com PV/EA e um botão para ver a ficha completa (somente
+   leitura para quem não é o dono do slot nem o Mestre).
+   Existe uma instância no Mapa (personagensDock/dockPopup) e outra na aba
+   Fichas (personagensDockFichas/dockPopupFichas), renderizadas juntas.
 ══════════════════════════════════════ */
+const DOCKS_PERSONAGENS = [
+  { dockId: 'personagensDock', popupId: 'dockPopup' },
+  { dockId: 'personagensDockFichas', popupId: 'dockPopupFichas' }
+];
+
 function renderPersonagensDock() {
-  const dock = document.getElementById('personagensDock');
+  DOCKS_PERSONAGENS.forEach(({ dockId, popupId }) => renderPersonagensDockEm(dockId, popupId));
+}
+
+function renderPersonagensDockEm(dockId, popupId) {
+  const dock = document.getElementById(dockId);
   if (!dock) return;
   const ids = Object.keys(fichasData).filter(id => fichasData[id]);
-  if (!ids.length) { dock.innerHTML = ''; fecharDockPopup(); return; }
+  if (!ids.length) { dock.innerHTML = ''; fecharDockPopup(popupId); return; }
   const ordem = meuSlot && ids.includes(meuSlot) ? [meuSlot, ...ids.filter(id => id !== meuSlot)] : ids;
 
   dock.innerHTML = ordem.map(slot => {
@@ -6881,82 +6763,59 @@ function renderPersonagensDock() {
   dock.querySelectorAll('.dock-item').forEach(item => {
     item.addEventListener('click', e => {
       e.stopPropagation();
-      togglePersonagensDockPopup(item.dataset.slot, item);
+      togglePersonagensDockPopup(item.dataset.slot, item, popupId);
     });
   });
 }
 
-function togglePersonagensDockPopup(slot, itemEl) {
-  const popup = document.getElementById('dockPopup');
+function togglePersonagensDockPopup(slot, itemEl, popupId) {
+  popupId = popupId || 'dockPopup';
+  const popup = document.getElementById(popupId);
   if (!popup) return;
   if (popup.classList.contains('show') && popup.dataset.slot === slot) {
-    fecharDockPopup();
+    fecharDockPopup(popupId);
     return;
   }
   const d = fichasData[slot];
   if (!d) return;
-
-  // Mesma lógica de classe usada em criarCard(): cada classe usa um conjunto
-  // diferente de atributos (Restrição não usa EA; Fala usa Estamina em vez de PVT).
-  const classeAtual = d.classe || 'feiticeiro';
-  const isRestricao = classeAtual === 'restricao';
-  const isFala = classeAtual === 'fala';
-  const ESTAMINA_MAX = 12;
-  const estaminaAtual = Math.max(0, Math.min(ESTAMINA_MAX, Number(d.estamina) || 0));
-
-  const pvPct  = Math.max(0, Math.min(100, d.pvMax > 0 ? (d.pv / d.pvMax) * 100 : 0));
-  const eaPct  = Math.max(0, Math.min(100, d.eaMax > 0 ? (d.ea / d.eaMax) * 100 : 0));
-  const pvtPct = Math.max(0, Math.min(100, d.pvtMax > 0 ? (d.pvt / d.pvtMax) * 100 : 0));
-  const estaminaPct = Math.max(0, Math.min(100, (estaminaAtual / ESTAMINA_MAX) * 100));
+  const pvPct = Math.max(0, Math.min(100, d.pvMax > 0 ? (d.pv / d.pvMax) * 100 : 0));
+  const eaPct = Math.max(0, Math.min(100, d.eaMax > 0 ? (d.ea / d.eaMax) * 100 : 0));
   const dominioAtivo = !!dominiosAtivos[slot];
-
-  const linhaPV = `
-    <div class="dock-popup-bar-label"><span>PV</span><span>${d.pv ?? 0}/${d.pvMax ?? 0}</span></div>
-    <div class="dock-popup-bar-track"><div class="dock-popup-bar-fill pv" style="width:${pvPct}%"></div></div>`;
-
-  const linhaTerceira = isFala ? `
-    <div class="dock-popup-bar-label"><span>EST</span><span>${estaminaAtual}/${ESTAMINA_MAX}</span></div>
-    <div class="dock-popup-bar-track"><div class="dock-popup-bar-fill estamina" style="width:${estaminaPct}%"></div></div>` : `
-    <div class="dock-popup-bar-label"><span>PVT</span><span>${d.pvt ?? 0}/${d.pvtMax ?? 0}</span></div>
-    <div class="dock-popup-bar-track"><div class="dock-popup-bar-fill pvt" style="width:${pvtPct}%"></div></div>`;
-
-  const linhaEA = !isRestricao ? `
-    <div class="dock-popup-bar-label"><span>EA</span><span>${d.ea ?? 0}/${d.eaMax ?? 0}</span></div>
-    <div class="dock-popup-bar-track"><div class="dock-popup-bar-fill ea" style="width:${eaPct}%"></div></div>` : '';
 
   popup.dataset.slot = slot;
   popup.innerHTML = `
     <div class="dock-popup-nome">${esc(d.nome || 'Personagem')}</div>
     ${dominioAtivo ? `<div class="dock-popup-dominio-tag">💀 Domínio Ativo</div>` : ''}
-    ${linhaPV}
-    ${linhaTerceira}
-    ${linhaEA}
+    <div class="dock-popup-bar-label"><span>PV</span><span>${d.pv ?? 0}/${d.pvMax ?? 0}</span></div>
+    <div class="dock-popup-bar-track"><div class="dock-popup-bar-fill pv" style="width:${pvPct}%"></div></div>
+    <div class="dock-popup-bar-label"><span>EA</span><span>${d.ea ?? 0}/${d.eaMax ?? 0}</span></div>
+    <div class="dock-popup-bar-track"><div class="dock-popup-bar-fill ea" style="width:${eaPct}%"></div></div>
     <button class="dock-popup-btn" onclick="abrirFichaDrawerSlot('${esc(slot)}')">📋 Ver ficha completa</button>
   `;
   popup.style.top = Math.max(0, itemEl.offsetTop) + 'px';
   popup.classList.add('show');
 
-  document.querySelectorAll('.dock-item.selecionado').forEach(el => el.classList.remove('selecionado'));
+  const dockPai = itemEl.closest('.personagens-dock');
+  (dockPai || document).querySelectorAll('.dock-item.selecionado').forEach(el => el.classList.remove('selecionado'));
   itemEl.classList.add('selecionado');
 }
 
-function fecharDockPopup() {
-  const popup = document.getElementById('dockPopup');
-  if (popup) { popup.classList.remove('show'); popup.dataset.slot = ''; }
+function fecharDockPopup(popupId) {
+  const alvos = popupId ? [popupId] : DOCKS_PERSONAGENS.map(d => d.popupId);
+  alvos.forEach(id => {
+    const popup = document.getElementById(id);
+    if (popup) { popup.classList.remove('show'); popup.dataset.slot = ''; }
+  });
   document.querySelectorAll('.dock-item.selecionado').forEach(el => el.classList.remove('selecionado'));
 }
 document.addEventListener('click', e => {
-  const popup = document.getElementById('dockPopup');
-  if (!popup || !popup.classList.contains('show')) return;
-  if (popup.contains(e.target) || e.target.closest('.dock-item')) return;
-  fecharDockPopup();
+  DOCKS_PERSONAGENS.forEach(({ popupId }) => {
+    const popup = document.getElementById(popupId);
+    if (!popup || !popup.classList.contains('show')) return;
+    if (popup.contains(e.target) || e.target.closest('.dock-item')) return;
+    fecharDockPopup(popupId);
+  });
 });
-
-// Vira a ficha entre frente (combate/habilidades/geral) e verso (inventário)
-window.virarFicha = function(flipperId) {
-  const flipper = document.getElementById(flipperId);
-  if (flipper) flipper.classList.toggle('flipped');
-};
 
 function criarCard(slot, d, isNpc) {
   isNpc = !!isNpc;
@@ -7022,7 +6881,6 @@ function criarCard(slot, d, isNpc) {
   const classeBadgeLabel = CLASSES.find(c => c.value === classeAtual)?.label || '✨ Caster';
 
   // Avatar
-  const flipperId = `flipper-${slot}-${Math.random().toString(36).slice(2,8)}`;
   const avatarSrc = d.avatar ? `<img src="${d.avatar}" alt="avatar">` : `<span style="font-size:22px">${(d.nome||'?')[0]}</span>`;
   const avatarEditable = ismine ? 'class="avatar-circle editable"' : 'class="avatar-circle"';
 
@@ -7371,70 +7229,51 @@ function criarCard(slot, d, isNpc) {
 
   card.innerHTML = `
     ${dominioBannerHTML}
-    <div class="ficha-flip-container">
-      <div class="ficha-flipper" id="${flipperId}">
-        <div class="ficha-front">
-          <div class="card-header">
-            <div ${avatarEditable} data-slot="${slot}" title="${ismine?'Clique para alterar avatar':''}">
-              ${avatarSrc}
-            </div>
-            ${ismine ? `<input type="file" class="avatar-input" accept="image/*" data-slot="${slot}">` : ''}
-            <div class="card-header-left" style="margin-left:10px">
-              <div class="char-name" ${ea} data-field="nome">${d.nome||slot}</div>
-              <div class="char-meta">
-                <span>⚡ <span ${ea} data-field="linhagem">${d.linhagem||'—'}</span></span>
-                <span>◆ <span ${ea} data-field="grau">${d.grau||'—'}</span></span>
-                <span>▲ <span ${ea} data-field="nivel">${d.nivel||'—'}</span></span>
-                <span>🏛 <span ${ea} data-field="afiliacao">${d.afiliacao||'—'}</span></span>
-              </div>
-              <div class="classe-select-wrap">
-                ${ismine ? `
-                <select class="classe-select" data-field="classe">
-                  ${CLASSES.map(c => `<option value="${c.value}" ${c.value===classeAtual?'selected':''}>${c.label}</option>`).join('')}
-                </select>` : `
-                <span class="classe-badge ${classeAtual}">${classeBadgeLabel}</span>`}
-              </div>
-              <div class="condicoes-area">${condicoesHTML}${addCondBtn}</div>
-            </div>
-            <span class="player-badge ${badgeClass}">${badgeLabel}</span>
-            ${dupNpcBtnHTML}
-            ${delNpcBtnHTML}
-          </div>
-
-          <div class="card-tabs-nav">
-            <button class="card-tab-btn ${tabAtiva==='combate'?'active':''}" data-tab="combate">⚔️ Combate</button>
-            <button class="card-tab-btn ${tabAtiva==='habilidades'?'active':''}" data-tab="habilidades">✨ Habilidades</button>
-            <button class="card-tab-btn ${tabAtiva==='geral'?'active':''}" data-tab="geral">🎒 Geral</button>
-          </div>
-
-          <div class="card-tab-panel ${tabAtiva==='combate'?'active':''}" data-panel="combate">
-            ${acord('❤️ Recursos', 'recursos', secRecursos, true)}
-            ${acord('📊 Status', 'status', secStatus, true)}
-            ${acord('🎯 Atributos', 'atributos', secAtributos, true)}
-          </div>
-
-          <div class="card-tab-panel ${tabAtiva==='habilidades'?'active':''}" data-panel="habilidades">
-            ${tabHabilidades}
-          </div>
-
-          <div class="card-tab-panel ${tabAtiva==='geral'?'active':''}" data-panel="geral">
-            <div class="ficha-geral-flip-prompt">
-              <span>🎒 O inventário agora vive no verso da ficha.</span>
-              <button class="btn-ver-inventario" onclick="virarFicha('${flipperId}')">🔄 Ver Inventário</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="ficha-back">
-          <div class="ficha-back-header">
-            <span>🎒 Inventário — ${esc(d.nome||slot)}</span>
-            <button class="btn-voltar-ficha" onclick="virarFicha('${flipperId}')">↩ Voltar</button>
-          </div>
-          <div class="ficha-back-body">
-            ${secInventario}
-          </div>
-        </div>
+    <div class="card-header">
+      <div ${avatarEditable} data-slot="${slot}" title="${ismine?'Clique para alterar avatar':''}">
+        ${avatarSrc}
       </div>
+      ${ismine ? `<input type="file" class="avatar-input" accept="image/*" data-slot="${slot}">` : ''}
+      <div class="card-header-left" style="margin-left:10px">
+        <div class="char-name" ${ea} data-field="nome">${d.nome||slot}</div>
+        <div class="char-meta">
+          <span>⚡ <span ${ea} data-field="linhagem">${d.linhagem||'—'}</span></span>
+          <span>◆ <span ${ea} data-field="grau">${d.grau||'—'}</span></span>
+          <span>▲ <span ${ea} data-field="nivel">${d.nivel||'—'}</span></span>
+          <span>🏛 <span ${ea} data-field="afiliacao">${d.afiliacao||'—'}</span></span>
+        </div>
+        <div class="classe-select-wrap">
+          ${ismine ? `
+          <select class="classe-select" data-field="classe">
+            ${CLASSES.map(c => `<option value="${c.value}" ${c.value===classeAtual?'selected':''}>${c.label}</option>`).join('')}
+          </select>` : `
+          <span class="classe-badge ${classeAtual}">${classeBadgeLabel}</span>`}
+        </div>
+        <div class="condicoes-area">${condicoesHTML}${addCondBtn}</div>
+      </div>
+      <span class="player-badge ${badgeClass}">${badgeLabel}</span>
+      ${dupNpcBtnHTML}
+      ${delNpcBtnHTML}
+    </div>
+
+    <div class="card-tabs-nav">
+      <button class="card-tab-btn ${tabAtiva==='combate'?'active':''}" data-tab="combate">⚔️ Combate</button>
+      <button class="card-tab-btn ${tabAtiva==='habilidades'?'active':''}" data-tab="habilidades">✨ Habilidades</button>
+      <button class="card-tab-btn ${tabAtiva==='geral'?'active':''}" data-tab="geral">🎒 Geral</button>
+    </div>
+
+    <div class="card-tab-panel ${tabAtiva==='combate'?'active':''}" data-panel="combate">
+      ${acord('❤️ Recursos', 'recursos', secRecursos, true)}
+      ${acord('📊 Status', 'status', secStatus, true)}
+      ${acord('🎯 Atributos', 'atributos', secAtributos, true)}
+    </div>
+
+    <div class="card-tab-panel ${tabAtiva==='habilidades'?'active':''}" data-panel="habilidades">
+      ${tabHabilidades}
+    </div>
+
+    <div class="card-tab-panel ${tabAtiva==='geral'?'active':''}" data-panel="geral">
+      ${acord('🎒 Inventário', 'inventario', secInventario, true)}
     </div>
   `;
 
