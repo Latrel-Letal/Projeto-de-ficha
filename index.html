@@ -7444,7 +7444,6 @@ function criarCard(slot, d, isNpc) {
   let tabHabilidades = '';
   if (isLutador) {
     tabHabilidades =
-      acord('⚔️ Arsenal', 'arsenal', secArsenal, true) +
       acord('💪 Técnicas de Reforço', 'reforco', secReforco, true) +
       acord('✨ Técnicas Inatas', 'inatas', secInatas, true) +
       acord('📖 Feitiços', 'feiticos', secFeiticos, true) +
@@ -7452,7 +7451,6 @@ function criarCard(slot, d, isNpc) {
       acord('💀 Domínios', 'dominios', secDominios, false);
   } else if (isRestricao) {
     tabHabilidades =
-      acord('⚔️ Arsenal', 'arsenal', secArsenal, true) +
       acord('🌟 Passivas', 'passivas', secPassivas, true);
   } else if (isFala) {
     tabHabilidades =
