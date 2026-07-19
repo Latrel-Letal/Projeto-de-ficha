@@ -2422,19 +2422,66 @@
   .bio-historia-area[contenteditable="true"]:focus { outline:1px solid var(--purple); border-radius:5px; }
 
   /* ══════════════════════════════════════
-     FLIP 3D — animação ao virar a ficha
+     FLIP 3D — ficha com frente e verso físicos
   ══════════════════════════════════════ */
-  .card-tabs-nav { perspective: 1600px; }
-  .card-tab-btn .flip-ico { display:inline-block; transition: transform 0.5s cubic-bezier(0.4,0,0.2,1); }
-  .card-tab-btn[data-tab="verso"].active .flip-ico { transform: rotateY(180deg); }
-  .card-tab-panel.card-flip-anim {
-    animation: cardFlip3D 0.5s cubic-bezier(0.4,0,0.2,1);
+  .ficha-flip-container {
+    perspective: 1800px;
+  }
+  .ficha-flipper {
+    position: relative;
+    display: grid;
+    transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
     transform-style: preserve-3d;
   }
-  @keyframes cardFlip3D {
-    0%   { transform: rotateY(-90deg); opacity: 0.2; }
-    60%  { transform: rotateY(8deg);   opacity: 1; }
-    100% { transform: rotateY(0deg);   opacity: 1; }
+  .ficha-flipper[data-flip-state="verso"] { transform: rotateY(180deg); }
+  .ficha-face {
+    grid-area: 1 / 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background: var(--bg2);
+  }
+  .ficha-face-verso { transform: rotateY(180deg); }
+
+  .btn-virar-ficha {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    border-radius: 6px;
+    padding: 5px 11px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+  .btn-virar-ficha:hover { border-color: var(--purple); color: var(--purple); }
+  .btn-virar-ficha .flip-ico { display:inline-block; }
+
+  .card-header.verso-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .verso-header-titulo {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .ficha-face-verso .card-body-verso {
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow-y: auto;
   }
 
   /* ── SHIKIGAMI ── */
@@ -7430,62 +7477,73 @@ function criarCard(slot, d, isNpc) {
   }
 
   const tabKey = `jk_tab_${sessaoId}_${slot}`;
-  const tabAtiva = localStorage.getItem(tabKey) || 'combate';
+  const tabAtiva = ['combate','habilidades'].includes(localStorage.getItem(tabKey)) ? localStorage.getItem(tabKey) : 'combate';
 
   card.innerHTML = `
-    ${dominioBannerHTML}
-    <div class="card-header">
-      <div ${avatarEditable} data-slot="${slot}" title="${ismine?'Clique para alterar avatar':''}">
-        ${avatarSrc}
-      </div>
-      ${ismine ? `<input type="file" class="avatar-input" accept="image/*" data-slot="${slot}">` : ''}
-      <div class="card-header-left" style="margin-left:10px">
-        <div class="char-name" ${ea} data-field="nome">${d.nome||slot}</div>
-        <div class="char-meta">
-          <span>⚡ <span ${ea} data-field="linhagem">${d.linhagem||'—'}</span></span>
-          <span>◆ <span ${ea} data-field="grau">${d.grau||'—'}</span></span>
-          <span>▲ <span ${ea} data-field="nivel">${d.nivel||'—'}</span></span>
-          <span>🏛 <span ${ea} data-field="afiliacao">${d.afiliacao||'—'}</span></span>
+    <div class="ficha-flip-container">
+      <div class="ficha-flipper" data-flip-state="frente">
+
+        <!-- FRENTE -->
+        <div class="ficha-face ficha-face-frente">
+          ${dominioBannerHTML}
+          <div class="card-header">
+            <div ${avatarEditable} data-slot="${slot}" title="${ismine?'Clique para alterar avatar':''}">
+              ${avatarSrc}
+            </div>
+            ${ismine ? `<input type="file" class="avatar-input" accept="image/*" data-slot="${slot}">` : ''}
+            <div class="card-header-left" style="margin-left:10px">
+              <div class="char-name" ${ea} data-field="nome">${d.nome||slot}</div>
+              <div class="char-meta">
+                <span>⚡ <span ${ea} data-field="linhagem">${d.linhagem||'—'}</span></span>
+                <span>◆ <span ${ea} data-field="grau">${d.grau||'—'}</span></span>
+                <span>▲ <span ${ea} data-field="nivel">${d.nivel||'—'}</span></span>
+                <span>🏛 <span ${ea} data-field="afiliacao">${d.afiliacao||'—'}</span></span>
+              </div>
+              <div class="classe-select-wrap">
+                ${ismine ? `
+                <select class="classe-select" data-field="classe">
+                  ${CLASSES.map(c => `<option value="${c.value}" ${c.value===classeAtual?'selected':''}>${c.label}</option>`).join('')}
+                </select>` : `
+                <span class="classe-badge ${classeAtual}">${classeBadgeLabel}</span>`}
+              </div>
+              <div class="condicoes-area">${condicoesHTML}${addCondBtn}</div>
+            </div>
+            <span class="player-badge ${badgeClass}">${badgeLabel}</span>
+            <button class="btn-virar-ficha" data-flip-to="verso" title="Virar a ficha"><span class="flip-ico">🔄</span> Verso</button>
+            ${dupNpcBtnHTML}
+            ${delNpcBtnHTML}
+          </div>
+
+          <div class="card-tabs-nav">
+            <button class="card-tab-btn ${tabAtiva==='combate'?'active':''}" data-tab="combate">⚔️ Combate</button>
+            <button class="card-tab-btn ${tabAtiva==='habilidades'?'active':''}" data-tab="habilidades">✨ Habilidades</button>
+          </div>
+
+          <div class="card-tab-panel ${tabAtiva==='combate'?'active':''}" data-panel="combate">
+            ${acord('❤️ Recursos', 'recursos', secRecursos, true)}
+            ${acord('📊 Status', 'status', secStatus, true)}
+            ${acord('🎯 Atributos', 'atributos', secAtributos, true)}
+          </div>
+
+          <div class="card-tab-panel ${tabAtiva==='habilidades'?'active':''}" data-panel="habilidades">
+            ${tabHabilidades}
+          </div>
         </div>
-        <div class="classe-select-wrap">
-          ${ismine ? `
-          <select class="classe-select" data-field="classe">
-            ${CLASSES.map(c => `<option value="${c.value}" ${c.value===classeAtual?'selected':''}>${c.label}</option>`).join('')}
-          </select>` : `
-          <span class="classe-badge ${classeAtual}">${classeBadgeLabel}</span>`}
+
+        <!-- VERSO -->
+        <div class="ficha-face ficha-face-verso">
+          <div class="card-header verso-header">
+            <span class="verso-header-titulo">📜 Informações Pessoais & Arsenal</span>
+            <button class="btn-virar-ficha" data-flip-to="frente" title="Voltar para a frente"><span class="flip-ico">🔄</span> Frente</button>
+          </div>
+          <div class="card-body-verso">
+            ${acord('📜 Informações Pessoais', 'bio-info', secBioInfo, true)}
+            ${temArsenal ? acord('⚔️ Arsenal', 'arsenal-verso', secArsenal, true) : ''}
+            ${acord('🎒 Inventário', 'inventario-verso', secInventario, true)}
+          </div>
         </div>
-        <div class="condicoes-area">${condicoesHTML}${addCondBtn}</div>
+
       </div>
-      <span class="player-badge ${badgeClass}">${badgeLabel}</span>
-      ${dupNpcBtnHTML}
-      ${delNpcBtnHTML}
-    </div>
-
-    <div class="card-tabs-nav">
-      <button class="card-tab-btn ${tabAtiva==='combate'?'active':''}" data-tab="combate">⚔️ Combate</button>
-      <button class="card-tab-btn ${tabAtiva==='habilidades'?'active':''}" data-tab="habilidades">✨ Habilidades</button>
-      <button class="card-tab-btn ${tabAtiva==='geral'?'active':''}" data-tab="geral">🎒 Geral</button>
-      <button class="card-tab-btn ${tabAtiva==='verso'?'active':''}" data-tab="verso" title="Virar a ficha"><span class="flip-ico">🔄</span> Verso</button>
-    </div>
-
-    <div class="card-tab-panel ${tabAtiva==='combate'?'active':''}" data-panel="combate">
-      ${acord('❤️ Recursos', 'recursos', secRecursos, true)}
-      ${acord('📊 Status', 'status', secStatus, true)}
-      ${acord('🎯 Atributos', 'atributos', secAtributos, true)}
-    </div>
-
-    <div class="card-tab-panel ${tabAtiva==='habilidades'?'active':''}" data-panel="habilidades">
-      ${tabHabilidades}
-    </div>
-
-    <div class="card-tab-panel ${tabAtiva==='geral'?'active':''}" data-panel="geral">
-      ${acord('🎒 Inventário', 'inventario', secInventario, true)}
-    </div>
-
-    <div class="card-tab-panel ${tabAtiva==='verso'?'active':''}" data-panel="verso">
-      ${acord('📜 Informações Pessoais', 'bio-info', secBioInfo, true)}
-      ${temArsenal ? acord('⚔️ Arsenal', 'arsenal-verso', secArsenal, true) : ''}
-      ${acord('🎒 Inventário', 'inventario-verso', secInventario, true)}
     </div>
   `;
 
@@ -8229,25 +8287,21 @@ function criarCard(slot, d, isNpc) {
     });
   });
 
-  // ── Abas ──
+  // ── Abas (Combate / Habilidades / Geral) ──
   card.querySelectorAll('.card-tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const tab = btn.dataset.tab;
-      const prevBtn = card.querySelector('.card-tab-btn.active');
-      const prevTab = prevBtn ? prevBtn.dataset.tab : null;
       card.querySelectorAll('.card-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
       card.querySelectorAll('.card-tab-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === tab));
       localStorage.setItem(`jk_tab_${sessaoId}_${slot}`, tab);
-      // Efeito de virar em 3D ao entrar ou sair do Verso da ficha
-      if (tab === 'verso' || prevTab === 'verso') {
-        const painelAtivo = card.querySelector('.card-tab-panel.active');
-        if (painelAtivo) {
-          painelAtivo.classList.remove('card-flip-anim');
-          void painelAtivo.offsetWidth; // força reflow para reiniciar a animação
-          painelAtivo.classList.add('card-flip-anim');
-          setTimeout(() => painelAtivo.classList.remove('card-flip-anim'), 550);
-        }
-      }
+    });
+  });
+
+  // ── Virar ficha (frente ↔ verso, flip 3D físico) ──
+  card.querySelectorAll('.btn-virar-ficha').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const flipper = card.querySelector('.ficha-flipper');
+      if (flipper) flipper.dataset.flipState = btn.dataset.flipTo;
     });
   });
 
