@@ -621,35 +621,76 @@
     border-bottom: 1px solid var(--border);
   }
 
-  /* ── ABAS DE MAPA (Escola / Campo de Treino / Hospital etc.) ── */
+  /* ── ABAS DE MAPA (Escola / Campo de Treino / Hospital etc.) — agora numa gaveta recolhível ── */
   .mapa-abas-bar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+  }
+  .mapa-abas-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
     flex-wrap: wrap;
     padding: 8px 16px;
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
   }
-  .mapa-abas-lista {
+  .mapa-abas-drawer-toggle {
     display: flex;
     align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
+    gap: 8px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    border-radius: 7px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .mapa-abas-drawer-toggle:hover { border-color: var(--purple); }
+  .mapa-abas-toggle-icon { font-size: 13px; }
+  .mapa-abas-toggle-label { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mapa-abas-toggle-count {
+    background: var(--purple);
+    color: white;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 6px;
+  }
+  .mapa-abas-chevron { font-size: 9px; color: var(--text2); transition: transform 0.2s; }
+  .mapa-abas-bar.open .mapa-abas-chevron { transform: rotate(180deg); color: var(--purple); }
+  .mapa-abas-drawer {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+  .mapa-abas-bar.open .mapa-abas-drawer { grid-template-rows: 1fr; }
+  .mapa-abas-drawer-inner { overflow: hidden; }
+  .mapa-abas-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 2px 16px 12px;
   }
   .aba-mapa-btn {
     background: var(--bg3);
     border: 1px solid var(--border2);
     color: var(--text2);
     border-radius: 7px;
-    padding: 6px 13px;
-    font-size: 11px;
+    padding: 8px 13px;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.3px;
     cursor: pointer;
     transition: all 0.15s;
     white-space: nowrap;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
   .aba-mapa-btn:hover { border-color: var(--blue); color: var(--blue); }
   .aba-mapa-btn.ativa {
@@ -3464,13 +3505,25 @@
 
   <!-- Mapa de Batalha -->
   <div class="mapa-area collapsed" id="mapaArea">
-    <!-- Abas de mapa (ex: Escola, Campo de Treino, Hospital) -->
+    <!-- Abas de mapa (ex: Escola, Campo de Treino, Hospital) — em gaveta recolhível -->
     <div class="mapa-abas-bar" id="mapaAbasBar">
-      <div class="mapa-abas-lista" id="mapaAbasLista"></div>
-      <div class="mapa-abas-acoes" id="mapaAbasAcoesMestre" style="display:none">
-        <button class="btn-mapa primary" onclick="criarNovoMapa()" title="Criar nova aba de mapa">➕ Nova Aba</button>
-        <button class="btn-mapa" onclick="renomearMapaAtual()" title="Renomear aba atual">✏️ Renomear</button>
-        <button class="btn-mapa danger" onclick="apagarMapaAtual()" title="Apagar aba atual">🗑️ Apagar Aba</button>
+      <div class="mapa-abas-header">
+        <button class="mapa-abas-drawer-toggle" id="mapaAbasToggle" type="button">
+          <span class="mapa-abas-toggle-icon">🗂️</span>
+          <span class="mapa-abas-toggle-label" id="mapaAbasAtualLabel">Mapas</span>
+          <span class="mapa-abas-toggle-count" id="mapaAbasCount">0</span>
+          <span class="mapa-abas-chevron">▼</span>
+        </button>
+        <div class="mapa-abas-acoes" id="mapaAbasAcoesMestre" style="display:none">
+          <button class="btn-mapa primary" onclick="criarNovoMapa()" title="Criar nova aba de mapa">➕ Nova Aba</button>
+          <button class="btn-mapa" onclick="renomearMapaAtual()" title="Renomear aba atual">✏️ Renomear</button>
+          <button class="btn-mapa danger" onclick="apagarMapaAtual()" title="Apagar aba atual">🗑️ Apagar Aba</button>
+        </div>
+      </div>
+      <div class="mapa-abas-drawer" id="mapaAbasDrawer">
+        <div class="mapa-abas-drawer-inner">
+          <div class="mapa-abas-lista" id="mapaAbasLista"></div>
+        </div>
       </div>
     </div>
     <div class="mapa-toolbar" id="mapaToolbarMestre" style="display:none">
@@ -5796,10 +5849,27 @@ async function garantirMapaInicial() {
 function renderAbasMapa() {
   const lista = document.getElementById('mapaAbasLista');
   const acoes = document.getElementById('mapaAbasAcoesMestre');
+  const label = document.getElementById('mapaAbasAtualLabel');
+  const count = document.getElementById('mapaAbasCount');
+  const bar = document.getElementById('mapaAbasBar');
   if (!lista) return;
   if (acoes) acoes.style.display = modoMestre ? 'flex' : 'none';
 
+  // Aplica o estado salvo da gaveta (aberta/fechada) só na primeira renderização
+  // desta sessão — depois disso, quem manda é o clique do usuário no toggle.
+  if (bar && !window.__gavetaMapasInicializada && sessaoId) {
+    window.__gavetaMapasInicializada = true;
+    const salvo = localStorage.getItem(chaveGavetaMapas());
+    // Padrão: aberta (fica mais fácil de achar na primeira vez que usar a gaveta)
+    bar.classList.toggle('open', salvo !== 'nao');
+  }
+
   const entradas = Object.entries(mapasData || {});
+  if (count) count.textContent = entradas.length;
+  if (label) {
+    const ativo = mapasData?.[mapaAtivoId];
+    label.textContent = ativo?.nome ? `Mapas — ${ativo.nome}` : 'Mapas';
+  }
   lista.innerHTML = '';
   if (entradas.length === 0) {
     lista.innerHTML = '<span style="font-size:11px;color:var(--text2);font-style:italic">Nenhuma aba de mapa criada ainda.</span>';
@@ -5808,14 +5878,37 @@ function renderAbasMapa() {
   entradas.forEach(([id, m]) => {
     const btn = document.createElement('button');
     btn.className = 'aba-mapa-btn' + (id === mapaAtivoId ? ' ativa' : '');
-    btn.textContent = m?.nome || 'Mapa sem nome';
+    btn.innerHTML = `<span>${id === mapaAtivoId ? '📍' : '🗺️'}</span><span>${esc(m?.nome || 'Mapa sem nome')}</span>`;
     btn.title = modoMestre
       ? 'Trocar para esta aba'
       : (id === mapaAtivoId ? 'Aba atual' : 'Apenas o Mestre pode trocar de aba');
-    btn.onclick = () => window.trocarMapa(id);
+    btn.onclick = () => {
+      window.trocarMapa(id);
+      // Ao escolher um mapa, recolhe a gaveta pra dar mais espaço ao mapa em si
+      if (modoMestre) fecharGavetaMapas();
+    };
     lista.appendChild(btn);
   });
 }
+
+// ── Gaveta de abas de mapa (abrir/fechar, com persistência local) ──
+function chaveGavetaMapas() { return `jk_mapas_drawer_${sessaoId}`; }
+function fecharGavetaMapas() {
+  const bar = document.getElementById('mapaAbasBar');
+  if (!bar) return;
+  bar.classList.remove('open');
+  localStorage.setItem(chaveGavetaMapas(), 'nao');
+}
+(function initToggleGavetaMapas() {
+  const toggle = document.getElementById('mapaAbasToggle');
+  const bar = document.getElementById('mapaAbasBar');
+  if (!toggle || !bar || toggle.dataset.bound) return;
+  toggle.dataset.bound = '1';
+  toggle.addEventListener('click', () => {
+    bar.classList.toggle('open');
+    localStorage.setItem(chaveGavetaMapas(), bar.classList.contains('open') ? 'sim' : 'nao');
+  });
+})();
 
 window.trocarMapa = function(id) {
   if (!sessaoId) return;
