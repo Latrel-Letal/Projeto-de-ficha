@@ -2484,197 +2484,20 @@
     overflow-y: auto;
   }
 
-  /* ══════════════════════════════════════
-     VERSO — TEMA HOLOGRÁFICO (ciano / sci-fi)
-  ══════════════════════════════════════ */
-  .ficha-face-verso {
-    --v-bg: #12181f;
-    --v-panel: #1a242f;
-    --v-cyan: #4df0ff;
-    --v-cyan-dark: #1d4d5e;
-    --v-gray-light: #8fa5b8;
-    --v-gray-dark: #3a4b5c;
-    --v-red: #8a1523;
-    --v-red-bright: #a11c2b;
-    --v-text: #e0eaf5;
-    background: var(--v-bg);
-  }
-  .ficha-face-verso .card-header.verso-header {
-    background: var(--v-panel);
-    border-bottom: 1px solid var(--v-cyan-dark);
-  }
-  .ficha-face-verso .verso-header-titulo {
-    color: var(--v-cyan);
-    text-shadow: 0 0 8px rgba(77,240,255,0.35);
-  }
-  .ficha-face-verso .btn-virar-ficha {
-    background: var(--v-gray-dark);
-    border-color: var(--v-cyan-dark);
-    color: var(--v-cyan);
-  }
-  .ficha-face-verso .btn-virar-ficha:hover {
-    border-color: var(--v-cyan);
-    color: var(--v-cyan);
-    box-shadow: 0 0 8px rgba(77,240,255,0.3);
-  }
-
-  /* Acordeões do verso */
-  .ficha-face-verso .acordeao {
-    background: var(--v-panel);
-    border: 1px solid var(--v-cyan-dark);
-    box-shadow: 0 0 10px rgba(77,240,255,0.06);
-  }
-  .ficha-face-verso .acordeao-header { background: rgba(77,240,255,0.07); }
-  .ficha-face-verso .acordeao-title {
-    color: var(--v-cyan);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  .ficha-face-verso .acordeao-chevron { color: var(--v-cyan); }
-
-  /* Biografia — caixas estilo holográfico (rótulo ciano + valor claro) */
-  .ficha-face-verso .bio-info-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-  .ficha-face-verso .bio-field {
-    padding: 0;
-    gap: 0;
-    background: var(--v-gray-dark);
-    border-color: var(--v-cyan-dark);
-    overflow: hidden;
-  }
-  .ficha-face-verso .bio-field-label {
-    background: rgba(77,240,255,0.12);
-    color: var(--v-cyan);
-    padding: 4px 8px;
-  }
-  .ficha-face-verso .bio-field-valor {
-    background: var(--v-gray-light);
-    color: #0d1319;
-    padding: 6px 8px;
-  }
-  .ficha-face-verso .bio-field-valor[contenteditable="true"]:focus {
-    outline: 2px solid var(--v-cyan);
-    outline-offset: -2px;
-  }
-  .ficha-face-verso .bio-historia-wrap {
-    background: var(--v-gray-dark);
-    border: 1px solid var(--v-cyan-dark);
-    border-radius: 7px;
-    overflow: hidden;
-    margin-top: 0;
-    gap: 0;
-  }
-  .ficha-face-verso .bio-historia-wrap .bio-field-label {
-    background: rgba(77,240,255,0.12);
-    color: var(--v-cyan);
-    padding: 4px 8px;
-  }
-  .ficha-face-verso .bio-historia-area {
-    background: var(--v-gray-light);
-    color: #0d1319;
-    border: none;
-    border-radius: 0;
-  }
-  .ficha-face-verso .bio-historia-area[contenteditable="true"]:focus {
-    outline: 2px solid var(--v-cyan);
-    outline-offset: -2px;
-  }
-
-  /* Arsenal — cards estilo painel sci-fi */
-  .ficha-face-verso .arma-card {
-    background: var(--v-panel);
-    border-color: var(--v-cyan-dark);
-    box-shadow: 0 0 8px rgba(77,240,255,0.1);
-  }
-  .ficha-face-verso .arma-img-wrap {
-    background: #2a111a;
-    border-color: var(--v-cyan-dark);
-  }
-  .ficha-face-verso .arma-nome { color: var(--v-text); }
-  .ficha-face-verso .arma-nome[contenteditable="true"]:focus { outline-color: var(--v-cyan); color: var(--v-text); }
-  .ficha-face-verso .arma-tipo { color: var(--v-gray-light); }
-  .ficha-face-verso .arma-nivel-badge {
+  /* ── ARMA: badge de nível (mesmo tema visual da frente) ── */
+  .arma-nivel-badge {
     width: 24px; height: 24px; min-width: 24px;
     border-radius: 50%;
-    background: #8f2a58;
-    color: #fff;
+    background: linear-gradient(135deg,#3a0a0a,#1a0505);
+    border: 1px solid var(--red);
+    color: #ff8080;
     display: flex; align-items: center; justify-content: center;
     font-weight: 700; font-size: 12px;
+    font-family: 'Cinzel', serif;
     cursor: text;
+    outline: none;
   }
-  .ficha-face-verso .arma-nivel-badge:focus { outline: 2px solid var(--v-cyan); }
-  .ficha-face-verso .arma-stat-block {
-    background: rgba(77,240,255,0.05);
-    border-color: var(--v-cyan-dark);
-  }
-  .ficha-face-verso .arma-stat-label { color: var(--v-cyan); }
-  .ficha-face-verso .arma-stat-valor { color: var(--v-text); }
-  .ficha-face-verso .arma-stat-valor[contenteditable="true"]:focus { outline-color: var(--v-cyan); }
-  .ficha-face-verso .arma-dano-input {
-    background: var(--v-gray-dark);
-    border-color: var(--v-cyan-dark);
-    color: var(--v-text);
-  }
-  .ficha-face-verso .arma-dano-input:focus { border-color: var(--v-cyan); }
-  .ficha-face-verso .btn-rolar-dano {
-    background: var(--v-red);
-    border-color: var(--v-red);
-    color: #fff;
-    box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
-  }
-  .ficha-face-verso .btn-rolar-dano:hover {
-    background: var(--v-red-bright);
-    box-shadow: 0 0 8px var(--v-red-bright);
-  }
-  .ficha-face-verso .arma-desc-area {
-    background: rgba(77,240,255,0.04);
-    border-color: var(--v-cyan-dark);
-    color: var(--v-text);
-  }
-  .ficha-face-verso .arma-desc-area[contenteditable="true"]:focus { outline-color: var(--v-cyan); }
-  .ficha-face-verso .arma-efeitos-label { color: var(--v-cyan); }
-  .ficha-face-verso .arma-efeito-item {
-    background: rgba(77,240,255,0.06);
-    border: 1px solid var(--v-cyan);
-    box-shadow: inset 0 0 10px rgba(77,240,255,0.08);
-  }
-  .ficha-face-verso .arma-efeito-texto { color: var(--v-text); }
-  .ficha-face-verso .arma-efeito-texto[contenteditable="true"]:focus { outline-color: var(--v-cyan); }
-  .ficha-face-verso .btn-add-efeito,
-  .ficha-face-verso .btn-add-arma {
-    border-color: var(--v-cyan-dark);
-    color: var(--v-cyan);
-  }
-  .ficha-face-verso .btn-add-efeito:hover,
-  .ficha-face-verso .btn-add-arma:hover {
-    border-color: var(--v-cyan);
-    color: var(--v-cyan);
-    box-shadow: 0 0 8px rgba(77,240,255,0.25);
-  }
-
-  /* Inventário — estilo holográfico */
-  .ficha-face-verso .inventario-item {
-    background: var(--v-panel);
-    border: 1px solid var(--v-cyan-dark);
-    border-radius: 6px;
-  }
-  .ficha-face-verso .inv-qty {
-    background: var(--v-gray-dark);
-    border-color: var(--v-cyan-dark);
-    color: var(--v-text);
-  }
-  .ficha-face-verso .inv-nome { color: var(--v-cyan); }
-  .ficha-face-verso .inv-desc { color: var(--v-gray-light); }
-  .ficha-face-verso .btn-add-item {
-    border-color: var(--v-cyan-dark);
-    color: var(--v-cyan);
-  }
-  .ficha-face-verso .btn-add-item:hover {
-    border-color: var(--v-cyan);
-    color: var(--v-cyan);
-    box-shadow: 0 0 8px rgba(77,240,255,0.25);
-  }
+  .arma-nivel-badge:focus { outline: 1px solid rgba(255,74,74,0.5); }
 
 
   /* ── SHIKIGAMI ── */
@@ -7676,9 +7499,12 @@ function criarCard(slot, d, isNpc) {
   const tabKey = `jk_tab_${sessaoId}_${slot}`;
   const tabAtiva = ['combate','habilidades'].includes(localStorage.getItem(tabKey)) ? localStorage.getItem(tabKey) : 'combate';
 
+  const flipKey = `jk_flip_${sessaoId}_${slot}`;
+  const flipAtivo = localStorage.getItem(flipKey) === 'verso' ? 'verso' : 'frente';
+
   card.innerHTML = `
     <div class="ficha-flip-container">
-      <div class="ficha-flipper" data-flip-state="frente">
+      <div class="ficha-flipper" data-flip-state="${flipAtivo}">
 
         <!-- FRENTE -->
         <div class="ficha-face ficha-face-frente">
@@ -8499,6 +8325,7 @@ function criarCard(slot, d, isNpc) {
     btn.addEventListener('click', () => {
       const flipper = card.querySelector('.ficha-flipper');
       if (flipper) flipper.dataset.flipState = btn.dataset.flipTo;
+      localStorage.setItem(flipKey, btn.dataset.flipTo);
     });
   });
 
