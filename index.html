@@ -752,8 +752,27 @@
     backdrop-filter: blur(4px);
     max-height: calc(100% - 20px);
     overflow-y: auto;
+    transition: padding 0.2s;
   }
   .personagens-dock:empty { display: none; }
+  .dock-toggle {
+    flex-shrink: 0;
+    width: 24px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    color: var(--text2);
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .dock-toggle:hover { color: var(--purple); border-color: var(--purple); }
+  .personagens-dock.collapsed { padding: 6px; overflow: visible; }
+  .personagens-dock.collapsed .dock-item { display: none; }
   .dock-item {
     position: relative;
     width: 48px;
@@ -897,9 +916,9 @@
     user-select: none;
     touch-action: none;
     transition: left 0.15s ease, top 0.15s ease;
-    z-index: 5;
+    z-index: 45;
   }
-  .mapa-token.dragging { transition: none; z-index: 20; }
+  .mapa-token.dragging { transition: none; z-index: 46; }
   .mapa-token-circle {
     position: relative;
     border-radius: 50%;
@@ -7091,7 +7110,16 @@ function renderPersonagensDockEm(dockId, popupId) {
   if (!ids.length) { dock.innerHTML = ''; fecharDockPopup(popupId); return; }
   const ordem = meuSlot && ids.includes(meuSlot) ? [meuSlot, ...ids.filter(id => id !== meuSlot)] : ids;
 
-  dock.innerHTML = ordem.map(slot => {
+  // Aplica o estado salvo (recolhido/expandido) só na primeira vez que este
+  // dock aparece nesta sessão — depois disso quem manda é o clique do toggle.
+  if (!dock.dataset.gavetaInicializada && sessaoId) {
+    dock.dataset.gavetaInicializada = '1';
+    dock.classList.toggle('collapsed', localStorage.getItem(chaveGavetaDock()) === 'sim');
+  }
+  const collapsed = dock.classList.contains('collapsed');
+
+  dock.innerHTML = `<button type="button" class="dock-toggle" title="${collapsed ? 'Expandir personagens' : 'Recolher personagens'}">${collapsed ? '›' : '‹'}</button>` +
+    ordem.map(slot => {
     const d = fichasData[slot];
     const pvPct = Math.max(0, Math.min(100, d.pvMax > 0 ? (d.pv / d.pvMax) * 100 : 0));
     const avatarHTML = d.avatar ? `<img src="${d.avatar}" alt="avatar">` : `<span>${esc((d.nome || '?')[0])}</span>`;
@@ -7108,7 +7136,22 @@ function renderPersonagensDockEm(dockId, popupId) {
       togglePersonagensDockPopup(item.dataset.slot, item, popupId);
     });
   });
+
+  // Toggle recolher/expandir — um listener por dock, religado a cada render
+  // (o botão é recriado no innerHTML acima, então precisa rebindar).
+  const toggleBtn = dock.querySelector('.dock-toggle');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      const agora = dock.classList.toggle('collapsed');
+      localStorage.setItem(chaveGavetaDock(), agora ? 'sim' : 'nao');
+      toggleBtn.textContent = agora ? '›' : '‹';
+      toggleBtn.title = agora ? 'Expandir personagens' : 'Recolher personagens';
+      fecharDockPopup(popupId);
+    });
+  }
 }
+function chaveGavetaDock() { return `jk_dock_collapsed_${sessaoId}`; }
 
 function togglePersonagensDockPopup(slot, itemEl, popupId) {
   popupId = popupId || 'dockPopup';
