@@ -5869,17 +5869,26 @@ window.definirMapaUrl = function() {
   showToast('Mapa atualizado!', 'success');
 };
 
-window.definirMapaArquivo = function(e) {
+window.definirMapaArquivo = async function(e) {
   if (!mapaAtivoId) { showToast('Nenhuma aba de mapa selecionada.', 'error'); return; }
   const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    set(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/imageUrl`), ev.target.result);
-    showToast('Mapa atualizado!', 'success');
-  };
-  reader.readAsDataURL(file);
   e.target.value = '';
+  if (!file) return;
+  // IMPORTANTE: imagens de mapa NÃO podem ser salvas como base64 no Realtime
+  // Database — o nó "mapas" tem um único listener onValue, e qualquer
+  // alteração nele (inclusive mover um token, o que acontece o tempo todo
+  // durante o combate) reenvia a árvore inteira, incluindo a imagem, pra
+  // todo mundo conectado. Isso estoura a cota de download rapidinho.
+  // Por isso a imagem vai pro Imgur e só a URL (poucos bytes) fica no banco.
+  showToast('Enviando imagem do mapa... ⏳', '');
+  try {
+    const url = await uploadImgur(file);
+    set(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/imageUrl`), url);
+    showToast('Mapa atualizado!', 'success');
+  } catch (err) {
+    console.error('Erro no upload do mapa:', err);
+    showToast('Falha no upload. Tente colar uma URL direta.', 'error');
+  }
 };
 
 window.aplicarGradeMapa = function() {
@@ -7750,12 +7759,22 @@ function criarCard(slot, d, isNpc) {
     const fileInput = card.querySelector('.avatar-input');
     if (avatarEl && fileInput) {
       avatarEl.addEventListener('click', () => fileInput.click());
-      fileInput.addEventListener('change', e => {
+      fileInput.addEventListener('change', async e => {
         const file = e.target.files[0];
+        e.target.value = '';
         if (!file) return;
-        const reader = new FileReader();
-        reader.onload = ev => salvar(slot, 'avatar', ev.target.result, isNpc);
-        reader.readAsDataURL(file);
+        // Avatar vai pro Imgur (não base64 no RTDB): o nó "fichas" tem um
+        // único listener onValue, então qualquer campo mudando (PV, EA,
+        // dados...) reenviaria o avatar de todo mundo pra todo mundo.
+        showToast('Enviando avatar... ⏳', '');
+        try {
+          const url = await uploadImgur(file);
+          salvar(slot, 'avatar', url, isNpc);
+          showToast('Avatar atualizado!', 'success');
+        } catch (err) {
+          console.error('Erro no upload do avatar:', err);
+          showToast('Falha no upload do avatar.', 'error');
+        }
       });
     }
 
@@ -7930,18 +7949,25 @@ function criarCard(slot, d, isNpc) {
         const fileInp = wrap.nextElementSibling;
         wrap.addEventListener('click', () => fileInp && fileInp.click());
         if (fileInp && fileInp.classList.contains('arma-img-input')) {
-          fileInp.addEventListener('change', e => {
+          fileInp.addEventListener('change', async e => {
             const file = e.target.files[0];
+            e.target.value = '';
             if (!file) return;
             const idx = parseInt(fileInp.dataset.idx);
-            const reader = new FileReader();
-            reader.onload = ev => {
+            // Imagem de arma vai pro Imgur, não base64 direto no array
+            // "arsenal" (que fica dentro do nó "fichas", reenviado por
+            // inteiro a cada mudança em qualquer campo de qualquer ficha).
+            showToast('Enviando imagem... ⏳', '');
+            try {
+              const url = await uploadImgur(file);
               const fichaAtual = getFicha(slot);
               const arr = [...(Array.isArray(fichaAtual?.arsenal) ? fichaAtual.arsenal : Object.values(fichaAtual?.arsenal || {}))];
-              if (arr[idx]) { arr[idx].imagem = ev.target.result; salvar(slot, 'arsenal', arr, isNpc); }
-            };
-            reader.readAsDataURL(file);
-            e.target.value = '';
+              if (arr[idx]) { arr[idx].imagem = url; salvar(slot, 'arsenal', arr, isNpc); }
+              showToast('Imagem atualizada!', 'success');
+            } catch (err) {
+              console.error('Erro no upload da imagem da arma:', err);
+              showToast('Falha no upload.', 'error');
+            }
           });
         }
       });
@@ -8074,18 +8100,23 @@ function criarCard(slot, d, isNpc) {
         const fileInp = wrap.nextElementSibling;
         wrap.addEventListener('click', () => fileInp && fileInp.click());
         if (fileInp && fileInp.classList.contains('shiki-img-input')) {
-          fileInp.addEventListener('change', e => {
+          fileInp.addEventListener('change', async e => {
             const file = e.target.files[0];
+            e.target.value = '';
             if (!file) return;
             const idx = parseInt(fileInp.dataset.idx);
-            const reader = new FileReader();
-            reader.onload = ev => {
+            // Imagem de shikigami também vai pro Imgur pelo mesmo motivo.
+            showToast('Enviando imagem... ⏳', '');
+            try {
+              const url = await uploadImgur(file);
               const fichaAtual = getFicha(slot);
               const arr = [...(Array.isArray(fichaAtual?.shikigamis) ? fichaAtual.shikigamis : Object.values(fichaAtual?.shikigamis || {}))];
-              if (arr[idx]) { arr[idx].imagem = ev.target.result; salvar(slot, 'shikigamis', arr, isNpc); }
-            };
-            reader.readAsDataURL(file);
-            e.target.value = '';
+              if (arr[idx]) { arr[idx].imagem = url; salvar(slot, 'shikigamis', arr, isNpc); }
+              showToast('Imagem atualizada!', 'success');
+            } catch (err) {
+              console.error('Erro no upload da imagem do shikigami:', err);
+              showToast('Falha no upload.', 'error');
+            }
           });
         }
       });
