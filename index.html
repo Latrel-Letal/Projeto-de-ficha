@@ -698,6 +698,38 @@
     color: white;
     background: var(--purple);
   }
+  .mapa-pasta-grupo { display: flex; flex-direction: column; }
+  .mapa-pasta-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    padding: 6px 4px;
+    cursor: pointer;
+  }
+  .mapa-pasta-header:hover { color: var(--text); }
+  .mapa-pasta-header .mapa-pasta-chevron { font-size: 8px; transition: transform 0.2s; }
+  .mapa-pasta-grupo.open .mapa-pasta-header .mapa-pasta-chevron { transform: rotate(180deg); }
+  .mapa-pasta-header .mapa-pasta-count {
+    background: var(--bg3);
+    border-radius: 999px;
+    padding: 0px 6px;
+    font-size: 9px;
+  }
+  .mapa-pasta-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.2s cubic-bezier(0.4,0,0.2,1);
+  }
+  .mapa-pasta-grupo.open .mapa-pasta-body { grid-template-rows: 1fr; }
+  .mapa-pasta-body-inner { overflow: hidden; }
+  .mapa-pasta-itens { display: flex; flex-direction: column; gap: 5px; padding: 2px 0 4px 10px; }
   .mapa-abas-acoes { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .mapa-toolbar-group { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
   .mapa-toolbar input[type="text"],
@@ -3535,6 +3567,7 @@
         </button>
         <div class="mapa-abas-acoes" id="mapaAbasAcoesMestre" style="display:none">
           <button class="btn-mapa primary" onclick="criarNovoMapa()" title="Criar nova aba de mapa">➕ Nova Aba</button>
+          <button class="btn-mapa" onclick="definirPastaMapaAtual()" title="Agrupar esta aba numa pasta">📁 Pasta</button>
           <button class="btn-mapa" onclick="renomearMapaAtual()" title="Renomear aba atual">✏️ Renomear</button>
           <button class="btn-mapa danger" onclick="apagarMapaAtual()" title="Apagar aba atual">🗑️ Apagar Aba</button>
         </div>
@@ -5894,7 +5927,8 @@ function renderAbasMapa() {
     lista.innerHTML = '<span style="font-size:11px;color:var(--text2);font-style:italic">Nenhuma aba de mapa criada ainda.</span>';
     return;
   }
-  entradas.forEach(([id, m]) => {
+
+  const criarBotaoMapa = (id, m) => {
     const btn = document.createElement('button');
     btn.className = 'aba-mapa-btn' + (id === mapaAtivoId ? ' ativa' : '');
     btn.innerHTML = `<span>${id === mapaAtivoId ? '📍' : '🗺️'}</span><span>${esc(m?.nome || 'Mapa sem nome')}</span>`;
@@ -5906,9 +5940,64 @@ function renderAbasMapa() {
       // Ao escolher um mapa, recolhe a gaveta pra dar mais espaço ao mapa em si
       if (modoMestre) fecharGavetaMapas();
     };
-    lista.appendChild(btn);
+    return btn;
+  };
+
+  // Separa mapas com "pasta" definida (agrupados) dos sem pasta (soltos)
+  const semPasta = [];
+  const pastas = {}; // nome da pasta -> [[id,m], ...]
+  entradas.forEach(([id, m]) => {
+    const p = (m?.pasta || '').trim();
+    if (p) { (pastas[p] = pastas[p] || []).push([id, m]); }
+    else semPasta.push([id, m]);
+  });
+
+  semPasta.forEach(([id, m]) => lista.appendChild(criarBotaoMapa(id, m)));
+
+  Object.keys(pastas).sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach(nomePasta => {
+    const itens = pastas[nomePasta];
+    const temAtivo = itens.some(([id]) => id === mapaAtivoId);
+    const chave = chavePastaMapa(nomePasta);
+    const salvo = localStorage.getItem(chave);
+    const aberta = salvo !== null ? (salvo === 'sim') : temAtivo; // padrão: aberta se o mapa ativo estiver dentro
+
+    const grupo = document.createElement('div');
+    grupo.className = 'mapa-pasta-grupo' + (aberta ? ' open' : '');
+
+    const header = document.createElement('button');
+    header.type = 'button';
+    header.className = 'mapa-pasta-header';
+    header.innerHTML = `<span class="mapa-pasta-chevron">▼</span><span>📁 ${esc(nomePasta)}</span><span class="mapa-pasta-count">${itens.length}</span>`;
+    header.addEventListener('click', () => {
+      const agora = grupo.classList.toggle('open');
+      localStorage.setItem(chave, agora ? 'sim' : 'nao');
+    });
+
+    const body = document.createElement('div');
+    body.className = 'mapa-pasta-body';
+    const bodyInner = document.createElement('div');
+    bodyInner.className = 'mapa-pasta-body-inner';
+    const itensWrap = document.createElement('div');
+    itensWrap.className = 'mapa-pasta-itens';
+    itens.forEach(([id, m]) => itensWrap.appendChild(criarBotaoMapa(id, m)));
+    bodyInner.appendChild(itensWrap);
+    body.appendChild(bodyInner);
+
+    grupo.appendChild(header);
+    grupo.appendChild(body);
+    lista.appendChild(grupo);
   });
 }
+function chavePastaMapa(nomePasta) { return `jk_pasta_mapa_${sessaoId}_${nomePasta}`; }
+
+window.definirPastaMapaAtual = function() {
+  if (!modoMestre || !sessaoId || !mapaAtivoId) return;
+  const atual = mapaData?.pasta || '';
+  const nome = prompt('Nome da pasta pra agrupar esta aba de mapa (deixe em branco pra tirar da pasta):', atual);
+  if (nome === null) return;
+  const nomeFinal = nome.trim();
+  set(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/pasta`), nomeFinal || null);
+};
 
 // ── Gaveta de abas de mapa (abrir/fechar, com persistência local) ──
 function chaveGavetaMapas() { return `jk_mapas_drawer_${sessaoId}`; }
