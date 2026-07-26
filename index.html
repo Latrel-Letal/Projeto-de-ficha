@@ -3796,7 +3796,7 @@
 <!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getDatabase, ref, set, get, push, onValue, remove }
+import { getDatabase, ref, set, get, push, onValue, remove, query, limitToLast }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
 import { getAuth, signInAnonymously, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
@@ -4418,13 +4418,16 @@ function iniciarApp() {
     limparDominiosOrfaos();
   }));
 
-  // Chat em tempo real
-  __sessaoListeners.push(onValue(ref(db, `sessoes/${sessaoId}/chat`), snap => {
+  // Chat em tempo real — limitado às últimas 150 mensagens.
+  // Sem esse limite, cada mensagem nova reenvia o histórico INTEIRO do chat
+  // para todo mundo conectado (isso foi o principal responsável pelo consumo
+  // da cota de download do Firebase, já que o chat só cresce durante a sessão).
+  __sessaoListeners.push(onValue(query(ref(db, `sessoes/${sessaoId}/chat`), limitToLast(150)), snap => {
     renderChat(snap.val() || {});
   }));
 
-  // Chat de imagens em tempo real
-  __sessaoListeners.push(onValue(ref(db, `sessoes/${sessaoId}/chatImagens`), snap => {
+  // Chat de imagens em tempo real — mesma lógica, limitado às últimas 60 imagens
+  __sessaoListeners.push(onValue(query(ref(db, `sessoes/${sessaoId}/chatImagens`), limitToLast(60)), snap => {
     renderImagens(snap.val() || {});
   }));
 
@@ -9136,4 +9139,4 @@ function salvar(slot, field, value, isNpc) {
 }
 </script>
 </body>
-</html>
+</html>n
