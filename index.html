@@ -6642,6 +6642,88 @@ function criarSpriteToken3D(tk) {
   return new THREE.SpriteMaterial({ map: tex, depthTest: true, sizeAttenuation: true });
 }
 
+let domosAtivos3d = []; // cúpulas de domínio ativas na cena, pra animar o pulso
+
+function criarLabelDominio3D(texto) {
+  const cvs = document.createElement('canvas');
+  cvs.width = 512; cvs.height = 128;
+  const ctx = cvs.getContext('2d');
+  ctx.font = 'bold 56px Cinzel, serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.shadowColor = 'rgba(168,85,247,0.9)';
+  ctx.shadowBlur = 16;
+  ctx.fillStyle = '#e0c4ff';
+  ctx.fillText(texto.toUpperCase(), 256, 64);
+  const tex = new THREE.CanvasTexture(cvs);
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+  const sprite = new THREE.Sprite(mat);
+  sprite.scale.set(4.2, 1.05, 1);
+  return sprite;
+}
+
+// Reaproveita a mesma lógica/dados da zona de domínio 2D (renderDominioZona),
+// mas desenha como uma cúpula translúcida 3D em vez de células de SVG —
+// visualmente mais fiel ao conceito de "Expansão de Domínio".
+function renderDominioZona3D(cols, rows) {
+  domosAtivos3d = [];
+  const tokensAtuais = mapaData.tokens || {};
+
+  const slotsComDominio = Object.entries(dominiosAtivos)
+    .filter(([slot, v]) => v && typeof v === 'object' && 'col' in v)
+    .map(([slot, origem]) => ({ slot, col: origem.col, row: origem.row }));
+
+  Object.entries(dominiosAtivos).forEach(([slot, v]) => {
+    if (v === true) {
+      const tk = Object.values(tokensAtuais).find(t => t.slot === slot);
+      if (tk) slotsComDominio.push({ slot, col: tk.col ?? 0, row: tk.row ?? 0 });
+    }
+  });
+
+  slotsComDominio.forEach(({ slot, col, row }) => {
+    if (!dominiosAtivos[slot]) return;
+    const raio = 3; // mesmo raio (em células) usado na versão 2D
+
+    const x = col - cols / 2 + 0.5;
+    const z = row - rows / 2 + 0.5;
+
+    // Cúpula translúcida (metade de esfera) cobrindo a área
+    const geoDomo = new THREE.SphereGeometry(raio, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+    const matDomo = new THREE.MeshBasicMaterial({
+      color: 0xa855f7, transparent: true, opacity: 0.14,
+      side: THREE.DoubleSide, depthWrite: false,
+    });
+    const domo = new THREE.Mesh(geoDomo, matDomo);
+    domo.position.set(x, 0.02, z);
+    mapaGroup3d.add(domo);
+
+    // Contorno em wireframe por cima, pra reforçar a silhueta da cúpula
+    const wire = new THREE.Mesh(
+      geoDomo,
+      new THREE.MeshBasicMaterial({ color: 0xd4b0ff, wireframe: true, transparent: true, opacity: 0.35, depthWrite: false })
+    );
+    wire.position.copy(domo.position);
+    mapaGroup3d.add(wire);
+
+    // Anel no chão marcando o limite exato da área
+    const anel = new THREE.Mesh(
+      new THREE.RingGeometry(raio - 0.06, raio, 48),
+      new THREE.MeshBasicMaterial({ color: 0xa855f7, transparent: true, opacity: 0.8, side: THREE.DoubleSide, depthWrite: false })
+    );
+    anel.rotation.x = -Math.PI / 2;
+    anel.position.set(x, 0.03, z);
+    mapaGroup3d.add(anel);
+
+    // Label "DOMÍNIO — Nome" flutuando acima da cúpula
+    const fichaSlot = fichasData[slot] || fichasNpcData[slot] || (typeof getFicha === 'function' ? getFicha(slot) : null);
+    const nomeDom = fichaSlot?.nome ? `Domínio — ${fichaSlot.nome}` : 'Domínio';
+    const label = criarLabelDominio3D(nomeDom);
+    label.position.set(x, raio + 0.9, z);
+    mapaGroup3d.add(label);
+
+    domosAtivos3d.push({ domo, wire });
+  });
+}
+
 function renderMapa3D() {
   if (!scene3d || !mapaGroup3d) return;
   if (dragToken3dId) return; // evita "puxar" o token de volta enquanto o jogador está arrastando
@@ -6671,6 +6753,8 @@ function renderMapa3D() {
     grid.position.y = 0.01;
     mapaGroup3d.add(grid);
   }
+
+  renderDominioZona3D(cols, rows);
 
   const tokensAtuais = mapaData.tokens || {};
   Object.entries(tokensAtuais).forEach(([id, tk]) => {
@@ -6726,6 +6810,13 @@ function animateMapa3D() {
     if (mapa3dRafId) cancelAnimationFrame(mapa3dRafId);
     mapa3dRafId = null;
     return;
+  }
+  if (domosAtivos3d.length) {
+    const pulso = 0.14 + Math.sin(Date.now() / 700) * 0.05;
+    domosAtivos3d.forEach(({ domo, wire }) => {
+      domo.material.opacity = pulso;
+      wire.material.opacity = 0.28 + Math.sin(Date.now() / 700 + 1) * 0.1;
+    });
   }
   controls3d.update();
   renderer3d.render(scene3d, camera3d);
