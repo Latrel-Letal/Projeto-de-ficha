@@ -3834,6 +3834,7 @@ import { getAuth, signInAnonymously, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 const firebaseConfig = {
   apiKey:            "AIzaSyCssTD1j4VUVsbOYRDq6t0NQ-L_oeQ5O8U",
@@ -6442,6 +6443,46 @@ let dragToken3dId = null;
 const raycaster3d = new THREE.Raycaster();
 const pointerNDC3d = new THREE.Vector2();
 const mapaTextureLoader3d = new THREE.TextureLoader();
+const gltfLoader3d = new GLTFLoader();
+const gltfCache3d = {};       // url -> THREE.Group original (não usado diretamente na cena, só como molde pra clonar)
+const modelosCarregando3d = new Set();
+
+// Um token usa modelo 3D quando a ficha vinculada a ele (via tk.slot) tem
+// um link .glb definido no avatar (botão 🧊 na ficha). Simples de testar:
+// basta já ter um modelo definido na ficha do personagem/NPC.
+function obterModelo3DToken(tk) {
+  if (!tk || !tk.slot || tk.tipo === 'shikigami') return null;
+  const ficha = tk.tipo === 'npc' ? fichasNpcData[tk.slot] : fichasData[tk.slot];
+  return (ficha && ficha.avatar3d) ? ficha.avatar3d : null;
+}
+
+function carregarModelo3DToken(url) {
+  if (gltfCache3d[url] || modelosCarregando3d.has(url)) return;
+  modelosCarregando3d.add(url);
+  gltfLoader3d.load(url, (gltf) => {
+    gltfCache3d[url] = gltf.scene;
+    modelosCarregando3d.delete(url);
+    if (mapa3dAtivo) renderMapa3D(); // recarrega a cena agora que o modelo já está pronto/cacheado
+  }, undefined, (err) => {
+    modelosCarregando3d.delete(url);
+    console.error('Falha ao carregar modelo 3D do token:', url, err);
+  });
+}
+
+function prepararModelo3DClone(url, tam) {
+  const original = gltfCache3d[url];
+  if (!original) return null;
+  const modelo = original.clone(true);
+  const box = new THREE.Box3().setFromObject(modelo);
+  const size = new THREE.Vector3();
+  box.getSize(size);
+  const maiorDim = Math.max(size.x, size.y, size.z) || 1;
+  const alturaAlvo = 1.6 * tam; // altura aproximada em "quadrados" de grid
+  modelo.scale.setScalar(alturaAlvo / maiorDim);
+  const box2 = new THREE.Box3().setFromObject(modelo);
+  modelo.userData.baseOffsetY = -box2.min.y; // reancora o modelo em pé no chão
+  return modelo;
+}
 
 function toggleMapa3D() {
   mapa3dAtivo = !mapa3dAtivo;
@@ -6528,7 +6569,8 @@ function ativarDragToken3D(canvas3d) {
     const obj = tokenObjs3d[dragToken3dId];
     if (obj) {
       obj.base.position.x = x; obj.base.position.z = z; obj.base.position.y = 0.25;
-      obj.sprite.position.x = x; obj.sprite.position.z = z;
+      if (obj.sprite) { obj.sprite.position.x = x; obj.sprite.position.z = z; }
+      if (obj.modelo) { obj.modelo.position.x = x; obj.modelo.position.z = z; }
     }
   });
 
@@ -6646,13 +6688,27 @@ function renderMapa3D() {
     base.userData.tokenId = id;
     mapaGroup3d.add(base);
 
-    const sprite = new THREE.Sprite(criarSpriteToken3D(tk));
-    sprite.scale.set(0.9 * tam, 0.9 * tam, 1);
-    sprite.position.set(x, 0.65 * tam, z);
-    sprite.userData.tokenId = id;
-    mapaGroup3d.add(sprite);
+    const modeloUrl = obterModelo3DToken(tk);
+    let sprite = null, modelo = null;
 
-    tokenObjs3d[id] = { base, sprite };
+    if (modeloUrl && gltfCache3d[modeloUrl]) {
+      modelo = prepararModelo3DClone(modeloUrl, tam);
+      if (modelo) {
+        modelo.position.set(x, 0.07 + modelo.userData.baseOffsetY, z);
+        mapaGroup3d.add(modelo);
+        matBase.opacity = 0.35; matBase.transparent = true; // vira só um "marcador de chão" discreto
+      }
+    }
+    if (!modelo) {
+      sprite = new THREE.Sprite(criarSpriteToken3D(tk));
+      sprite.scale.set(0.9 * tam, 0.9 * tam, 1);
+      sprite.position.set(x, 0.65 * tam, z);
+      sprite.userData.tokenId = id;
+      mapaGroup3d.add(sprite);
+      if (modeloUrl) carregarModelo3DToken(modeloUrl); // ainda carregando: fica no sprite até estar pronto
+    }
+
+    tokenObjs3d[id] = { base, sprite, modelo, tam };
   });
 
   ajustarTamanhoMapa3D();
