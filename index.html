@@ -8607,16 +8607,6 @@ function criarCard(slot, d, isNpc) {
       });
     }
 
-    // Ver avatar (foto ou modelo 3D) em tela cheia — funciona pra qualquer ficha, sua ou dos outros
-    const avatarViewBtnEl = card.querySelector('.avatar-view-btn');
-    if (avatarViewBtnEl) {
-      avatarViewBtnEl.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const fd = (isNpc ? fichasNpcData[slot] : fichasData[slot]) || {};
-        abrirAvatarLightbox(fd.avatar3d || '', fd.avatar || '', fd.nome || slot);
-      });
-    }
-
     // Vitrine grande de avatar (só na própria ficha de PC)
     const vitrineEl = card.querySelector('.avatar-vitrine');
     if (vitrineEl) {
@@ -9265,6 +9255,17 @@ function criarCard(slot, d, isNpc) {
       localStorage.setItem(`jk_acord_${sessaoId}_${slot}_${id}`, ac.classList.contains('open') ? 'sim' : 'nao');
     });
   });
+
+  // Ver avatar (foto ou modelo 3D) em tela cheia — roda pra qualquer ficha,
+  // sua ou dos outros; por isso fica FORA do bloco "if (ismine)" acima.
+  const avatarViewBtnEl = card.querySelector('.avatar-view-btn');
+  if (avatarViewBtnEl) {
+    avatarViewBtnEl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const fd = (isNpc ? fichasNpcData[slot] : fichasData[slot]) || {};
+      abrirAvatarLightbox(fd.avatar3d || '', fd.avatar || '', fd.nome || slot);
+    });
+  }
 
   return card;
 }
