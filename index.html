@@ -6533,6 +6533,7 @@ let scene3d = null, camera3d = null, renderer3d = null, controls3d = null;
 let mapaGroup3d = null;
 let mapa3dRafId = null;
 let tokenObjs3d = {};
+let formaObjs3d = {}; // { formaId: THREE.Object3D } — pra permitir clicar e remover formas na cena 3D
 let chaoMesh3d = null;
 let dragToken3dId = null;
 const raycaster3d = new THREE.Raycaster();
@@ -6635,7 +6636,22 @@ function ativarDragToken3D(canvas3d) {
     raycaster3d.setFromCamera(pointerNDC3d, camera3d);
     const bases = Object.values(tokenObjs3d).map(o => o.base);
     const hits = raycaster3d.intersectObjects(bases, false);
-    if (!hits.length) return;
+    if (!hits.length) {
+      // Nenhum token: se estiver no modo "Sel." de formas, tenta clicar numa forma pra remover
+      if (typeof modoFormaAtual !== 'undefined' && modoFormaAtual === 'sel' && Object.keys(formaObjs3d).length) {
+        const alvos = Object.values(formaObjs3d);
+        const hitsForma = raycaster3d.intersectObjects(alvos, true);
+        if (hitsForma.length) {
+          let o = hitsForma[0].object;
+          while (o && !o.userData.formaId && o.parent) o = o.parent;
+          const formaId = o?.userData?.formaId;
+          if (formaId && formasData[formaId] && confirm(`Remover esta forma (${formasData[formaId].tipo})?`)) {
+            remove(ref(db, `sessoes/${sessaoId}/mapas/${mapaAtivoId}/formas/${formaId}`));
+          }
+        }
+      }
+      return;
+    }
     const id = hits[0].object.userData.tokenId;
     const tk = (mapaData.tokens || {})[id];
     const podeMover = modoMestre || (tk && tk.slot === meuSlot);
@@ -6819,6 +6835,177 @@ function renderDominioZona3D(cols, rows) {
   });
 }
 
+// ==================== FORMAS NO MAPA 3D ====================
+// Reaproveita os mesmos dados de formasData (desenhadas na aba 2D) e projeta
+// cada uma como uma malha plana sobre o chão da cena 3D. Usa a mesma
+// convenção de coordenadas dos tokens: x = col - cols/2 (+0.5 p/ centro de
+// célula), z = row - rows/2 (+0.5 p/ centro de célula).
+function limparFormas3D() {
+  Object.values(formaObjs3d).forEach(obj => { if (obj && obj.parent) obj.parent.remove(obj); });
+  formaObjs3d = {};
+}
+
+// Cria uma malha preenchida (+ contorno) a partir de uma lista de pontos em
+// espaço de célula [{col,row}, ...]. Faz a conversão pro sistema do THREE
+// internamente (mesma lógica usada pelo anel/cúpula de domínio 3D).
+function criarMeshFormaPlana(pontosCelula, cor, opacidade, cols, rows, comContorno = true) {
+  const corNum = (() => { const n = parseInt((cor || '#a855f7').replace('#', ''), 16); return isNaN(n) ? 0xa855f7 : n; })();
+  const shape = new THREE.Shape();
+  pontosCelula.forEach((p, i) => {
+    const x = p.col - cols / 2;
+    const y = rows / 2 - p.row; // ver nota de coordenadas no topo do bloco
+    if (i === 0) shape.moveTo(x, y); else shape.lineTo(x, y);
+  });
+  const geo = new THREE.ShapeGeometry(shape);
+  const mat = new THREE.MeshBasicMaterial({
+    color: corNum, transparent: true, opacity: opacidade,
+    side: THREE.DoubleSide, depthWrite: false,
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.position.y = 0.025;
+
+  const grupo = new THREE.Group();
+  grupo.add(mesh);
+
+  if (comContorno) {
+    const ptsContorno = pontosCelula.map(p => new THREE.Vector3(p.col - cols / 2, 0, rows / 2 - p.row));
+    ptsContorno.push(ptsContorno[0]);
+    const geoLinha = new THREE.BufferGeometry().setFromPoints(ptsContorno);
+    const linha = new THREE.LineLoop(geoLinha, new THREE.LineBasicMaterial({ color: corNum, transparent: true, opacity: Math.min(1, opacidade + 0.4) }));
+    linha.rotation.x = -Math.PI / 2;
+    linha.position.y = 0.03;
+    grupo.add(linha);
+  }
+  return grupo;
+}
+
+// Círculo/elipse preenchido (usado por 'circ' e 'area')
+function criarMeshElipse3D(centroCol, centroRow, raioCol, raioRow, cor, opacidade, cols, rows) {
+  const corNum = (() => { const n = parseInt((cor || '#a855f7').replace('#', ''), 16); return isNaN(n) ? 0xa855f7 : n; })();
+  const shape = new THREE.Shape();
+  shape.absellipse(centroCol - cols / 2, rows / 2 - centroRow, raioCol, raioRow, 0, Math.PI * 2, false, 0);
+  const geo = new THREE.ShapeGeometry(shape, 48);
+  const mat = new THREE.MeshBasicMaterial({ color: corNum, transparent: true, opacity: opacidade, side: THREE.DoubleSide, depthWrite: false });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.position.y = 0.025;
+
+  const grupo = new THREE.Group();
+  grupo.add(mesh);
+
+  const curva = new THREE.EllipseCurve(centroCol - cols / 2, rows / 2 - centroRow, raioCol, raioRow, 0, Math.PI * 2, false, 0);
+  const geoLinha = new THREE.BufferGeometry().setFromPoints(curva.getPoints(48).map(p => new THREE.Vector3(p.x, 0, p.y)));
+  const linha = new THREE.LineLoop(geoLinha, new THREE.LineBasicMaterial({ color: corNum, transparent: true, opacity: Math.min(1, opacidade + 0.4) }));
+  linha.rotation.x = -Math.PI / 2;
+  linha.position.y = 0.03;
+  grupo.add(linha);
+  return grupo;
+}
+
+// Sprite de texto/marcador (usado pelo tipo 'text')
+function criarSpriteTextoForma3D(texto, cor) {
+  const cvs = document.createElement('canvas');
+  cvs.width = 256; cvs.height = 128;
+  const ctx = cvs.getContext('2d');
+  ctx.font = 'bold 64px Cinzel, serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.shadowColor = 'rgba(0,0,0,0.9)';
+  ctx.shadowBlur = 10;
+  ctx.fillStyle = cor || '#a855f7';
+  ctx.fillText((texto || '?').slice(0, 10), 128, 64);
+  const tex = new THREE.CanvasTexture(cvs);
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+  sprite.scale.set(1.6, 0.8, 1);
+  return sprite;
+}
+
+function renderFormas3D(cols, rows) {
+  limparFormas3D();
+  if (!mapaGroup3d) return;
+
+  Object.entries(formasData).forEach(([id, forma]) => {
+    if (!forma || !forma.tipo) return;
+    const cor = forma.cor || '#a855f7';
+    const op = forma.opacidade ?? 0.55;
+    let obj = null;
+
+    if (forma.tipo === 'rect') {
+      const minCol = Math.min(forma.col, forma.col2), maxCol = Math.max(forma.col, forma.col2) + 1;
+      const minRow = Math.min(forma.row, forma.row2), maxRow = Math.max(forma.row, forma.row2) + 1;
+      obj = criarMeshFormaPlana([
+        { col: minCol, row: minRow }, { col: maxCol, row: minRow },
+        { col: maxCol, row: maxRow }, { col: minCol, row: maxRow },
+      ], cor, op, cols, rows);
+
+    } else if (forma.tipo === 'circ') {
+      const ccol = Math.min(forma.col, forma.col2) + Math.abs(forma.col2 - forma.col) / 2 + 0.5;
+      const crow = Math.min(forma.row, forma.row2) + Math.abs(forma.row2 - forma.row) / 2 + 0.5;
+      const rCol = (Math.abs(forma.col2 - forma.col) + 1) / 2;
+      const rRow = (Math.abs(forma.row2 - forma.row) + 1) / 2;
+      obj = criarMeshElipse3D(ccol, crow, rCol, rRow, cor, op, cols, rows);
+
+    } else if (forma.tipo === 'area') {
+      const raio = forma.raio || 1;
+      obj = criarMeshElipse3D(forma.col + 0.5, forma.row + 0.5, raio, raio, cor, op, cols, rows);
+
+    } else if (forma.tipo === 'tri') {
+      const p1 = { col: Math.min(forma.col, forma.col2) + Math.abs(forma.col2 - forma.col) / 2 + 0.5, row: Math.min(forma.row, forma.row2) };
+      const p2 = { col: Math.min(forma.col, forma.col2), row: Math.max(forma.row, forma.row2) + 1 };
+      const p3 = { col: Math.max(forma.col, forma.col2) + 1, row: Math.max(forma.row, forma.row2) + 1 };
+      obj = criarMeshFormaPlana([p1, p2, p3], cor, op, cols, rows);
+
+    } else if (forma.tipo === 'quad') {
+      const inset = 0.15;
+      obj = criarMeshFormaPlana([
+        { col: forma.col + inset, row: forma.row + inset }, { col: forma.col + 1 - inset, row: forma.row + inset },
+        { col: forma.col + 1 - inset, row: forma.row + 1 - inset }, { col: forma.col + inset, row: forma.row + 1 - inset },
+      ], cor, op, cols, rows);
+
+    } else if (forma.tipo === 'diamante') {
+      const ccol = forma.col + 0.5, crow = forma.row + 0.5, r = 0.42;
+      obj = criarMeshFormaPlana([
+        { col: ccol, row: crow - r }, { col: ccol + r, row: crow },
+        { col: ccol, row: crow + r }, { col: ccol - r, row: crow },
+      ], cor, op, cols, rows);
+
+    } else if (forma.tipo === 'line') {
+      const c1 = forma.col + 0.5, r1 = forma.row + 0.5, c2 = forma.col2 + 0.5, r2 = forma.row2 + 0.5;
+      const dCol = c2 - c1, dRow = r2 - r1, len = Math.hypot(dCol, dRow) || 1;
+      const meiaEsp = 0.06;
+      const nCol = -dRow / len * meiaEsp, nRow = dCol / len * meiaEsp;
+      obj = criarMeshFormaPlana([
+        { col: c1 + nCol, row: r1 + nRow }, { col: c2 + nCol, row: r2 + nRow },
+        { col: c2 - nCol, row: r2 - nRow }, { col: c1 - nCol, row: r1 - nRow },
+      ], cor, op, cols, rows, false);
+
+    } else if (forma.tipo === 'cone') {
+      const ox = forma.col + 0.5, oy = forma.row + 0.5;
+      const alcance = forma.alcance || 3;
+      const angCentro = forma.angulo ?? 0;
+      const abertura = forma.abertura ?? (Math.PI / 3);
+      const a1 = angCentro - abertura / 2, a2 = angCentro + abertura / 2;
+      const segs = 16;
+      const pontos = [{ col: ox, row: oy }];
+      for (let i = 0; i <= segs; i++) {
+        const a = a1 + (a2 - a1) * (i / segs);
+        pontos.push({ col: ox + Math.cos(a) * alcance, row: oy + Math.sin(a) * alcance });
+      }
+      obj = criarMeshFormaPlana(pontos, cor, op, cols, rows);
+
+    } else if (forma.tipo === 'text') {
+      obj = criarSpriteTextoForma3D(forma.texto, cor);
+      obj.position.set((forma.col + 0.5) - cols / 2, 0.15, (forma.row + 0.5) - rows / 2);
+    }
+
+    if (!obj) return;
+    obj.userData.formaId = id;
+    mapaGroup3d.add(obj);
+    formaObjs3d[id] = obj;
+  });
+}
+// ==================== FIM FORMAS NO MAPA 3D ====================
+
 function renderMapa3D() {
   if (!scene3d || !mapaGroup3d) return;
   if (dragToken3dId) return; // evita "puxar" o token de volta enquanto o jogador está arrastando
@@ -6850,6 +7037,7 @@ function renderMapa3D() {
   }
 
   renderDominioZona3D(cols, rows);
+  renderFormas3D(cols, rows);
 
   const tokensAtuais = mapaData.tokens || {};
   Object.entries(tokensAtuais).forEach(([id, tk]) => {
