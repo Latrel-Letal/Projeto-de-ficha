@@ -1562,6 +1562,44 @@
   }
   .avatar-3d-toggle:hover { border-color: var(--purple); background: rgba(168,85,247,0.15); }
   .avatar-3d-toggle.active { color: var(--gold); border-color: var(--gold); background: rgba(240,192,64,0.15); }
+  .avatar-view-btn {
+    position: absolute; bottom: -2px; left: -2px; width: 20px; height: 20px;
+    border-radius: 50%; background: var(--bg2); border: 1px solid var(--border2);
+    color: var(--blue); font-size: 11px; display: flex; align-items: center;
+    justify-content: center; cursor: pointer; z-index: 2; transition: all .15s;
+  }
+  .avatar-view-btn:hover { border-color: var(--blue); background: rgba(74,158,255,0.15); }
+
+  .avatar-lightbox {
+    display: none; position: fixed; inset: 0; z-index: 9000;
+    background: rgba(5,5,10,0.92); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 40px 20px;
+  }
+  .avatar-lightbox.open { display: flex; }
+  .avatar-lightbox-inner {
+    position: relative; max-width: min(90vw, 560px); max-height: 85vh;
+    width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .avatar-lightbox-inner img {
+    max-width: 100%; max-height: 75vh; object-fit: contain;
+    border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    border: 1px solid var(--border2);
+  }
+  .avatar-lightbox-inner model-viewer {
+    width: min(80vw, 480px); height: min(60vh, 480px);
+    background: var(--bg2); border-radius: 12px; border: 1px solid var(--border2);
+  }
+  .avatar-lightbox-nome {
+    font-family: 'Cinzel', serif; color: var(--gold); font-size: 15px; letter-spacing: 1px;
+  }
+  .avatar-lightbox-close {
+    position: absolute; top: -44px; right: -4px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--bg2); border: 1px solid var(--border2); color: var(--text);
+    font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+  }
+  .avatar-lightbox-close:hover { border-color: var(--purple); color: var(--purple); }
 
   /* ── STATUS / CONDIÇÕES ── */
   .status-overlay {
@@ -3824,6 +3862,15 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- LIGHTBOX DE AVATAR (foto/modelo 3D em tela cheia) -->
+<div class="avatar-lightbox" id="avatarLightbox" onclick="if(event.target===this) fecharAvatarLightbox()">
+  <div class="avatar-lightbox-inner">
+    <button class="avatar-lightbox-close" onclick="fecharAvatarLightbox()" title="Fechar">✕</button>
+    <div id="avatarLightboxConteudo"></div>
+    <div class="avatar-lightbox-nome" id="avatarLightboxNome"></div>
+  </div>
+</div>
 
 <!-- FIREBASE -->
 <script type="module">
@@ -6825,6 +6872,29 @@ function animateMapa3D() {
 window.toggleMapa3D = toggleMapa3D;
 // ==================== FIM MAPA 3D ====================
 
+// ==================== LIGHTBOX DE AVATAR (tela cheia) ====================
+function abrirAvatarLightbox(avatar3dUrl, avatarUrl, nome) {
+  const box = document.getElementById('avatarLightbox');
+  const conteudo = document.getElementById('avatarLightboxConteudo');
+  const nomeEl = document.getElementById('avatarLightboxNome');
+  if (!box || !conteudo) return;
+  conteudo.innerHTML = avatar3dUrl
+    ? `<model-viewer src="${esc(avatar3dUrl)}" camera-controls auto-rotate exposure="0.9" shadow-intensity="0.6"></model-viewer>`
+    : (avatarUrl ? `<img src="${avatarUrl}" alt="${esc(nome||'avatar')}">` : '');
+  if (nomeEl) nomeEl.textContent = nome || '';
+  box.classList.add('open');
+}
+function fecharAvatarLightbox() {
+  const box = document.getElementById('avatarLightbox');
+  if (box) box.classList.remove('open');
+  const conteudo = document.getElementById('avatarLightboxConteudo');
+  if (conteudo) conteudo.innerHTML = ''; // para o model-viewer/giro parar de rodar em segundo plano
+}
+window.abrirAvatarLightbox = abrirAvatarLightbox;
+window.fecharAvatarLightbox = fecharAvatarLightbox;
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharAvatarLightbox(); });
+// ==================== FIM LIGHTBOX DE AVATAR ====================
+
 function renderMapa() {
   if (!sessaoId) return;
   const canvas = document.getElementById('mapaCanvas');
@@ -7801,6 +7871,9 @@ function criarCard(slot, d, isNpc) {
   const avatar3dToggleHTML = ismine
     ? `<div class="avatar-3d-toggle${d.avatar3d ? ' active' : ''}" data-slot="${slot}" title="${d.avatar3d ? 'Editar/remover modelo 3D' : 'Definir modelo 3D (link .glb)'}">🧊</div>`
     : '';
+  const avatarViewBtnHTML = (d.avatar || d.avatar3d)
+    ? `<div class="avatar-view-btn" data-slot="${slot}" title="Ver em tela cheia">🔍</div>`
+    : '';
 
   // Badge mestre
   const badgeLabel = isNpc ? '👹 NPC' : (modoMestre && !isMeuCard ? '👁 Mestre' : (isMeuCard ? '✦ Você' : (d.nome||'Jogador')));
@@ -8193,6 +8266,7 @@ function criarCard(slot, d, isNpc) {
                 ${avatarSrc}
               </div>
               ${avatar3dToggleHTML}
+              ${avatarViewBtnHTML}
             </div>
             ${ismine ? `<input type="file" class="avatar-input" accept="image/*" data-slot="${slot}">` : ''}
             <div class="card-header-left" style="margin-left:10px">
@@ -8460,6 +8534,16 @@ function criarCard(slot, d, isNpc) {
         if (url === null) return;
         salvar(slot, 'avatar3d', url.trim(), isNpc);
         showToast(url.trim() ? 'Modelo 3D definido!' : 'Modelo 3D removido — voltando à foto.', 'success');
+      });
+    }
+
+    // Ver avatar (foto ou modelo 3D) em tela cheia — funciona pra qualquer ficha, sua ou dos outros
+    const avatarViewBtnEl = card.querySelector('.avatar-view-btn');
+    if (avatarViewBtnEl) {
+      avatarViewBtnEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const fd = (isNpc ? fichasNpcData[slot] : fichasData[slot]) || {};
+        abrirAvatarLightbox(fd.avatar3d || '', fd.avatar || '', fd.nome || slot);
       });
     }
 
