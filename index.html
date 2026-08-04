@@ -3714,6 +3714,7 @@
       <button class="btn-mapa primary" onclick="adicionarMeuToken()">➕ Meu Token</button>
       <button class="btn-mapa gold" id="btnAddNpcToken" style="display:none" onclick="adicionarTokenNpc()">👹 Token NPC</button>
       <button class="btn-mapa" id="btnMapa3dToggle" onclick="toggleMapa3D()" title="Ver o mapa em uma cena 3D navegável">🧊 Ver em 3D</button>
+      <button class="btn-mapa" id="btnMapa3dRecentralizar" onclick="recentralizarMapa3D()" title="Recentralizar a câmera do mapa 3D" style="display:none">🎯 Recentralizar</button>
     </div>
 
     <!-- Toolbar de Formas -->
@@ -6585,18 +6586,35 @@ function toggleMapa3D() {
   const canvas2d = document.getElementById('mapaCanvas');
   const canvas3d = document.getElementById('mapaCanvas3d');
   const btn = document.getElementById('btnMapa3dToggle');
+  const btnRecentralizar = document.getElementById('btnMapa3dRecentralizar');
   if (canvas2d) canvas2d.style.display = mapa3dAtivo ? 'none' : '';
   if (canvas3d) canvas3d.style.display = mapa3dAtivo ? 'block' : 'none';
   if (btn) {
     btn.classList.toggle('active', mapa3dAtivo);
     btn.textContent = mapa3dAtivo ? '🗺️ Ver em 2D' : '🧊 Ver em 3D';
   }
+  if (btnRecentralizar) btnRecentralizar.style.display = mapa3dAtivo ? '' : 'none';
   if (mapa3dAtivo) {
     if (!renderer3d) initMapa3D();
     renderMapa3D();
     animateMapa3D();
   }
 }
+
+// Reposiciona a câmera do mapa 3D no enquadramento padrão (mesma conta usada
+// na primeira vez que a cena é aberta). Útil quando o jogador se perde depois
+// de arrastar (pan) ou dar zoom demais — sem isso não havia como voltar sem
+// recarregar a página.
+function recentralizarMapa3D() {
+  if (!camera3d || !controls3d) return;
+  const cols = mapaData.cols || 20;
+  const rows = mapaData.rows || 14;
+  const maior = Math.max(cols, rows);
+  camera3d.position.set(0, maior * 0.7, maior * 0.55);
+  controls3d.target.set(0, 0, 0);
+  controls3d.update();
+}
+window.recentralizarMapa3D = recentralizarMapa3D;
 
 function initMapa3D() {
   const canvas3d = document.getElementById('mapaCanvas3d');
