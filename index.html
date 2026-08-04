@@ -1601,6 +1601,54 @@
   }
   .avatar-lightbox-close:hover { border-color: var(--purple); color: var(--purple); }
 
+  /* Vitrine grande de avatar (só na própria ficha de PC) */
+  .avatar-vitrine {
+    position: relative;
+    height: 200px;
+    margin: -1px -1px 12px -1px;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(168,85,247,0.16), transparent 55%),
+      radial-gradient(circle at 75% 80%, rgba(74,158,255,0.12), transparent 55%),
+      var(--bg3);
+    border-bottom: 1px solid var(--border2);
+    overflow: hidden;
+  }
+  .avatar-vitrine-badge {
+    position: absolute; top: 10px; left: 10px; z-index: 2;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
+    color: var(--purple); background: var(--purple-glow);
+    border: 1px solid rgba(168,85,247,0.4); padding: 4px 9px; border-radius: 6px;
+  }
+  .avatar-vitrine-media { width: 100%; height: 100%; position: relative; }
+  .avatar-vitrine-media.clicavel { cursor: pointer; }
+  .avatar-vitrine-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .avatar-vitrine-media model-viewer.vitrine-model { width: 100%; height: 100%; --poster-color: transparent; }
+  .avatar-vitrine-inicial {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    font-size: 52px; color: var(--text2); font-family: 'Cinzel', serif;
+  }
+  .avatar-vitrine-media.clicavel::after {
+    content: '📷 clique para trocar a foto'; position: absolute; inset: 0;
+    background: rgba(0,0,0,0.55); color: var(--text); font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .avatar-vitrine-media.clicavel:hover::after { opacity: 1; }
+  .avatar-input-vitrine { display: none; }
+  .avatar-vitrine-controls {
+    position: absolute; bottom: 10px; right: 10px; z-index: 2; display: flex; gap: 6px;
+  }
+  .avatar-vitrine-controls .av-btn {
+    border: 1px solid var(--border2); background: rgba(10,10,15,0.65); color: var(--text2);
+    font-size: 12px; width: 30px; height: 30px; border-radius: 7px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: all .15s;
+  }
+  .avatar-vitrine-controls .av-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .avatar-vitrine-controls .av-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(240,192,64,0.12); }
+  @media (max-width: 640px) {
+    .avatar-vitrine { height: 160px; }
+  }
+
   /* ── STATUS / CONDIÇÕES ── */
   .status-overlay {
     position: absolute; inset: 0; background: rgba(10,10,15,0.88);
@@ -7875,6 +7923,26 @@ function criarCard(slot, d, isNpc) {
     ? `<div class="avatar-view-btn" data-slot="${slot}" title="Ver em tela cheia">🔍</div>`
     : '';
 
+  // Vitrine grande de avatar: só na SUA própria ficha de PC (não em NPCs nem
+  // nas fichas de outros jogadores, mesmo quando o Mestre pode editá-las)
+  const ehMinhaFichaPrincipal = (slot === meuSlot) && !isNpc;
+  const avatarVitrineHTML = ehMinhaFichaPrincipal ? `
+    <div class="avatar-vitrine">
+      ${d.avatar3d ? `<span class="avatar-vitrine-badge">🧊 modelo 3D</span>` : ''}
+      <div class="avatar-vitrine-media${(!d.avatar3d) ? ' clicavel' : ''}" title="${(!d.avatar3d) ? 'Clique para trocar a foto' : ''}">
+        ${d.avatar3d
+          ? `<model-viewer class="vitrine-model" src="${esc(d.avatar3d)}" auto-rotate rotation-per-second="18deg" camera-orbit="0deg 80deg 3.2m" field-of-view="30deg" shadow-intensity="0.7" exposure="0.9" camera-controls interaction-prompt="none"></model-viewer>`
+          : (d.avatar ? `<img src="${d.avatar}" alt="avatar">` : `<div class="avatar-vitrine-inicial">${(d.nome||'?')[0]}</div>`)
+        }
+      </div>
+      <input type="file" class="avatar-input-vitrine" accept="image/*" data-slot="${slot}">
+      <div class="avatar-vitrine-controls">
+        <button type="button" class="av-btn${d.avatar3d ? ' active' : ''}" data-action="def3d" title="${d.avatar3d ? 'Editar/remover modelo 3D' : 'Definir modelo 3D (link .glb)'}">🧊</button>
+        ${d.avatar3d ? `<button type="button" class="av-btn active" data-action="rotate" title="Girar sozinho">🔄</button>` : ''}
+        <button type="button" class="av-btn" data-action="tela-cheia" title="Ver em tela cheia">🔍</button>
+      </div>
+    </div>` : '';
+
   // Badge mestre
   const badgeLabel = isNpc ? '👹 NPC' : (modoMestre && !isMeuCard ? '👁 Mestre' : (isMeuCard ? '✦ Você' : (d.nome||'Jogador')));
   const badgeClass = isNpc ? 'npc' : (isMeuCard ? '' : (modoMestre ? '' : 'other'));
@@ -8260,7 +8328,9 @@ function criarCard(slot, d, isNpc) {
         <!-- FRENTE -->
         <div class="ficha-face ficha-face-frente">
           ${dominioBannerHTML}
+          ${avatarVitrineHTML}
           <div class="card-header">
+            ${!ehMinhaFichaPrincipal ? `
             <div class="avatar-wrap" style="position:relative;flex-shrink:0">
               <div ${avatarEditable} data-slot="${slot}" title="${ismine?'Clique para alterar avatar':''}">
                 ${avatarSrc}
@@ -8268,7 +8338,7 @@ function criarCard(slot, d, isNpc) {
               ${avatar3dToggleHTML}
               ${avatarViewBtnHTML}
             </div>
-            ${ismine ? `<input type="file" class="avatar-input" accept="image/*" data-slot="${slot}">` : ''}
+            ${ismine ? `<input type="file" class="avatar-input" accept="image/*" data-slot="${slot}">` : ''}` : ''}
             <div class="card-header-left" style="margin-left:10px">
               <div class="char-name" ${ea} data-field="nome">${d.nome||slot}</div>
               <div class="char-meta">
@@ -8545,6 +8615,62 @@ function criarCard(slot, d, isNpc) {
         const fd = (isNpc ? fichasNpcData[slot] : fichasData[slot]) || {};
         abrirAvatarLightbox(fd.avatar3d || '', fd.avatar || '', fd.nome || slot);
       });
+    }
+
+    // Vitrine grande de avatar (só na própria ficha de PC)
+    const vitrineEl = card.querySelector('.avatar-vitrine');
+    if (vitrineEl) {
+      const fiVitrine = vitrineEl.querySelector('.avatar-input-vitrine');
+      const mediaEl = vitrineEl.querySelector('.avatar-vitrine-media');
+      const mvVitrine = vitrineEl.querySelector('model-viewer');
+      const btn3dVitrine = vitrineEl.querySelector('[data-action="def3d"]');
+      const btnRotateVitrine = vitrineEl.querySelector('[data-action="rotate"]');
+      const btnTelaVitrine = vitrineEl.querySelector('[data-action="tela-cheia"]');
+
+      if (mediaEl && fiVitrine && !mvVitrine) {
+        mediaEl.addEventListener('click', () => fiVitrine.click());
+      }
+      if (fiVitrine) {
+        fiVitrine.addEventListener('change', async e => {
+          const file = e.target.files[0];
+          e.target.value = '';
+          if (!file) return;
+          showToast('Enviando avatar... ⏳', '');
+          try {
+            const url = await uploadImgur(file);
+            salvar(slot, 'avatar', url, isNpc);
+            showToast('Avatar atualizado!', 'success');
+          } catch (err) {
+            console.error('Erro no upload do avatar:', err);
+            showToast('Falha no upload do avatar.', 'error');
+          }
+        });
+      }
+      if (btn3dVitrine) {
+        btn3dVitrine.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const atual = (isNpc ? fichasNpcData[slot] : fichasData[slot])?.avatar3d || '';
+          const url = prompt('Cole o link do arquivo .glb do modelo 3D (deixe vazio para voltar à foto):', atual);
+          if (url === null) return;
+          salvar(slot, 'avatar3d', url.trim(), isNpc);
+          showToast(url.trim() ? 'Modelo 3D definido!' : 'Modelo 3D removido — voltando à foto.', 'success');
+        });
+      }
+      if (btnRotateVitrine && mvVitrine) {
+        btnRotateVitrine.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const ligado = mvVitrine.hasAttribute('auto-rotate');
+          if (ligado) { mvVitrine.removeAttribute('auto-rotate'); btnRotateVitrine.classList.remove('active'); }
+          else { mvVitrine.setAttribute('auto-rotate', ''); btnRotateVitrine.classList.add('active'); }
+        });
+      }
+      if (btnTelaVitrine) {
+        btnTelaVitrine.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const fd = (isNpc ? fichasNpcData[slot] : fichasData[slot]) || {};
+          abrirAvatarLightbox(fd.avatar3d || '', fd.avatar || '', fd.nome || slot);
+        });
+      }
     }
 
     // Adicionar condição
